@@ -122,3 +122,39 @@ here's the vhdl implementation of pipelined Processor that will compete ⚔️  
 | --- | --- | --- | --- | --- | --- | --- |
 | RESET | 111 (Input Signal) | XXX | XXX | XXX | 1 | XXX |
 | Interrupt | 111 (Input Signal) | XXXX | XXX | XXX | 0 | XXX |
+
+## 🎮 Control Signal
+| Instruction | REG W 1 | REG W 2 | RS / RD | ALU SRC | OUT PORT EN | ONE/TWO OP | ALU OPERATION | WB SRC    | IMMEDIATE EN | STACK EN | MEM R | MEM W | PUSH_POP |
+| ----------- | ------- | ------- | ------- | ------- | ----------- | ---------- | ------------- | --------- | ------------ | -------- | ----- | ----- | -------- |
+| NOP         | OFF     | OFF     | X       | X       | 0           | X          | NOP           | X         | 0            | OFF      | OFF   | OFF   | X        |
+| NOT         | ON      | OFF     | RD      | X       | 0           | 1          | NOT           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| NEG         | ON      | OFF     | RD      | X       | 0           | 1          | NEG           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| INC         | ON      | OFF     | RD      | X       | 0           | 1          | ADD           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| DEC         | ON      | OFF     | RD      | X       | 0           | 1          | SUB           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| OUT         | OFF     | OFF     | RD      | X       | 1           | X          | BUFFER        | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| IN          | OFF     | OFF     | RD      | X       | 0           | X          | BUFFER        | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| SWAP        | ON      | ON      | RD      | REG     | 0           | 2          | BUFFER        | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| ADD         | ON      | OFF     | RS      | REG     | 0           | 2          | ADD           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| SUB         | ON      | OFF     | RS      | REG     | 0           | 2          | SUB           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| AND         | ON      | OFF     | RS      | REG     | 0           | 2          | AND           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| XOR         | ON      | OFF     | RS      | REG     | 0           | 2          | XOR           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| OR          | ON      | OFF     | RS      | REG     | 0           | 2          | OR            | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| ADDI        | ON      | OFF     | X       | IMM     | 0           | 2          | ADD           | ALU OUT   | 1            | OFF      | OFF   | OFF   | X        |
+| CMP         | OFF     | OFF     | RD      | REG     | 0           | 2          | SUB           | X         | 0            | OFF      | OFF   | OFF   | X        |
+| BITSET      | ON      | OFF     | RD      | IMM     | 0           | 2          | Bit Set       | ALU OUT   | 1            | OFF      | OFF   | OFF   | X        |
+| RCL         | ON      | OFF     | RD      | IMM     | 0           | 2          | Rotate L      | ALU OUT   | 1            | OFF      | OFF   | OFF   | X        |
+| RCR         | ON      | OFF     | RD      | IMM     | 0           | 2          | Rotate R      | ALU OUT   | 1            | OFF      | OFF   | OFF   | X        |
+| PUSH        | OFF     | OFF     | RD      | REG     | 0           | X          | NOP           | ALU OUT   | 0            | ON       | OFF   | ON    | PUSH(0)  |
+| POP         | ON      | OFF     | RD      | REG     | 0           | X          | NOP           | MEM OUT   | 0            | ON       | ON    | OFF   | POP(1)   |
+| LDM         | ON      | OFF     | RD      | IMM     | 0           | X          | NOP           | IMMEDIATE | 1            | OFF      | OFF   | OFF   | X        |
+| LDD         | ON      | OFF     | RD      | IMM     | 0           | X          | NOP           | MEM OUT   | 1            | OFF      | ON    | OFF   | X        |
+| STD         | OFF     | OFF     | RD      | IMM     | 0           | X          | NOP           | X         | 1            | OFF      | OFF   | ON    | X        |
+| PROTECT     | OFF     | OFF     | RD      | X       | 0           | X          | NOP           | X         | 0            | OFF      | OFF   | ON    | X        |
+| FREE        | OFF     | OFF     | RD      | X       | 0           | X          | NOP           | X         | 0            | OFF      | OFF   | ON    | X        |
+| JZ          | OFF     | OFF     | RD      | X       | 0           | X          | BUFFER        | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| JMP         | OFF     | OFF     | RD      | X       | 0           | X          | BUFFER        | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| CALL        | OFF     | OFF     | RD      | X       | 0           | X          | NOP           | ALU OUT   | 0            | ON       | OFF   | ON    | PUSH(0)  |
+| RET         | OFF     | OFF     | X       | X       | 0           | X          | NOP           | MEM OUT   | 0            | ON       | ON    | OFF   | POP(1)   |
+| RTI         | OFF     | OFF     | X       | X       | 0           | X          | NOP           | MEM OUT   | 0            | ON       | ON    | OFF   | POP(1)   |
+| Reset       | OFF     | OFF     | X       | X       | 0           | X          | NOP           | MEM OUT   | 0            | OFF      | ON    | OFF   | X        |
+| Interrupt   | OFF     | OFF     | X       | X       | 0           | X          | NOP           | MEM OUT   | 0            | ON       | ON    | ON    | PUSH(0)  |
