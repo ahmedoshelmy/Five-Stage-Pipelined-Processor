@@ -77,7 +77,7 @@ here's the vhdl implementation of pipelined Processor that will compete ⚔️  
 
 |  | opcode  (3) | Rdst (3) | Rsrc1 (3) | Rsrc2 (3) | is Load (1) | is Rotate (1) | FUNC (2) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| ADD     R3, R1, R2 | 010 (Imm) | 011 (R3) | 001 (R1) | 002 (R2) | 0 (No Load) | 0 (No Rot) | 01 (ADD) |
+| ADDI     R3, R1, Imm | 010 (Imm) | 011 (R3) | 001 (R1) | XXX | 0 (No Load) | 0 (No Rot) | 01 (ADD) |
 | BITSET  R3, Imm | 010 (Imm) | 011 (R3) | XXX | XXX | 0 (No Load) | 0 (No Rot) | 10 (BITSET) |
 | RCL       R3, Imm | 010 (Imm) | 011 (R3) | XXX | XXX | 0 (No Load) | 1 (Rotate) | X0 (RCL) |
 | RCR       R3, Imm | 010 (Imm) | 011 (R3) | XXX | XXX | 0 (No Load) | 1 (Rotate) | X1 (RCR) |
