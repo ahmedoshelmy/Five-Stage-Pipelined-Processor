@@ -114,7 +114,7 @@ here's the vhdl implementation of pipelined Processor that will compete ⚔️  
 |  | opcode  (3) | Rdst (3) | Rsrc1 (3) | Rsrc2 (3) | is FREE (1) | FUNC (3)  |
 | --- | --- | --- | --- | --- | --- | --- |
 | FREE     R3 | 110 (MEM SEC) | 011 (R3) | XXX | XXX | 1 | XXX |
-| STORE  R3 | 110 (MEM SEC) | 011 (R3) | XXX | XXX | 0 | XXX |
+| PROTECT  R3 | 110 (MEM SEC) | 011 (R3) | XXX | XXX | 0 | XXX |
 
 #### Input Signals
 
