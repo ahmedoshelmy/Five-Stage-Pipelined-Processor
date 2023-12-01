@@ -58,10 +58,10 @@ here's the vhdl implementation of pipelined Processor that will compete ⚔️  
 
 |  | opcode  (3) | Rdst (3) | Rsrc1 (3) | Rsrc2 (3) | One/Two operand (1) | FUNC (3) |
 | --- | --- | --- | --- | --- | --- | --- |
-| NOT R3 | 001 (ALU) | 011 (R3) | XXX | XXX | 0 (One OP) | 000 |
-| NEG R3 | 001 (ALU) | 011 (R3) | XXX | XXX | 0 (One OP) | 001 |
-| INC R3 | 001 (ALU) | 011 (R3) | XXX | XXX | 0 (One OP) | 010 |
-| DEC R3 | 001 (ALU) | 011 (R3) | XXX | XXX | 0 (One OP) | 011 |
+| NOT R3 | 001 (ALU) | 011 (R3) | XXX | XXX | 0 (One OP) | 001 |
+| NEG R3 | 001 (ALU) | 011 (R3) | XXX | XXX | 0 (One OP) | 010 |
+| INC R3 | 001 (ALU) | 011 (R3) | XXX | XXX | 0 (One OP) | 011 |
+| DEC R3 | 001 (ALU) | 011 (R3) | XXX | XXX | 0 (One OP) | 100 |
 
 |  | opcode  (3) | Rdst (3) | Rsrc1 (3) | Rsrc2 (3) | One/Two operand (1) | FUNC (3) |
 | --- | --- | --- | --- | --- | --- | --- |

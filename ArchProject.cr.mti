@@ -1,0 +1,10 @@
+{E:/3rd/04 Arc/07 Project/Five-Stage-Pipelined-Processor/tests/ALU_tb.vhd} {1 {vcom -work work -2002 -explicit -vopt -stats=none {E:/3rd/04 Arc/07 Project/Five-Stage-Pipelined-Processor/tests/ALU_tb.vhd}
+Questa Intel Starter FPGA Edition-64 vcom 2021.2 Compiler 2021.04 Apr 14 2021
+-- Loading package STANDARD
+-- Loading package TEXTIO
+-- Loading package std_logic_1164
+-- Loading package NUMERIC_STD
+-- Compiling entity ALU_tb
+-- Compiling architecture behavior of ALU_tb
+
+} {} {}}
