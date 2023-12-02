@@ -23,35 +23,35 @@ architecture ArchRegFile of regFile is
     signal pc       : unsigned(REG_WIDTH-1 downto 0) :=             (others => '0');
     signal sp       : unsigned(REG_WIDTH-1 downto 0) :=             (others => '0');
 
-    begin
-        rd1 <= reg_file(to_integer(unsigned(ra1)));
-        rd2 <= reg_file(to_integer(unsigned(ra2)));
-        read_pc_data <= pc;
-        read_sp_data <= sp;
+begin
+    rd1 <= reg_file(to_integer(unsigned(ra1)));
+    rd2 <= reg_file(to_integer(unsigned(ra2)));
+    read_pc_data <= pc;
+    read_sp_data <= sp;
 
-        process (clk) is
-            begin
-                if (clk'event and clk = "0") then
-                    if (rst = "1") then
-                        sp <= to_unsigned(4095, sp'length);
-                        reg_file <= (others => (others => '0'));
-                    end if;
-                    if (reg_one_write = "1" and rst = "0") then
-                        reg_file(to_integer(unsigned(wa1))) <= wd1;
-                    end if;
-                    if (reg_two_write = "1" and rst = "0") then
-                        reg_file(to_integer(unsigned(wa2))) <= wd2;
-                    end if;
-                    if (stack_en = "1" and rst = "0") then
-                        sp <= write_sp_data;
-                    end if;
-                end if;
-                if (clk'event and clk = "1") then
-                    if (rst = "1") then
-                        pc <= reset_pc_data;
-                    else
-                        pc <= write_pc_data;
-                    end if;
-                end if;
-        end process;
+    process (clk) is
+    begin
+        if (clk'event and clk = "0") then
+            if (rst = "1") then
+                sp <= to_unsigned(4095, sp'length);
+                reg_file <= (others => (others => '0'));
+            end if;
+            if (reg_one_write = "1" and rst = "0") then
+                reg_file(to_integer(unsigned(wa1))) <= wd1;
+            end if;
+            if (reg_two_write = "1" and rst = "0") then
+                reg_file(to_integer(unsigned(wa2))) <= wd2;
+            end if;
+            if (stack_en = "1" and rst = "0") then
+                sp <= write_sp_data;
+            end if;
+        end if;
+        if (clk'event and clk = "1") then
+            if (rst = "1") then
+                pc <= reset_pc_data;
+            else
+                pc <= write_pc_data;
+            end if;
+        end if;
+    end process;
 end architecture ArchRegFile;
