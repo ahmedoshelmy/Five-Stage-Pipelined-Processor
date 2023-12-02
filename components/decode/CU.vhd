@@ -121,6 +121,8 @@ architecture ArchCU of CU is
             stack_en      <= "0";
             mem_read      <= "0";
             mem_write     <= "0";
+            mem_free      <= "0";
+            mem_protect   <= "0";
             push_pop      <= "0";
             case instruction is
                 when not_bits =>
