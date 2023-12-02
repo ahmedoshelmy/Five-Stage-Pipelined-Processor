@@ -132,7 +132,7 @@ here's the vhdl implementation of pipelined Processor that will compete ⚔️  
 | INC         | ON      | OFF     | RD      | X       | 0           | 1          | ADD           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
 | DEC         | ON      | OFF     | RD      | X       | 0           | 1          | SUB           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
 | OUT         | OFF     | OFF     | RD      | X       | 1           | X          | BUFFER        | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
-| IN          | OFF     | OFF     | RD      | X       | 0           | X          | BUFFER        | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
+| IN          | ON     | OFF     | RD      | X       | 0           | X          | BUFFER        | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
 | SWAP        | ON      | ON      | RD      | REG     | 0           | 2          | BUFFER        | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
 | ADD         | ON      | OFF     | RS      | REG     | 0           | 2          | ADD           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
 | SUB         | ON      | OFF     | RS      | REG     | 0           | 2          | SUB           | ALU OUT   | 0            | OFF      | OFF   | OFF   | X        |
