@@ -62,26 +62,26 @@ begin
     wb_src_out <= wb_src when en = "1"
     else (others => '0');
 
-    process (clk) is        
+    process (clk, reset) is        
     begin
-        if (clk'event and clk = "1") then
-            if (reset = "1") then
-                rd1            <= (others => '0');
-                alu_src_2      <= (others => '0');
-                ra1            <= (others => '0');
-                ra2            <= (others => '0');
-                reg_one_write  <= (others => '0');
-                reg_two_write  <= (others => '0');
-                stack_en       <= (others => '0');
-                mem_read       <= (others => '0');
-                mem_write      <= (others => '0');
-                call_jmp       <= (others => '0');
-                ret            <= (others => '0');
-                push_pop       <= (others => '0');
-                out_port_en    <= (others => '0');
-                alu_op         <= (others => '0');
-                wb_src         <= (others => '0');
-            elsif (en = "1") then
+        if (reset = "1") then
+            rd1            <= (others => '0');
+            alu_src_2      <= (others => '0');
+            ra1            <= (others => '0');
+            ra2            <= (others => '0');
+            reg_one_write  <= (others => '0');
+            reg_two_write  <= (others => '0');
+            stack_en       <= (others => '0');
+            mem_read       <= (others => '0');
+            mem_write      <= (others => '0');
+            call_jmp       <= (others => '0');
+            ret            <= (others => '0');
+            push_pop       <= (others => '0');
+            out_port_en    <= (others => '0');
+            alu_op         <= (others => '0');
+            wb_src         <= (others => '0');
+        elsif (clk'event and clk = "1") then
+            if (en = "1") then
                 rd1            <= rd1_in;
                 alu_src_2      <= alu_src_2_in;
                 ra1            <= ra1_in;
