@@ -4,24 +4,26 @@ use ieee.numeric_std.all;
 
 entity CU is
     port (
-        instruction   : in  unsigned(6 downto 0);
-        reg_one_write : out unsigned(0 downto 0);
-        reg_two_write : out unsigned(0 downto 0);
-        rs_rd         : out unsigned(0 downto 0);
-        alu_src       : out unsigned(1 downto 0);
-        out_port_en   : out unsigned(0 downto 0);
-        one_two_op    : out unsigned(0 downto 0);
-        alu_op        : out unsigned(3 downto 0);
-        wb_src        : out unsigned(1 downto 0);
-        imm_en        : out unsigned(0 downto 0);
-        stack_en      : out unsigned(0 downto 0);
-        mem_read      : out unsigned(0 downto 0);
-        mem_write     : out unsigned(0 downto 0);
-        mem_free      : out unsigned(0 downto 0);
-        mem_protect   : out unsigned(0 downto 0);
-        push_pop      : out unsigned(0 downto 0);
-        call_jmp      : out unsigned(0 downto 0);
-        ret           : out unsigned(0 downto 0)
+        instruction    : in  unsigned(6 downto 0);
+        reg_one_write  : out unsigned(0 downto 0);
+        reg_two_write  : out unsigned(0 downto 0);
+        rs1_rd, rs2_rd : out unsigned(0 downto 0);
+        alu_src        : out unsigned(1 downto 0);
+        out_port_en    : out unsigned(0 downto 0);
+        one_two_op     : out unsigned(0 downto 0);
+        alu_op         : out unsigned(3 downto 0);
+        wb_src         : out unsigned(1 downto 0);
+        imm_en         : out unsigned(0 downto 0);
+        stack_en       : out unsigned(0 downto 0);
+        mem_read       : out unsigned(0 downto 0);
+        mem_write      : out unsigned(0 downto 0);
+        mem_free       : out unsigned(0 downto 0);
+        mem_protect    : out unsigned(0 downto 0);
+        push_pop       : out unsigned(0 downto 0);
+        call_jmp       : out unsigned(0 downto 0);
+        ret            : out unsigned(0 downto 0);
+        read_reg_one   : out unsigned(0 downto 0);
+        read_reg_two   : out unsigned(0 downto 0)
     );
 end entity CU;
 
@@ -114,7 +116,8 @@ begin
     begin
         reg_one_write <= "0";
         reg_two_write <= "0";
-        rs_rd         <= rs;
+        rs1_rd        <= rs;
+        rs2_rd        <= rs;
         alu_src       <= reg;
         out_port_en   <= "0";
         one_two_op    <= one_op;
@@ -129,105 +132,126 @@ begin
         push_pop      <= "0";
         call_jmp      <= call;
         ret           <= "0";
+        read_reg_one  <= "0";
+        read_reg_two  <= "0";
         case instruction is
             when not_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 alu_op        <= alu_not;
+                read_reg_one  <= "1";
             when neg_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 alu_op        <= alu_neg;
+                read_reg_one  <= "1";
             when inc_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 alu_op        <= alu_inc;
+                read_reg_one  <= "1";
             when dec_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 alu_op        <= alu_dec;
+                read_reg_one  <= "1";
             when add_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rs;
                 one_two_op    <= two_op;
                 alu_op        <= alu_add;
+                read_reg_one  <= "1";
+                read_reg_two  <= "1";
             when sub_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rs;
                 one_two_op    <= two_op;
                 alu_op        <= alu_sub;
+                read_reg_one  <= "1";
+                read_reg_two  <= "1";
             when and_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rs;
                 one_two_op    <= two_op;
                 alu_op        <= alu_and;
+                read_reg_one  <= "1";
+                read_reg_two  <= "1";
             when or_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rs;
                 one_two_op    <= two_op;
                 alu_op        <= alu_or;
+                read_reg_one  <= "1";
+                read_reg_two  <= "1";
             when xor_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rs;
                 one_two_op    <= two_op;
                 alu_op        <= alu_xor;
+                read_reg_one  <= "1";
+                read_reg_two  <= "1";
             when swap_bits =>
                 reg_one_write <= "1";
                 reg_two_write <= "1";
-                rs_rd         <= rd;
+                rs2_rd         <= rd;
                 one_two_op    <= two_op;
                 alu_op        <= alu_buff1;
+                read_reg_one  <= "1";
+                read_reg_two  <= "1";
             when cmp_bits =>
-                rs_rd         <= rd;
+                rs2_rd         <= rd;
                 one_two_op    <= two_op;
                 alu_op        <= alu_sub;
+                read_reg_one  <= "1";
+                read_reg_two  <= "1";
             when addi_bits =>
                 reg_one_write <= "1";
                 alu_src       <= imm;
                 one_two_op    <= two_op;
                 alu_op        <= alu_add;
                 imm_en        <= "1";
+                read_reg_one  <= "1";
             when bitset_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 alu_src       <= imm;
                 one_two_op    <= two_op;
                 alu_op        <= alu_bitset;
                 imm_en        <= "1";
+                read_reg_one  <= "1";
             when rcl_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 alu_src       <= imm;
                 one_two_op    <= two_op;
                 alu_op        <= alu_rcl;
                 imm_en        <= "1";
+                read_reg_one  <= "1";
             when rcr_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 alu_src       <= imm;
                 one_two_op    <= two_op;
                 alu_op        <= alu_rcr;
                 imm_en        <= "1";
+                read_reg_one  <= "1";
             when ldm_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rd;
                 alu_src       <= imm;
                 wb_src        <= immediate;
                 imm_en        <= "1";
             when jz_bits =>
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 alu_op        <= alu_buff2;
+                read_reg_one  <= "1";
             when jmp_bits =>
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 alu_op        <= alu_buff2;
                 call_jmp      <= jmp;
+                read_reg_one  <= "1";
             when call_bits =>
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 alu_op        <= alu_nop;
                 alu_src       <= pc_plus_one;
                 stack_en      <= "1";
                 mem_write     <= "1";
                 push_pop      <= push;
+                read_reg_one  <= "1";
             when ret_bits =>
                 wb_src        <= mem_out;
                 stack_en      <= "1";
@@ -241,42 +265,44 @@ begin
                 push_pop      <= pop;
             when ldd_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rd;
                 alu_src       <= imm;
                 wb_src        <= mem_out;
                 imm_en        <= "1";
                 mem_read      <= "1";
             when std_bits =>
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 alu_src       <= imm;
                 imm_en        <= "1";
                 mem_write     <= "1";
+                read_reg_one  <= "1";
             when pop_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rd;
                 wb_src        <= mem_out;
                 stack_en      <= "1";
                 mem_read      <= "1";
                 push_pop      <= pop;
             when push_bits =>
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 stack_en      <= "1";
                 mem_write     <= "1";
                 push_pop      <= push;
+                read_reg_one  <= "1";
             when in_bits =>
                 reg_one_write <= "1";
-                rs_rd         <= rd;
                 alu_op        <= alu_buff2;
             when out_bits =>
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 out_port_en   <= "1";
                 alu_op        <= alu_buff2;
+                read_reg_one  <= "1";
             when free_bits =>
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 mem_free      <= "1";
+                read_reg_one  <= "1";
             when protect_bits =>
-                rs_rd         <= rd;
+                rs1_rd         <= rd;
                 mem_protect   <= "1";
+                read_reg_one  <= "1";
             when reset_bits =>
                 wb_src        <= mem_out;
                 mem_read      <= "1";
