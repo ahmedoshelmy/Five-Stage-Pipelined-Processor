@@ -32,7 +32,7 @@ BEGIN
     PROCESS (CLK, RESET)
     BEGIN
         IF RESET = '1' THEN
-            -- Synchronous reset
+            -- Asynchronous reset
             REG_ALU_OUT <= (OTHERS => '0');
             REG_MEM_OUT <= (OTHERS => '0');
             REG_ALU_SRC_2 <= (OTHERS => '0');

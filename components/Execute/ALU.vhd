@@ -100,8 +100,18 @@ architecture archALU of ALU is
             end case;
 
             aluOut <= regOut;
-            flagsOut(0) <= '1' when regOut = 0 else '0'; -- Z
-            flagsOut(1) <= '1' when regOut < 0 else '0'; -- N
+            if (regOut = 0) then
+                flagsOut(0) <= '1';
+            else
+                flagsOut(0) <= '0';
+            end if;
+            if (regOut < 0) then
+                flagsOut(1) <= '1';
+            else
+                flagsOut(1) <= '0';
+            end if;
+            -- flagsOut(0) <= '1' when regOut = 0 else '0'; -- Z
+            -- flagsOut(1) <= '1' when regOut < 0 else '0'; -- N
             flagsOut(2) <= cout; -- Carry
 
         end process;

@@ -2,26 +2,28 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity regFile is
+entity regfile is
     generic (
-        REG_WIDTH : integer := 32;
-        REG_COUNT : integer := 8
+        reg_width : integer := 32;
+        reg_count : integer := 8
     );
     port (
-        clk, rst, reg_one_write, reg_two_write, stack_en : in  unsigned          (0 downto 0);
-        ra1, ra2, wa1, wa2                               : in  unsigned          (2 downto 0);
-        wd1, wd2                                         : in  unsigned(REG_WIDTH-1 downto 0);
-        write_sp_data, write_pc_data                     : in  unsigned(REG_WIDTH-1 downto 0);
-        reset_pc_data                                    : in  unsigned(REG_WIDTH-1 downto 0);
-        rd1, rd2, read_sp_data, read_pc_data             : out unsigned(REG_WIDTH-1 downto 0)
+        clk, rst, reg_one_write, reg_two_write, stack_en : in  unsigned                  (0 downto 0);
+        ra1, ra2, wa1, wa2                               : in  unsigned                  (2 downto 0);
+        wd1, wd2                                         : in  unsigned        (reg_width-1 downto 0);
+        write_sp_data                                    : in  unsigned        (reg_width-1 downto 0);   
+        write_pc_data                                    : in  std_logic_vector(reg_width-1 downto 0);
+        reset_pc_data                                    : in  std_logic_vector(reg_width-1 downto 0);
+        rd1, rd2, read_sp_data                           : out unsigned        (reg_width-1 downto 0);
+        read_pc_data                                     : out std_logic_vector(reg_width-1 downto 0)
     );
-end entity regFile;
+end entity regfile;
 
 architecture ArchRegFile of regFile is
     type reg_array is array (0 to REG_COUNT-1) of unsigned   (REG_WIDTH-1 downto 0);
-    signal reg_file : reg_array                      := (others => (others => '0'));
-    signal pc       : unsigned(REG_WIDTH-1 downto 0) :=             (others => '0');
-    signal sp       : unsigned(REG_WIDTH-1 downto 0) :=             (others => '0');
+    signal reg_file : reg_array                              := (others => (others => '0'));
+    signal pc       : std_logic_vector(REG_WIDTH-1 downto 0) :=             (others => '0');
+    signal sp       : unsigned(REG_WIDTH-1 downto 0)         :=             (others => '0');
 
 begin
     rd1 <= reg_file(to_integer(unsigned(ra1)));

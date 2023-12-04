@@ -7,7 +7,7 @@ entity PORTS_REG is
      port (
             CLK, RESET, WR_EN             : IN unsigned     (0 Downto 0);
             outPort                       : IN unsigned     (n-1 Downto 0);
-            inPort                        : OUT unsigned     (n-1 Downto 0);
+            inPort                        : OUT unsigned     (n-1 Downto 0)
        );
 end entity;
 
@@ -18,13 +18,13 @@ architecture archPORTS_REG of PORTS_REG is
 begin
     process (CLK, RESET)
     begin
-        if RESET = '1' then
+        if RESET = "1" then
             inPortReg <= (others => '0');
             outPortReg <= (others => '0');
-            outPort <= (others => '0');
-        elsif rising_edge(CLK) then
+            -- outPort <= (others => '0');
+        elsif CLK'event and CLK = "1" then
             inPort <= inPortReg;
-            if WR_EN = '1' then
+            if WR_EN = "1" then
                 outPortReg <= outPort;
             end if;
         end if;
