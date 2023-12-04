@@ -36,9 +36,9 @@ BEGIN
                 INSTRUCTION_IF_EX <= INSTRUCTION;
                 END IF;
                 PC_IF_EX <= PC;
-            ELSE
-                INSTRUCTION_IF_EX <= (OTHERS => '0');
-                PC_IF_EX <= (OTHERS => '0');
+            -- ELSE
+            --     INSTRUCTION_IF_EX <= (OTHERS => '0');
+            --     PC_IF_EX <= (OTHERS => '0');
             END IF;
         END IF;
     END PROCESS;
