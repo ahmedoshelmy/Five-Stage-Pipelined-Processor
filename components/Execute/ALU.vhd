@@ -8,6 +8,7 @@ entity ALU is
         aluIn1, aluIn2  : IN signed     (n-1 Downto 0);
         func            : IN unsigned   (3 Downto 0);
         cin             : IN unsigned   (0 Downto 0);
+        flagsIn         : IN unsigned   (2 Downto 0);
         flagsOut        : OUT unsigned  (2 Downto 0);
         aluOut          : OUT signed    (n-1 Downto 0)
     );
@@ -39,70 +40,79 @@ architecture archALU of ALU is
     begin
         -- concurrent statements
         process (aluIn1, aluIn2, func, cin) is
-            variable regOut : signed(n-1 downto 0);
-            variable cout   : std_logic;
+            variable aluOutReg : signed(n-1 downto 0);
+            variable flagOutVar : unsigned(2 downto 0);
             variable CarryOnRight : signed(n downto 0) := (others => '0');
             variable CarryOnLeft : signed(n downto 0) := (others => '0');
             variable CarryO : signed(n downto 0) := (others => '0');
         begin
-        
+            -- main role
+            aluOut <= aluOutReg;
+            flagsOut <= flagOutVar;
+            -- main alu operation
             case func is
                 when ALU_NOT =>
-                    regOut := not aluIn1;
+                    aluOutReg := not aluIn1;
                 when ALU_NEG =>
-                    regOut := (0 - aluIn1);
+                    aluOutReg := (0 - aluIn1);
                 when ALU_INC =>
-                    regOut := aluIn1 + 1;
+                    aluOutReg := aluIn1 + 1;
                 when ALU_DEC =>
-                    regOut := aluIn1 - 1; 
+                    aluOutReg := aluIn1 - 1; 
 
                 --- !! TODO: implement these operations
                 when ALU_BITSET =>
-                    cout := aluIn1(to_integer(unsigned(aluIn2)));
-                    regOut := (aluIn1 or (2 * aluIn2 )); 
+                    flagOutVar(2) := aluIn1(to_integer(unsigned(aluIn2)));
+                    aluOutReg := (aluIn1 or (2 * aluIn2 )); 
 
                 when ALU_RCL =>
                     CarryOnLeft(n-1 downto 0) := aluIn1(n-1 downto 0);
                     CarryOnLeft(n) := cin(0);
                     CarryO := CarryOnLeft rol to_integer(unsigned(aluIn2));
                     
-                    regOut := CarryO(n-1 downto 0);
-                    cout    := CarryO(n);
+                    aluOutReg := CarryO(n-1 downto 0);
+                    flagOutVar(2)    := CarryO(n);
                     
                 when ALU_RCR =>
                     CarryOnRight(n downto 1) := aluIn1(n-1 downto 0);
                     CarryOnRight(0) := cin(0);
                     CarryO := CarryOnLeft ror to_integer(unsigned(aluIn2));
 
-                    regOut := CarryO(n downto 1);
-                    cout    := CarryO(0);
+                    aluOutReg := CarryO(n downto 1);
+                    flagOutVar(2)    := CarryO(0);
                 
                 -- two operands
                 when ALU_ADD =>
-                    regOut := signed(aluIn1) + signed(aluIn2);
+                    aluOutReg := signed(aluIn1) + signed(aluIn2);
                 when ALU_SUB =>
-                    regOut := signed(aluIn1) - signed(aluIn2);
+                    aluOutReg := signed(aluIn1) - signed(aluIn2);
                 when ALU_AND =>
-                    regOut := aluIn1 and aluIn2;
+                    aluOutReg := aluIn1 and aluIn2;
                 when ALU_OR =>
-                    regOut := aluIn1 or aluIn2;
+                    aluOutReg := aluIn1 or aluIn2;
                 when ALU_XOR =>
-                    regOut := aluIn1 xor aluIn2;
+                    aluOutReg := aluIn1 xor aluIn2;
                 -- buffers
                 when ALU_BUFF1 =>
-                    regOut := aluIn1;
+                    aluOutReg := aluIn1;
                 when ALU_BUFF2 =>
-                    regOut := aluIn2;
+                    aluOutReg := aluIn2;
     
                 -- unknown operation, NOP, or '-', 'z', 'x', etc => output = Z
                 when others =>
-                    regOut := (others => 'Z');
+                    aluOutReg := (others => 'Z');
+
             end case;
 
-            aluOut <= regOut;
-            flagsOut(0) <= '1' when regOut = 0 else '0'; -- Z
-            flagsOut(1) <= '1' when regOut < 0 else '0'; -- N
-            flagsOut(2) <= cout; -- Carry
+            -- keep flags if NOP 
+            if (func = ALU_NOP) then
+                flagOutVar := flagsIn;
+            else  
+                flagOutVar(0) := '1' when aluOutReg = 0 else '0'; -- Z
+                flagOutVar(1) := '1' when aluOutReg < 0 else '0'; -- N
+            end if;
+
+            
 
         end process;
 end archALU ; -- archALU
