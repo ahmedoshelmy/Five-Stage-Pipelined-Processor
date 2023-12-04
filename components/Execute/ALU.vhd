@@ -105,6 +105,7 @@ architecture archALU of ALU is
             end case;
 
             -- keep flags if NOP 
+            -- !TODO: check if there's another operations that not affect flags
             if (func = ALU_NOP) then
                 flagOutVar := flagsIn;
             else  
