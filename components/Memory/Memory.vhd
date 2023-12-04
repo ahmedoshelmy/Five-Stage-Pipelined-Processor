@@ -12,26 +12,45 @@ ENTITY MEMORY IS
         CLK : IN STD_LOGIC;
         MEMR : IN STD_LOGIC;
         MEMW : IN STD_LOGIC;
+        PROTECT : IN STD_LOGIC;
+        FREE : IN STD_LOGIC;
         ADDRESS_BUS : IN STD_LOGIC_VECTOR(ADDRESS_BITS - 1 DOWNTO 0);
-        DATAIN : IN STD_LOGIC_VECTOR(CACHE_WORD_WIDTH DOWNTO 0);
-        MEMOUT : OUT STD_LOGIC_VECTOR(CACHE_WORD_WIDTH - 1 DOWNTO 0));
+        DATAIN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        MEMOUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0));
 END ENTITY MEMORY;
 
 ARCHITECTURE ARCHMEMORY OF MEMORY IS
     TYPE MEMORYTYPE IS ARRAY((2 ** ADDRESS_BITS) - 1 DOWNTO 0) OF STD_LOGIC_VECTOR(CACHE_WORD_WIDTH - 1 DOWNTO 0);
+    TYPE PROTECTMEMORYTYPE IS ARRAY((2 ** ADDRESS_BITS) - 1 DOWNTO 0) OF STD_LOGIC;
     SIGNAL CACHE : MEMORYTYPE;
+    SIGNAL ISPROTECTEDMEMORY : PROTECTMEMORYTYPE; -- 1 Means protected
 BEGIN
     PROCESS (CLK) BEGIN
         IF EN = '1' AND RISING_EDGE(CLK) THEN
             IF MEMR = '1' THEN
-                MEMOUT <= CACHE(TO_INTEGER (unsigned(ADDRESS_BUS)));
+                MEMOUT(31 DOWNTO 16) <= CACHE(TO_INTEGER (unsigned(ADDRESS_BUS)));
+                MEMOUT(15 DOWNTO 0) <= CACHE(TO_INTEGER(unsigned(ADDRESS_BUS)) + 1);
+                -- MEMOUT(15 DOWNTO 0) <= CACHE(TO_INTEGER (unsigned(ADDRESS_BUS + 1)));
             END IF;
-            IF MEMW = '1' THEN
-                CACHE(TO_INTEGER(unsigned(ADDRESS_BUS))) <= DATAIN;
+            IF MEMW = '1' AND ISPROTECTEDMEMORY(TO_INTEGER(unsigned(ADDRESS_BUS))) = '0' THEN
+                -- Assuming Big Endian
+                CACHE(TO_INTEGER(unsigned(ADDRESS_BUS))) <= DATAIN(31 DOWNTO 16);
+                CACHE(TO_INTEGER(unsigned(ADDRESS_BUS)) + 1) <= DATAIN(15 DOWNTO 0);
+
             END IF;
         END IF;
         IF RST = '1' THEN
             CACHE <= (OTHERS => (OTHERS => '0'));
+        END IF;
+
+        -- Protect and free 
+        IF EN = '1' AND RISING_EDGE(CLK) THEN
+            IF PROTECT = '1' THEN
+                ISPROTECTEDMEMORY(TO_INTEGER (unsigned(ADDRESS_BUS))) <= '1';
+            END IF;
+            IF FREE = '1' THEN
+                ISPROTECTEDMEMORY(TO_INTEGER (unsigned(ADDRESS_BUS))) <= '0';
+            END IF;
         END IF;
     END PROCESS;
 END ARCHMEMORY;

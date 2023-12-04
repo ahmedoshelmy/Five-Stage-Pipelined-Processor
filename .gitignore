@@ -7,6 +7,14 @@
 *.qsf
 *.bak
 *.qws
+*.db_info
+*.cdb
+*.dpi
+*.hb_info
+*.hdb
+*.sig
+*.kpt
+*.summary
 work
 transcript
 db
