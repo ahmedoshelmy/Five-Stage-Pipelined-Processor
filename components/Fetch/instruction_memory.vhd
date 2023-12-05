@@ -22,13 +22,14 @@ ARCHITECTURE arch_instruction_memory OF instruction_memory IS
     SIGNAL initial_flag : STD_LOGIC := '1';
 BEGIN
 
-    instruction_memory : PROCESS (clk) IS
+    instruction_memory : PROCESS (clk, RESET) IS
         FILE memory_file : text OPEN read_mode IS "instruction.txt";
         VARIABLE file_line : line;
         VARIABLE temp_data : STD_LOGIC_VECTOR(15 DOWNTO 0);
     BEGIN
         IF (RESET = '1') THEN
-            RAM <= (OTHERS => (OTHERS => '0'));
+            -- RAM <= (OTHERS => (OTHERS => '0'));
+            dataout <= (OTHERS => '0');
             INITIAL_FLAG <= '1';
         ELSIF (initial_flag = '1') THEN
             FOR i IN ram'RANGE LOOP
