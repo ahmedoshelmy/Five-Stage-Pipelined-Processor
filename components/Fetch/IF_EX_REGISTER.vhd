@@ -7,10 +7,10 @@ ENTITY IF_EX_REGISTER IS
     PORT (
         CLK : IN STD_LOGIC;
         RESET : IN STD_LOGIC;
+        INT : IN STD_LOGIC;
 
         INSTRUCTION : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
         PC : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        IMM_EN : IN STD_LOGIC;
         ENABLE : IN STD_LOGIC;
         
         INSTRUCTION_IF_EX : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -30,10 +30,10 @@ BEGIN
         ELSIF RISING_EDGE(CLK) THEN
             -- Synchronous behavior
             IF ENABLE = '1' THEN
-                IF IMM_EN = '1' THEN
-                INSTRUCTION_IF_EX <= (OTHERS => '0');
+                IF INT = '1' THEN
+                    INSTRUCTION_IF_EX <= x"F000"; -- Interrupt opcode
                 ELSE
-                INSTRUCTION_IF_EX <= INSTRUCTION;
+                    INSTRUCTION_IF_EX <= INSTRUCTION;
                 END IF;
                 PC_IF_EX <= PC;
             -- ELSE

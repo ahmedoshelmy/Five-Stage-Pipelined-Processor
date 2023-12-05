@@ -103,6 +103,10 @@ architecture archProcessor of processor is
     signal stall_internal       : unsigned (0 downto 0) :=             "0";
     ------------------------- internal signals end ------------------------
 
+    ------------------------- Branching signals start ---------------------
+    signal flush_ex : std_logic := '0';
+    signal flush_mem : std_logic := '0';
+
     ------------------------- fetch stage start ---------------------------
     component instruction_memory is
         port (
@@ -114,12 +118,12 @@ architecture archProcessor of processor is
 
     component if_ex_register is
         port (
-            clk : in std_logic;
+            clk   : in std_logic;
             reset : in std_logic;
+            int   : in std_logic;
 
             instruction : in std_logic_vector(15 downto 0);
             pc : in std_logic_vector(31 downto 0);
-            imm_en : in std_logic;
             enable : in std_logic;
             
             instruction_if_ex : out std_logic_vector(15 downto 0);
@@ -397,10 +401,10 @@ begin
 
     fetch2: if_ex_register port map (
         clk => clk,
-        reset => reset,
+        reset => (reset or (not interrupt and (FLUSH_EX or FLUSH_MEM or imm_en))),
+        int => interrupt,
         instruction => instruction,
         pc => pc,
-        imm_en => imm_en,
         enable => "not"(stall),
         instruction_if_ex => instruction_if_ex,
         pc_if_ex => pc_if_ex
