@@ -97,16 +97,28 @@ architecture archProcessor of processor is
     
     signal mem_out_DMEM         : unsigned(31 downto 0) := (others => '0');
 
+    -- output from pipeline reg
     signal alu_out_mem_wb     : unsigned        (31 downto 0) := (others => '0');
     signal alu_src_2_mem_wb   : unsigned        (31 downto 0) := (others => '0');
     signal mem_out_mem_wb   : unsigned        (31 downto 0) := (others => '0');
-------------------------- write back stage signals start --------------
+    signal ra1_mem_wb         : unsigned        (2 downto 0) := (others => '0');
+    signal ra2_mem_wb         : unsigned        (2 downto 0) := (others => '0');
+    signal rd1_mem_wb         : unsigned        (2 downto 0) := (others => '0');
+    signal rd2_mem_wb         : unsigned        (2 downto 0) := (others => '0');
+
+    signal reg_one_write_mem_wb : unsigned (0 downto 0) :=             "0";
+    signal reg_two_write_mem_wb : unsigned (0 downto 0) :=             "0";
+    signal wb_src_mem_wb        : unsigned (1 downto 0) := (others => '0');
+    signal out_port_en_mem_wb    : unsigned (0 downto 0) :=             "0";
+    signal read_reg_one_mem_wb  : unsigned (0 downto 0) :=             "0";
+    signal read_reg_two_mem_wb  : unsigned (0 downto 0) :=             "0";
+    ------------------------- write back stage signals start --------------
     signal wa1_mem_wb           : unsigned         (2 downto 0) := (others => '0');
     signal wa2_mem_wb           : unsigned         (2 downto 0) := (others => '0');
     signal regWriteData         : unsigned        (31 downto 0) := (others => '0');
     --signal alu_src_2_mem_wb     : unsigned        (31 downto 0) := (others => '0');
-    signal reg_one_write_mem_wb : unsigned         (0 downto 0) :=             "0";
-    signal reg_two_write_mem_wb : unsigned         (0 downto 0) :=             "0";
+    --signal reg_one_write_mem_wb : unsigned         (0 downto 0) :=             "0";
+    --signal reg_two_write_mem_wb : unsigned         (0 downto 0) :=             "0";
     signal pc_mem_wb            : std_logic_vector(31 downto 0) := (others => '0');
 ------------------------- write back stage signals end ----------------
     
@@ -428,6 +440,10 @@ signal flush_mem : std_logic := '0';
     end component memory;
 
     component mem_wb_register is
+        generic (
+            regwidth : integer := 32;
+            regaddrwidth : integer := 3
+        );
         port (
             clk, reset   : in  unsigned (0 downto 0);
             ALU_OUT, ALU_SRC_2, MEM_OUT :   IN unsigned(regWidth-1 DOWNTO 0);
@@ -770,6 +786,39 @@ begin
         mem_out_DMEM <= unsigned(mem_out_DME_in);
         pc_rst_val   <= unsigned(pc_rst_val_in);
         pc_int_val   <= unsigned(pc_int_val_in);
+
+    memoryPipeReg: mem_wb_register generic map(32, 3) port map (
+        clk => clk_internal,
+        reset => reset_internal,
+        ALU_OUT => alu_out_ex_mem,
+        ALU_SRC_2 => alu_src_2_ex_mem,
+        MEM_OUT => mem_out_DMEM,
+        ra1 => ra1_ex_mem,
+        ra2 => ra2_ex_mem,
+        rdst1 => rd1_ex_mem,
+        rdst2 => rd2_ex_mem,
+        reg_one_write => reg_one_write_ex_mem,
+        reg_two_write => reg_two_write_ex_mem,
+        out_port_en => out_port_en_ex_mem,
+        wb_src => wb_src_ex_mem,
+        read_reg_one => read_reg_one_ex_mem,
+        read_reg_two => read_reg_two_ex_mem,
+        
+        ALU_OUT_out => alu_out_mem_wb,
+        ALU_SRC_2_out => alu_src_2_mem_wb,
+        MEM_OUT_out => mem_out_mem_wb,
+        ra1_out => ra1_mem_wb,
+        ra2_out => ra2_mem_wb,
+        rdst1_out => rd1_mem_wb,
+        rdst2_out => rd2_mem_wb,
+        reg_one_write_out => reg_one_write_mem_wb,
+        reg_two_write_out => reg_two_write_mem_wb,
+        out_port_en_out => out_port_en_mem_wb,
+        wb_src_out => wb_src_mem_wb,
+        read_reg_one_out => read_reg_one_mem_wb,
+        read_reg_two_out => read_reg_two_mem_wb
+    );
+
 ------------------------- memory stage port maps end ------------------
 
 end architecture archProcessor;
