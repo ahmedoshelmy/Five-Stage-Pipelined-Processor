@@ -11,7 +11,7 @@ entity ID_EX_REGISTER is
         mem_read_in, mem_write_in, call_jmp_in, ret_in      : in  unsigned (0 downto 0);
         push_pop_in, out_port_en_in                         : in  unsigned (0 downto 0);
         mem_free_in, mem_protect_in                         : in  unsigned (0 downto 0);
-        read_reg_one_in, read_reg_two_in                    : in  unsigned (0 downto 0);
+        read_reg_one_in, read_reg_two_in, imm_en_in         : in  unsigned (0 downto 0);
         alu_op_in                                           : in  unsigned (3 downto 0);
         wb_src_in                                           : in  unsigned (1 downto 0);        
         rd1_out, alu_src_2_out                              : out unsigned(31 downto 0);
@@ -20,7 +20,7 @@ entity ID_EX_REGISTER is
         mem_read_out, mem_write_out, call_jmp_out, ret_out  : out unsigned (0 downto 0);
         push_pop_out, out_port_en_out                       : out unsigned (0 downto 0);
         mem_free_out, mem_protect_out                       : out unsigned (0 downto 0);
-        read_reg_one_out, read_reg_two_out                  : out unsigned (0 downto 0);
+        read_reg_one_out, read_reg_two_out, imm_en_out      : out unsigned (0 downto 0);
         alu_op_out                                          : out unsigned (3 downto 0);
         wb_src_out                                          : out unsigned (1 downto 0)
     );
@@ -33,7 +33,7 @@ architecture ID_EX_REGISTER_ARCHITECTURE of ID_EX_REGISTER is
     signal mem_read, mem_write, call_jmp, ret     : unsigned (0 downto 0);
     signal push_pop, out_port_en                  : unsigned (0 downto 0);
     signal mem_free, mem_protect                  : unsigned (0 downto 0);
-    signal read_reg_one, read_reg_two             : unsigned (0 downto 0);
+    signal read_reg_one, read_reg_two,imm_en      : unsigned (0 downto 0);
     signal alu_op                                 : unsigned (3 downto 0);
     signal wb_src                                 : unsigned (1 downto 0);
 begin 
@@ -75,6 +75,8 @@ begin
     else (others => '0');
     read_reg_two_out <= read_reg_two when en = "1"
     else (others => '0');
+    imm_en_out <= imm_en when en = "1"
+    else (others => '0');
     alu_op_out <= alu_op when en = "1"
     else (others => '0');
     wb_src_out <= wb_src when en = "1"
@@ -102,6 +104,7 @@ begin
             mem_protect    <= (others => '0');
             read_reg_one   <= (others => '0');
             read_reg_two   <= (others => '0');
+            imm_en         <= (others => '0');
             alu_op         <= (others => '0');
             wb_src         <= (others => '0');
         elsif (clk'event and clk = "1") then
@@ -125,6 +128,7 @@ begin
                 mem_protect    <= mem_protect_in;
                 read_reg_one   <= read_reg_one_in;
                 read_reg_two   <= read_reg_two_in;
+                imm_en         <= imm_en_in;
                 alu_op         <= alu_op_in;
                 wb_src         <= wb_src_in;
             end if;

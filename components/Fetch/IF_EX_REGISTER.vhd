@@ -8,6 +8,7 @@ ENTITY IF_EX_REGISTER IS
         CLK : IN STD_LOGIC;
         RESET : IN STD_LOGIC;
         INT : IN STD_LOGIC;
+        imm_en : IN STD_LOGIC;
 
         INSTRUCTION : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
         PC : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -27,19 +28,21 @@ BEGIN
             -- Asynchronous reset
             INSTRUCTION_IF_EX <= (OTHERS => '0');
             PC_IF_EX <= (OTHERS => '0');
-        ELSIF RISING_EDGE(CLK) THEN
+        ELSIF RISING_EDGE(CLK) and ENABLE = '1'  THEN
             -- Synchronous behavior
-            IF ENABLE = '1' THEN
-                IF INT = '1' THEN
+                IF imm_en = '1' THEN
+                    INSTRUCTION_IF_EX <= INSTRUCTION;
+                    PC_IF_EX <= x"00000000";
+                ELSIF INT = '1' THEN
                     INSTRUCTION_IF_EX <= x"F000"; -- Interrupt opcode
+                    PC_IF_EX <= PC;
                 ELSE
                     INSTRUCTION_IF_EX <= INSTRUCTION;
+                    PC_IF_EX <= PC;
                 END IF;
-                PC_IF_EX <= PC;
             -- ELSE
             --     INSTRUCTION_IF_EX <= (OTHERS => '0');
             --     PC_IF_EX <= (OTHERS => '0');
-            END IF;
         END IF;
     END PROCESS;
 

@@ -47,6 +47,7 @@ architecture archProcessor of processor is
     signal mem_protect_id_ex   : unsigned (0 downto 0) :=             "0";
     signal read_reg_one_id_ex  : unsigned (0 downto 0) :=             "0";
     signal read_reg_two_id_ex  : unsigned (0 downto 0) :=             "0";
+    signal imm_en_id_ex        : unsigned (0 downto 0) :=             "0";
     signal alu_op_id_ex        : unsigned (3 downto 0) := (others => '0');
     signal wb_src_id_ex        : unsigned (1 downto 0) := (others => '0');
 ------------------------- decode stage signals end --------------------
@@ -165,6 +166,7 @@ signal flush_mem : std_logic := '0';
             clk   : in std_logic;
             reset : in std_logic;
             int   : in std_logic;
+            imm_en   : in std_logic;
 
             instruction : in std_logic_vector(15 downto 0);
             pc : in std_logic_vector(31 downto 0);
@@ -260,7 +262,7 @@ signal flush_mem : std_logic := '0';
             mem_read_in, mem_write_in, call_jmp_in, ret_in      : in  unsigned (0 downto 0);
             push_pop_in, out_port_en_in                         : in  unsigned (0 downto 0);
             mem_free_in, mem_protect_in                         : in  unsigned (0 downto 0);
-            read_reg_one_in, read_reg_two_in                    : in  unsigned (0 downto 0);
+            read_reg_one_in, read_reg_two_in, imm_en_in                    : in  unsigned (0 downto 0);
             alu_op_in                                           : in  unsigned (3 downto 0);
             wb_src_in                                           : in  unsigned (1 downto 0);        
             rd1_out, alu_src_2_out                              : out unsigned(31 downto 0);
@@ -269,7 +271,7 @@ signal flush_mem : std_logic := '0';
             mem_read_out, mem_write_out, call_jmp_out, ret_out  : out unsigned (0 downto 0);
             push_pop_out, out_port_en_out                       : out unsigned (0 downto 0);
             mem_free_out, mem_protect_out                       : out unsigned (0 downto 0);
-            read_reg_one_out, read_reg_two_out                  : out unsigned (0 downto 0);
+            read_reg_one_out, read_reg_two_out, imm_en_out                  : out unsigned (0 downto 0);
             alu_op_out                                          : out unsigned (3 downto 0);
             wb_src_out                                          : out unsigned (1 downto 0)
         );
@@ -347,8 +349,7 @@ signal flush_mem : std_logic := '0';
             regaddrwidth : integer := 3
         );
         port (
-        clk : IN STD_LOGIC;
-        reset : IN STD_LOGIC;
+            clk, reset                                      : in  unsigned (0 downto 0);
 
         alu_out :   IN unsigned(regWidth-1 DOWNTO 0);
         alu_src_2 : IN unsigned(regWidth-1 DOWNTO 0);
@@ -391,7 +392,7 @@ signal flush_mem : std_logic := '0';
     end component;
 -- ------------------------- execute stage end -------------------------
 
--- ------------------------- memory stage start ------------------------
+------------------------- memory stage start ------------------------
 --     component incrementer is
 --         generic (
 --             width : integer := 4
@@ -478,7 +479,7 @@ signal flush_mem : std_logic := '0';
 --             regwritedata                  : out unsigned    (n-1 downto 0)
 --         );
 --     end component;
--- ------------------------- write back stage end ----------------------
+------------------------- write back stage end ----------------------
 begin
 ------------------------- fetch stage port maps start ----------------
     fetchMux: PC_SRC_MUX port map (
@@ -510,8 +511,9 @@ begin
 
     fetchPipeREG: if_ex_register port map (
         clk => clk,
-        reset => (reset or (not interrupt and (FLUSH_EX or FLUSH_MEM or imm_en))),
+        reset => (reset or (not interrupt and (FLUSH_EX or FLUSH_MEM or imm_en_id_ex(0)))),
         int => interrupt,
+        imm_en => imm_en_id_ex(0),
         instruction => instruction,
         pc => std_logic_vector(pc),
         enable => "not"(stall),
@@ -522,7 +524,7 @@ begin
 
 ------------------------- decode stage port maps start ---------------
     instruction_internal <= unsigned(instruction_if_ex(15 downto 13) & instruction_if_ex(3 downto 0));
-    imm_en_internal <= "" & imm_en; -- cool trick to convert std_logic to unsigned
+    imm_en <= imm_en_internal(0); -- cool trick to convert std_logic to unsigned
     decode_CU: cu port map (
         instruction => instruction_internal,
         reg_one_write => reg_one_write,
@@ -618,6 +620,7 @@ begin
         mem_protect_in => mem_protect,
         read_reg_one_in => read_reg_one,
         read_reg_two_in => read_reg_two,
+        imm_en_in => imm_en_internal,
         alu_op_in => alu_op,
         wb_src_in => wb_src,
 
@@ -640,6 +643,7 @@ begin
         mem_protect_out => mem_protect_id_ex,
         read_reg_one_out => read_reg_one_id_ex,
         read_reg_two_out => read_reg_two_id_ex,
+        imm_en_out => imm_en_id_ex,
         alu_op_out => alu_op_id_ex,
         wb_src_out => wb_src_id_ex
     );
@@ -679,7 +683,6 @@ begin
         alu_src_2  => alu_src_2_FW_MUX
     );
 
-    alu_out_unsigned <= unsigned(alu_out_ex);
     executeALU: alu generic map(32) port map (
         aluin1 => signed(alu_src_1_FW_MUX),
         aluin2 => signed(alu_src_2_FW_MUX),
@@ -687,25 +690,26 @@ begin
         flagsin => flags_in_alu,
         flagsout => flags_out_alu,
         aluout => alu_out_ex
-    );
-
-    executeFlagsReg: flags_register   port map (
-        clk => clk,
-        reset => reset,
-        wen => not flush_mem,
-        zeroflag => flags_out_alu(0),
-        negativeflag => flags_out_alu(1),
-        carryflag => flags_out_alu(2),
-
-        zeroflag_reg => flags_in_alu(0),
-        negativeflag_reg => flags_in_alu(1),
-        carryflag_reg => flags_in_alu(2)
-    );
-
+        );
+        
+        executeFlagsReg: flags_register   port map (
+            clk => clk,
+            reset => reset,
+            wen => not flush_mem,
+            zeroflag => flags_out_alu(0),
+            negativeflag => flags_out_alu(1),
+            carryflag => flags_out_alu(2),
+            
+            zeroflag_reg => flags_in_alu(0),
+            negativeflag_reg => flags_in_alu(1),
+            carryflag_reg => flags_in_alu(2)
+            );
+            
+    alu_out_unsigned <= unsigned(alu_out_ex);
     executePipeReg: ex_mem_register  generic map(32, 3) port map (
         -- inputs
-        clk => clk,
-        reset => reset,
+        clk => clk_internal,
+        reset => reset_internal,
         alu_out => alu_out_unsigned,
         alu_src_2 => alu_src_2_FW_MUX,
 

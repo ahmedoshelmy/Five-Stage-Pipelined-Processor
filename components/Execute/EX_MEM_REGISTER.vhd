@@ -8,8 +8,7 @@ generic (
     regAddrWidth : integer := 3
 );
     PORT (
-        CLK : IN STD_LOGIC;
-        RESET : IN STD_LOGIC;
+        clk, reset                                      : in  unsigned (0 downto 0);
 
         ALU_OUT :   IN unsigned(regWidth-1 DOWNTO 0);
         ALU_SRC_2 : IN unsigned(regWidth-1 DOWNTO 0);
@@ -44,9 +43,9 @@ END ENTITY EX_MEM_REGISTER;
 ARCHITECTURE Behavioral OF EX_MEM_REGISTER IS
 
 BEGIN
-    PROCESS (CLK, RESET)
+    PROCESS (clk, reset)
     BEGIN
-        IF RESET = '1' THEN
+        IF reset = "1" THEN
             -- Synchronous reset
             ALU_OUT_out <= (OTHERS => '0');
             ALU_SRC_2_out <= (OTHERS => '0');
@@ -73,7 +72,7 @@ BEGIN
             read_reg_one_out <= "0";
             read_reg_two_out <= "0";
                
-        ELSIF RISING_EDGE(CLK) THEN
+        elsif (clk'event and clk = "1") then
             -- Synchronous behavior
             ALU_OUT_out <= ALU_OUT;
             ALU_SRC_2_out <= ALU_SRC_2;
