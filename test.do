@@ -13,7 +13,6 @@ add wave -position end  sim:/processor/mem_read_ex_mem
 add wave -position end  sim:/processor/mem_write_ex_mem
 
 
-restart -f
 
 force -freeze sim:/processor/clk 0 5, 1 {10 ns} -r 10
 force -freeze sim:/processor/interrupt 0 0
