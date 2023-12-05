@@ -6,10 +6,11 @@ add wave -position end  sim:/processor/instruction_if_ex
 add wave -position end  sim:/processor/pc_if_ex
 add wave -position end  sim:/processor/alu_src_2_id_ex
 add wave -position end  sim:/processor/alu_op_id_ex
-add wave -position end  sim:/processor/alu_out_ex
 add wave -position end  sim:/processor/alu_out_ex_mem
 add wave -position end  sim:/processor/alu_src_2_ex_mem
-add wave -position end  sim:/processor/imm_en_internal
+add wave -position end  sim:/processor/mem_out_DMEM
+add wave -position end  sim:/processor/mem_read_ex_mem
+add wave -position end  sim:/processor/mem_write_ex_mem
 
 
 restart -f

@@ -44,6 +44,7 @@ BEGIN
             INITIAL_FLAG <= '1';
             PC_RST_VAL <= (OTHERS => '0');
             PC_INT_VAL <= (OTHERS => '0');
+            MEMOUT <= (OTHERS => '0');
         -- reading file once
         ELSIF (initial_flag = '1') THEN
             FOR i IN CACHE'RANGE LOOP
