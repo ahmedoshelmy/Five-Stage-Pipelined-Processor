@@ -1,7 +1,6 @@
-LIBRARY IEEE;
-USE IEEE.STD_LOGIC_1164.ALL;
-USE IEEE.STD_LOGIC_ARITH.ALL;
-USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 ENTITY EX_MEM_REGISTER IS
 generic (
@@ -12,31 +11,32 @@ generic (
         CLK : IN STD_LOGIC;
         RESET : IN STD_LOGIC;
 
-        ALU_OUT : IN STD_LOGIC_VECTOR(regWidth-1 DOWNTO 0);
-        ALU_SRC_2 : IN STD_LOGIC_VECTOR(regWidth-1 DOWNTO 0);
+        ALU_OUT :   IN unsigned(regWidth-1 DOWNTO 0);
+        ALU_SRC_2 : IN unsigned(regWidth-1 DOWNTO 0);
 
-        REG_ADDR1 : IN STD_LOGIC_VECTOR(regAddrWidth-1 DOWNTO 0); 
-        REG_ADDR2 : IN STD_LOGIC_VECTOR(regAddrWidth-1 DOWNTO 0); 
+        ra1, ra2, rdst1, rdst2 : IN unsigned(regAddrWidth-1 DOWNTO 0); 
         -- control signals
-        REG_WRITE_1, REG_WRITE_2 : IN STD_LOGIC;
-        STACK_EN, MEMR, MEMW : IN STD_LOGIC;
-        PUSH_POP_SEL : IN STD_LOGIC;
-        OUTPORT_EN : IN STD_LOGIC;
-        WB_SRC : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+        reg_one_write, reg_two_write       : IN unsigned (0 downto 0);
+        stack_en, mem_read,  mem_write     : IN unsigned (0 downto 0);
+        ret, push_pop, out_port_en         : IN unsigned (0 downto 0);
+        mem_free, mem_protect              : IN unsigned (0 downto 0);
+        wb_src                             : IN unsigned (1 downto 0);
+        read_reg_one, read_reg_two         : IN  unsigned (0 downto 0);
 
 
 
-        ALU_OUT_REG : OUT STD_LOGIC_VECTOR(regWidth-1 DOWNTO 0);
-        ALU_SRC_2_REG : OUT STD_LOGIC_VECTOR(regWidth-1 DOWNTO 0);
+        -- outputs
+        ALU_OUT_out :   out unsigned(regWidth-1 DOWNTO 0);
+        ALU_SRC_2_out : out unsigned(regWidth-1 DOWNTO 0);
 
-        REG_ADDR1_REG : OUT STD_LOGIC_VECTOR(regAddrWidth-1 DOWNTO 0); 
-        REG_ADDR2_REG : OUT STD_LOGIC_VECTOR(regAddrWidth-1 DOWNTO 0); 
+        ra1_out, ra2_out, rdst1_out, rdst2_out : out unsigned(regAddrWidth-1 DOWNTO 0); 
         -- control signals
-        REG_WRITE_1_REG, REG_WRITE_2_REG : OUT STD_LOGIC;
-        STACK_EN_REG, MEMR_REG, MEMW_REG : OUT STD_LOGIC;
-        PUSH_POP_SEL_REG : OUT STD_LOGIC;
-        OUTPORT_EN_REG : OUT STD_LOGIC;
-        WB_SRC_REG : OUT STD_LOGIC_VECTOR(1 DOWNTO 0)
+        reg_one_write_out, reg_two_write_out       : out unsigned (0 downto 0);
+        stack_en_out, mem_read_out,  mem_write_out     : out unsigned (0 downto 0);
+        ret_out, push_pop_out, out_port_en_out         : out unsigned (0 downto 0);
+        mem_free_out, mem_protect_out              : out unsigned (0 downto 0);
+        wb_src_out                             : out unsigned (1 downto 0);
+        read_reg_one_out, read_reg_two_out         : out  unsigned (0 downto 0)
 
     );
 END ENTITY EX_MEM_REGISTER;
@@ -48,33 +48,53 @@ BEGIN
     BEGIN
         IF RESET = '1' THEN
             -- Synchronous reset
-            ALU_OUT_REG <= (OTHERS => '0');
-            ALU_SRC_2_REG <= (OTHERS => '0');
-            REG_ADDR1_REG <= (OTHERS => '0');
-            REG_ADDR2_REG <= (OTHERS => '0');
-            REG_WRITE_1_REG <= '0';
-            REG_WRITE_2_REG <= '0';
-            STACK_EN_REG <= '0';
-            MEMR_REG <= '0';
-            MEMW_REG <= '0';
-            PUSH_POP_SEL_REG <= '0';
-            OUTPORT_EN_REG <= '0';
-            WB_SRC_REG <= (OTHERS => '0');
+            ALU_OUT_out <= (OTHERS => '0');
+            ALU_SRC_2_out <= (OTHERS => '0');
+            ra1_out <= (OTHERS => '0');
+            ra2_out <= (OTHERS => '0');
+            rdst1_out <= (OTHERS => '0');
+            rdst2_out <= (OTHERS => '0');
+            wb_src_out <= (OTHERS => '0');
+            
+            reg_one_write_out <= "0";
+            reg_two_write_out <= "0";
 
+            stack_en_out <= "0";
+            mem_read_out <= "0";
+            mem_write_out <= "0";
+
+            ret_out <= "0";
+            push_pop_out <= "0";
+            out_port_en_out <= "0";
+
+            mem_free_out <= "0";
+            mem_protect_out <= "0";
+                   
+            read_reg_one_out <= "0";
+            read_reg_two_out <= "0";
+               
         ELSIF RISING_EDGE(CLK) THEN
             -- Synchronous behavior
-            ALU_OUT_REG <= ALU_OUT;
-            ALU_SRC_2_REG <= ALU_SRC_2;
-            REG_ADDR1_REG <= REG_ADDR1;
-            REG_ADDR2_REG <= REG_ADDR2;
-            REG_WRITE_1_REG <= REG_WRITE_1;
-            REG_WRITE_2_REG <= REG_WRITE_2;
-            STACK_EN_REG <= STACK_EN;
-            MEMR_REG <= MEMR;
-            MEMW_REG <= MEMW;
-            PUSH_POP_SEL_REG <= PUSH_POP_SEL;
-            OUTPORT_EN_REG <= OUTPORT_EN;
-            WB_SRC_REG <= WB_SRC;
+            ALU_OUT_out <= ALU_OUT;
+            ALU_SRC_2_out <= ALU_SRC_2;
+            ra1_out <= ra1;
+            ra2_out <= ra2;
+            rdst1_out <= rdst1;
+            rdst2_out <= rdst2;
+            wb_src_out <= wb_src;
+            
+            reg_one_write_out <= reg_one_write ;
+            reg_two_write_out <= reg_two_write ;
+            stack_en_out <= stack_en ;
+            mem_read_out <= mem_read ;
+            mem_write_out <= mem_write ;
+            ret_out <= ret ;
+            push_pop_out <= push_pop ;
+            out_port_en_out <= out_port_en ;
+            mem_free_out <= mem_free ;
+            mem_protect_out <= mem_protect ;
+            read_reg_one_out <= read_reg_one ;
+            read_reg_two_out <= read_reg_two ;
         END IF;
     END PROCESS;
 

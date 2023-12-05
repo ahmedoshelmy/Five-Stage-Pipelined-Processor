@@ -7,7 +7,6 @@ entity ALU is
   port (
         aluIn1, aluIn2  : IN signed     (n-1 Downto 0);
         func            : IN unsigned   (3 Downto 0);
-        cin             : IN unsigned   (0 Downto 0);
         flagsIn         : IN unsigned   (2 Downto 0);
         flagsOut        : OUT unsigned  (2 Downto 0);
         aluOut          : OUT signed    (n-1 Downto 0)
@@ -39,78 +38,82 @@ architecture archALU of ALU is
 
     begin
         -- concurrent statements
-        process (aluIn1, aluIn2, func, cin) is
-            variable aluOutReg : signed(n-1 downto 0);
-            variable flagOutVar : unsigned(2 downto 0);
+        process (aluIn1, aluIn2, func, flagsIn) is
             variable CarryOnRight : signed(n downto 0) := (others => '0');
             variable CarryOnLeft : signed(n downto 0) := (others => '0');
             variable CarryO : signed(n downto 0) := (others => '0');
         begin
             -- main role
-            aluOut <= aluOutReg;
-            flagsOut <= flagOutVar;
             -- main alu operation
             case func is
                 when ALU_NOT =>
-                    aluOutReg := not aluIn1;
+                    aluOut <= not aluIn1;
                 when ALU_NEG =>
-                    aluOutReg := (0 - aluIn1);
+                    aluOut <= (0 - aluIn1);
                 when ALU_INC =>
-                    aluOutReg := aluIn1 + 1;
+                    CarryOnLeft := aluIn1 + 1;
+                    aluOut <= CarryOnLeft(n-1 downto 0);
+                    flagsOut(2) <= CarryOnLeft(n); -- C
                 when ALU_DEC =>
-                    aluOutReg := aluIn1 - 1; 
+                    aluOut <= aluIn1 - 1; 
+                    flagsOut(2) <= '1' when aluIn1 = "0" else '0'; -- C
 
                 --- !! TODO: implement these operations
                 when ALU_BITSET =>
-                    flagOutVar(2) := aluIn1(to_integer(unsigned(aluIn2)));
-                    aluOutReg := (aluIn1 or (2 * aluIn2 )); 
+                    flagsOut(2) <= aluIn1(to_integer(unsigned(aluIn2)));
+                    aluOut <= (aluIn1 or (2 * aluIn2 )); 
 
                 when ALU_RCL =>
                     CarryOnLeft(n-1 downto 0) := aluIn1(n-1 downto 0);
-                    CarryOnLeft(n) := cin(0);
+                    CarryOnLeft(n) := flagsIn(2);
                     CarryO := CarryOnLeft rol to_integer(unsigned(aluIn2));
                     
-                    aluOutReg := CarryO(n-1 downto 0);
-                    flagOutVar(2)    := CarryO(n);
+                    aluOut <= CarryO(n-1 downto 0);
+                    flagsOut(2)    <= CarryO(n);
                     
                 when ALU_RCR =>
                     CarryOnRight(n downto 1) := aluIn1(n-1 downto 0);
-                    CarryOnRight(0) := cin(0);
+                    CarryOnRight(0) := flagsIn(2);
                     CarryO := CarryOnLeft ror to_integer(unsigned(aluIn2));
 
-                    aluOutReg := CarryO(n downto 1);
-                    flagOutVar(2)    := CarryO(0);
+                    aluOut <= CarryO(n downto 1);
+                    flagsOut(2)    <= CarryO(0);
                 
                 -- two operands
+                -- TODO: check on flags
                 when ALU_ADD =>
-                    aluOutReg := signed(aluIn1) + signed(aluIn2);
-                when ALU_SUB =>
-                    aluOutReg := signed(aluIn1) - signed(aluIn2);
+                    CarryOnLeft := signed(aluIn1) + signed(aluIn2);
+                    aluOut   <= CarryOnLeft(n-1 downto 0);
+                    flagsOut(2) <= CarryOnLeft(n); -- C
+                    when ALU_SUB =>
+                    CarryOnLeft := aluIn1 - aluIn2;
+                    aluOut <= CarryOnLeft(n-1 downto 0);
+                    flagsOut(2) <= CarryOnLeft(n); -- C
                 when ALU_AND =>
-                    aluOutReg := aluIn1 and aluIn2;
+                    aluOut <= aluIn1 and aluIn2;
                 when ALU_OR =>
-                    aluOutReg := aluIn1 or aluIn2;
+                    aluOut <= aluIn1 or aluIn2;
                 when ALU_XOR =>
-                    aluOutReg := aluIn1 xor aluIn2;
+                    aluOut <= aluIn1 xor aluIn2;
                 -- buffers
                 when ALU_BUFF1 =>
-                    aluOutReg := aluIn1;
+                    aluOut <= aluIn1;
                 when ALU_BUFF2 =>
-                    aluOutReg := aluIn2;
+                    aluOut <= aluIn2;
     
                 -- unknown operation, NOP, or '-', 'z', 'x', etc => output = Z
                 when others =>
-                    aluOutReg := (others => 'Z');
+                    aluOut <= (others => '0');
 
             end case;
 
             -- keep flags if NOP 
             -- !TODO: check if there's another operations that not affect flags
             if (func = ALU_NOP) then
-                flagOutVar := flagsIn;
+                flagsOut <= flagsIn;
             else  
-                flagOutVar(0) := '1' when aluOutReg = 0 else '0'; -- Z
-                flagOutVar(1) := '1' when aluOutReg < 0 else '0'; -- N
+                flagsOut(0) <= '1' when aluOut = 0 else '0'; -- Z
+                flagsOut(1) <= '1' when aluOut < 0 else '0'; -- N
             end if;
 
             

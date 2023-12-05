@@ -7,6 +7,14 @@ add wave -position end  sim:/processor/fetchPipeREG/INSTRUCTION_IF_EX
 add wave -position end  sim:/processor/decodePipeReg/alu_op_out
 add wave -position end  sim:/processor/decodePipeReg/rd1_out
 add wave -position end  sim:/processor/decodePipeReg/alu_src_2_out
+add wave -position end  sim:/processor/executeALU/aluIn1
+add wave -position end  sim:/processor/executeALU/aluIn2
+add wave -position end  sim:/processor/executeALU/aluInOut
+add wave -position end  sim:/processor/executeFlagsReg/negativeFlag_REG
+add wave -position end  sim:/processor/executeFlagsReg/carryFlag_REG
+add wave -position end  sim:/processor/executeFlagsReg/zeroFlag_REG
+add wave -position end  sim:/processor/executePipeReg/ALU_OUT
+add wave -position end  sim:/processor/executePipeReg/ALU_SRC_2
 
 force -freeze sim:/processor/clk 0 5, 1 {10 ns} -r 10
 force -freeze sim:/processor/interrupt 0 0
