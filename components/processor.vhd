@@ -153,106 +153,103 @@ signal flush_mem : std_logic := '0';
     end component;
 ------------------------- fetch stage end ---------------------------
 
--- ------------------------- decode stage start ------------------------
---     component alu_src_2_mux is
---         port (
---             rd2, pc   : in  unsigned(31 downto 0);
---             imm       : in  unsigned(15 downto 0);
---             alu_src   : in  unsigned (1 downto 0);
---             alu_src_2 : out unsigned(31 downto 0)
---         );
---     end component alu_src_2_mux;
+------------------------- decode stage start ------------------------
+    component alu_src_2_mux is
+        port (
+            rd2, pc   : in  unsigned(31 downto 0);
+            imm       : in  unsigned(15 downto 0);
+            alu_src   : in  unsigned (1 downto 0);
+            alu_src_2 : out unsigned(31 downto 0)
+        );
+    end component alu_src_2_mux;
 
---     component rs1_rd_mux is
---         port (
---             rs1, rd   : in  unsigned(2 downto 0);
---             rs1_rd    : in  unsigned(0 downto 0);
---             ra1       : out unsigned(2 downto 0)
---         );
---     end component rs1_rd_mux;
+    component rs1_rd_mux is
+        port (
+            rs1, rd   : in  unsigned(2 downto 0);
+            rs1_rd    : in  unsigned(0 downto 0);
+            ra1       : out unsigned(2 downto 0)
+        );
+    end component rs1_rd_mux;
 
---     component rs2_rd_mux is
---         port (
---             rs2, rd   : in  unsigned(2 downto 0);
---             rs2_rd    : in  unsigned(0 downto 0);
---             ra2       : out unsigned(2 downto 0)
---         );
---     end component rs2_rd_mux;
+    component rs2_rd_mux is
+        port (
+            rs2, rd   : in  unsigned(2 downto 0);
+            rs2_rd    : in  unsigned(0 downto 0);
+            ra2       : out unsigned(2 downto 0)
+        );
+    end component rs2_rd_mux;
 
---     component cu is
---         port (
---             instruction    : in  unsigned(6 downto 0);
---             reg_one_write  : out unsigned(0 downto 0);
---             reg_two_write  : out unsigned(0 downto 0);
---             rs1_rd, rs2_rd : out unsigned(0 downto 0);
---             alu_src        : out unsigned(1 downto 0);
---             out_port_en    : out unsigned(0 downto 0);
---             one_two_op     : out unsigned(0 downto 0);
---             alu_op         : out unsigned(3 downto 0);
---             wb_src         : out unsigned(1 downto 0);
---             imm_en         : out unsigned(0 downto 0);
---             stack_en       : out unsigned(0 downto 0);
---             mem_read       : out unsigned(0 downto 0);
---             mem_write      : out unsigned(0 downto 0);
---             mem_free       : out unsigned(0 downto 0);
---             mem_protect    : out unsigned(0 downto 0);
---             push_pop       : out unsigned(0 downto 0);
---             call_jmp       : out unsigned(0 downto 0);
---             ret            : out unsigned(0 downto 0);
---             read_reg_one   : out unsigned(0 downto 0);
---             read_reg_two   : out unsigned(0 downto 0)
---         );
---     end component cu;
+    component cu is
+        port (
+            instruction    : in  unsigned(6 downto 0);
+            reg_one_write  : out unsigned(0 downto 0);
+            reg_two_write  : out unsigned(0 downto 0);
+            rs1_rd, rs2_rd : out unsigned(0 downto 0);
+            alu_src        : out unsigned(1 downto 0);
+            out_port_en    : out unsigned(0 downto 0);
+            one_two_op     : out unsigned(0 downto 0);
+            alu_op         : out unsigned(3 downto 0);
+            wb_src         : out unsigned(1 downto 0);
+            imm_en         : out unsigned(0 downto 0);
+            stack_en       : out unsigned(0 downto 0);
+            mem_read       : out unsigned(0 downto 0);
+            mem_write      : out unsigned(0 downto 0);
+            mem_free       : out unsigned(0 downto 0);
+            mem_protect    : out unsigned(0 downto 0);
+            push_pop       : out unsigned(0 downto 0);
+            call_jmp       : out unsigned(0 downto 0);
+            ret            : out unsigned(0 downto 0);
+            read_reg_one   : out unsigned(0 downto 0);
+            read_reg_two   : out unsigned(0 downto 0)
+        );
+    end component cu;
 
---     component hdu is
---         port (
---             old_dst, cur_ra_one, cur_ra_two                     : in  unsigned(2 downto 0);
---             reg_write_one, mem_read, read_reg_one, read_reg_two : in  unsigned(0 downto 0);
---             stall                                               : out unsigned(0 downto 0)
---         );
---     end component hdu;
+    component hdu is
+        port (
+            old_dst, cur_ra_one, cur_ra_two                     : in  unsigned(2 downto 0);
+            reg_write_one, mem_read, read_reg_one, read_reg_two : in  unsigned(0 downto 0);
+            stall                                               : out unsigned(0 downto 0)
+        );
+    end component hdu;
 
---     component id_ex_register is
---         port (
---             clk, reset, en                                      : in  unsigned (0 downto 0);
---             rd1_in, alu_src_2_in                                : in  unsigned(31 downto 0);
---             ra1_in, ra2_in, rdst1_in, rdst2_in                  : in  unsigned (2 downto 0);
---             reg_one_write_in, reg_two_write_in, stack_en_in     : in  unsigned (0 downto 0);
---             mem_read_in, mem_write_in, call_jmp_in, ret_in      : in  unsigned (0 downto 0);
---             push_pop_in, out_port_en_in                         : in  unsigned (0 downto 0);
---             mem_free_in, mem_protect_in                         : in  unsigned (0 downto 0);
---             read_reg_one_in, read_reg_two_in                    : in  unsigned (0 downto 0);
---             alu_op_in                                           : in  unsigned (3 downto 0);
---             wb_src_in                                           : in  unsigned (1 downto 0);        
---             rd1_out, alu_src_2_out                              : out unsigned(31 downto 0);
---             ra1_out, ra2_out, rdst1_out, rdst2_out              : out unsigned (2 downto 0);
---             reg_one_write_out, reg_two_write_out, stack_en_out  : out unsigned (0 downto 0);
---             mem_read_out, mem_write_out, call_jmp_out, ret_out  : out unsigned (0 downto 0);
---             push_pop_out, out_port_en_out                       : out unsigned (0 downto 0);
---             mem_free_out, mem_protect_out                       : out unsigned (0 downto 0);
---             read_reg_one_out, read_reg_two_out                  : out unsigned (0 downto 0);
---             alu_op_out                                          : out unsigned (3 downto 0);
---             wb_src_out                                          : out unsigned (1 downto 0)
---         );
---     end component id_ex_register;
+    component id_ex_register is
+        port (
+            clk, reset, en                                      : in  unsigned (0 downto 0);
+            rd1_in, alu_src_2_in                                : in  unsigned(31 downto 0);
+            ra1_in, ra2_in, rdst1_in, rdst2_in                  : in  unsigned (2 downto 0);
+            reg_one_write_in, reg_two_write_in, stack_en_in     : in  unsigned (0 downto 0);
+            mem_read_in, mem_write_in, call_jmp_in, ret_in      : in  unsigned (0 downto 0);
+            push_pop_in, out_port_en_in                         : in  unsigned (0 downto 0);
+            mem_free_in, mem_protect_in                         : in  unsigned (0 downto 0);
+            read_reg_one_in, read_reg_two_in                    : in  unsigned (0 downto 0);
+            alu_op_in                                           : in  unsigned (3 downto 0);
+            wb_src_in                                           : in  unsigned (1 downto 0);        
+            rd1_out, alu_src_2_out                              : out unsigned(31 downto 0);
+            ra1_out, ra2_out, rdst1_out, rdst2_out              : out unsigned (2 downto 0);
+            reg_one_write_out, reg_two_write_out, stack_en_out  : out unsigned (0 downto 0);
+            mem_read_out, mem_write_out, call_jmp_out, ret_out  : out unsigned (0 downto 0);
+            push_pop_out, out_port_en_out                       : out unsigned (0 downto 0);
+            mem_free_out, mem_protect_out                       : out unsigned (0 downto 0);
+            read_reg_one_out, read_reg_two_out                  : out unsigned (0 downto 0);
+            alu_op_out                                          : out unsigned (3 downto 0);
+            wb_src_out                                          : out unsigned (1 downto 0)
+        );
+    end component id_ex_register;
 
---     component regfile is
---         generic (
---             reg_width : integer := 32;
---             reg_count : integer := 8
---         );
---         port (
---             clk, rst, reg_one_write, reg_two_write, stack_en : in  unsigned                  (0 downto 0);
---             ra1, ra2, wa1, wa2                               : in  unsigned                  (2 downto 0);
---             wd1, wd2                                         : in  unsigned        (reg_width-1 downto 0);
---             write_sp_data                                    : in  unsigned        (reg_width-1 downto 0);   
---             write_pc_data                                    : in  std_logic_vector(reg_width-1 downto 0);
---             reset_pc_data                                    : in  std_logic_vector(reg_width-1 downto 0);
---             rd1, rd2, read_sp_data                           : out unsigned        (reg_width-1 downto 0);
---             read_pc_data                                     : out std_logic_vector(reg_width-1 downto 0)
---         );
---     end component regfile;
--- ------------------------- decode stage end --------------------------
+    component regfile is
+        generic (
+            reg_width : integer := 32;
+            reg_count : integer := 8
+        );
+        port (
+            clk, rst, reg_one_write, reg_two_write, stack_en : in  unsigned                  (0 downto 0);
+            ra1, ra2, wa1, wa2                               : in  unsigned                  (2 downto 0);
+            wd1, wd2                                         : in  unsigned        (reg_width-1 downto 0);
+            write_sp_data                                    : in  unsigned        (reg_width-1 downto 0);   
+            rd1, rd2, read_sp_data                           : out unsigned        (reg_width-1 downto 0)
+        );
+    end component regfile;
+------------------------- decode stage end --------------------------
 
 -- ------------------------- execute stage start -----------------------
 --     component alu is
@@ -454,129 +451,126 @@ begin
 ------------------------- fetch stage port maps end ------------------
 
 -- ------------------------- decode stage port maps start ---------------
---     instruction_internal <= unsigned(instruction_if_ex(15 downto 13) & instruction_if_ex(3 downto 0));
---     imm_en_internal <= "" & imm_en; -- cool trick to convert std_logic to unsigned
---     decode1: cu port map (
---         instruction => instruction_internal,
---         reg_one_write => reg_one_write,
---         reg_two_write => reg_two_write,
---         rs1_rd => rs1_rd,
---         rs2_rd => rs2_rd,
---         alu_src => alu_src,
---         out_port_en => out_port_en,
---         one_two_op => one_two_op,
---         alu_op => alu_op,
---         wb_src => wb_src,
---         imm_en => imm_en_internal,
---         stack_en => stack_en,
---         mem_read => mem_read,
---         mem_write => mem_write,
---         mem_free => mem_free,
---         mem_protect => mem_protect,
---         push_pop => push_pop,
---         call_jmp => call_jmp,
---         ret => ret,
---         read_reg_one => read_reg_one,
---         read_reg_two => read_reg_two
---     );
+    instruction_internal <= unsigned(instruction_if_ex(15 downto 13) & instruction_if_ex(3 downto 0));
+    imm_en_internal <= "" & imm_en; -- cool trick to convert std_logic to unsigned
+    decode_CU: cu port map (
+        instruction => instruction_internal,
+        reg_one_write => reg_one_write,
+        reg_two_write => reg_two_write,
+        rs1_rd => rs1_rd,
+        rs2_rd => rs2_rd,
+        alu_src => alu_src,
+        out_port_en => out_port_en,
+        one_two_op => one_two_op,
+        alu_op => alu_op,
+        wb_src => wb_src,
+        imm_en => imm_en_internal,
+        stack_en => stack_en,
+        mem_read => mem_read,
+        mem_write => mem_write,
+        mem_free => mem_free,
+        mem_protect => mem_protect,
+        push_pop => push_pop,
+        call_jmp => call_jmp,
+        ret => ret,
+        read_reg_one => read_reg_one,
+        read_reg_two => read_reg_two
+    );
 
---     rs1_internal <= unsigned(instruction_if_ex(9 downto 7));
---     rd_internal <= unsigned(instruction_if_ex(12 downto 10));
---     decode2: rs1_rd_mux port map (
---         rs1 => rs1_internal,
---         rd => rd_internal,
---         rs1_rd => rs1_rd,
---         ra1 => ra1
---     );
+    rs1_internal <= unsigned(instruction_if_ex(9 downto 7));
+    rd_internal <= unsigned(instruction_if_ex(12 downto 10));
+    decode_RS1MUX: rs1_rd_mux port map (
+        rs1 => rs1_internal,
+        rd => rd_internal,
+        rs1_rd => rs1_rd,
+        ra1 => ra1
+    );
 
---     rs2_internal <= unsigned(instruction_if_ex(6 downto 4));
---     decode3: rs2_rd_mux port map (
---         rs2 => rs2_internal,
---         rd => rd_internal,
---         rs2_rd => rs2_rd,
---         ra2 => ra2
---     );
+    rs2_internal <= unsigned(instruction_if_ex(6 downto 4));
+    decode_RS2MUX: rs2_rd_mux port map (
+        rs2 => rs2_internal,
+        rd => rd_internal,
+        rs2_rd => rs2_rd,
+        ra2 => ra2
+    );
     
---     clk_internal <= "" & clk;
---     reset_internal <= "" & reset;
---     decode4: regFile port map (
---         clk => clk_internal,
---         rst => reset_internal,
---         reg_one_write => reg_one_write_mem_wb,
---         reg_two_write => reg_two_write_mem_wb,
---         stack_en => stack_en_ex_mem,
---         ra1 => ra1,
---         ra2 => ra2,
---         wa1 => wa1_mem_wb,
---         wa2 => wa2_mem_wb,
---         wd1 => regWriteData, -- from wb_src_mux
---         wd2 => alu_src_2_mem_wb, -- from mem_wb buffer
---         write_sp_data => write_sp_data_ex_mem,
---         write_pc_data => pc_mem_wb,
---         reset_pc_data => pc_rst_val, -- wire straight out of memory
---         rd1 => rd1,
---         rd2 => rd2,
---         read_sp_data => sp,
---         read_pc_data => pc
---     );
+    clk_internal <= "" & clk;
+    reset_internal <= "" & reset;
+    decode_REGFILE: regFile port map (
+        clk => clk_internal,
+        rst => reset_internal,
+        reg_one_write => reg_one_write_mem_wb,
+        reg_two_write => reg_two_write_mem_wb,
+        stack_en => stack_en_ex_mem,
+        ra1 => ra1,
+        ra2 => ra2,
+        wa1 => wa1_mem_wb,
+        wa2 => wa2_mem_wb,
+        wd1 => regWriteData, -- from wb_src_mux
+        wd2 => alu_src_2_mem_wb, -- from mem_wb buffer
+        write_sp_data => write_sp_data_ex_mem,
+        rd1 => rd1,
+        rd2 => rd2,
+        read_sp_data => sp
+    );
 
---     imm_internal <= unsigned(instruction);
---     pc_internal <= unsigned(pc);
---     decode5: alu_src_2_mux port map (
---         rd2 => rd2,
---         pc => pc_internal,
---         imm => imm_internal,
---         alu_src => alu_src,
---         alu_src_2 => alu_src_2
---     );
+    imm_internal <= unsigned(instruction);
+    pc_internal <= unsigned(pc);
+    decode_ALU_SRC_MUX: alu_src_2_mux port map (
+        rd2 => rd2,
+        pc => pc_internal,
+        imm => imm_internal,
+        alu_src => alu_src,
+        alu_src_2 => alu_src_2
+    );
 
---     stall_internal <= "" & stall;
---     decode6: id_ex_register port map (
---         clk => clk_internal,
---         reset => reset_internal,
---         en => "not"(stall_internal),
---         rd1_in => rd1,
---         alu_src_2_in => alu_src_2,
---         ra1_in => ra1,
---         ra2_in => ra2,
---         rdst1_in => rd_internal,
---         rdst2_in => rs1_internal,
---         reg_one_write_in => reg_one_write,
---         reg_two_write_in => reg_two_write,
---         stack_en_in => stack_en,
---         mem_read_in => mem_read,
---         mem_write_in => mem_write,
---         call_jmp_in => call_jmp,
---         ret_in => ret,
---         push_pop_in => push_pop,
---         out_port_en_in => out_port_en,
---         mem_free_in => mem_free,
---         mem_protect_in => mem_protect,
---         read_reg_one_in => read_reg_one,
---         read_reg_two_in => read_reg_two,
---         alu_op_in => alu_op,
---         wb_src_in => wb_src,
---         rd1_out => rd1_id_ex,
---         alu_src_2_out => alu_src_2_id_ex,
---         ra1_out => ra1_id_ex,
---         ra2_out => ra2_id_ex,
---         rdst1_out => wa1_id_ex,
---         rdst2_out => wa2_id_ex,
---         reg_one_write_out => reg_one_write_id_ex,
---         reg_two_write_out => reg_two_write_id_ex,
---         stack_en_out => stack_en_id_ex,
---         mem_read_out => mem_read_id_ex,
---         mem_write_out => mem_write_id_ex,
---         call_jmp_out => call_jmp_id_ex,
---         ret_out => ret_id_ex,
---         push_pop_out => push_pop_id_ex,
---         out_port_en_out => out_port_en_id_ex,
---         mem_free_out => mem_free_id_ex,
---         mem_protect_out => mem_protect_id_ex,
---         read_reg_one_out => read_reg_one_id_ex,
---         read_reg_two_out => read_reg_two_id_ex,
---         alu_op_out => alu_op_id_ex,
---         wb_src_out => wb_src_id_ex
---     );
+    stall_internal <= "" & stall;
+    decodePipeReg: id_ex_register port map (
+        clk => clk_internal,
+        reset => reset_internal,
+        en => "not"(stall_internal),
+        rd1_in => rd1,
+        alu_src_2_in => alu_src_2,
+        ra1_in => ra1,
+        ra2_in => ra2,
+        rdst1_in => rd_internal,
+        rdst2_in => rs1_internal,
+        reg_one_write_in => reg_one_write,
+        reg_two_write_in => reg_two_write,
+        stack_en_in => stack_en,
+        mem_read_in => mem_read,
+        mem_write_in => mem_write,
+        call_jmp_in => call_jmp,
+        ret_in => ret,
+        push_pop_in => push_pop,
+        out_port_en_in => out_port_en,
+        mem_free_in => mem_free,
+        mem_protect_in => mem_protect,
+        read_reg_one_in => read_reg_one,
+        read_reg_two_in => read_reg_two,
+        alu_op_in => alu_op,
+        wb_src_in => wb_src,
+        rd1_out => rd1_id_ex,
+        alu_src_2_out => alu_src_2_id_ex,
+        ra1_out => ra1_id_ex,
+        ra2_out => ra2_id_ex,
+        rdst1_out => wa1_id_ex,
+        rdst2_out => wa2_id_ex,
+        reg_one_write_out => reg_one_write_id_ex,
+        reg_two_write_out => reg_two_write_id_ex,
+        stack_en_out => stack_en_id_ex,
+        mem_read_out => mem_read_id_ex,
+        mem_write_out => mem_write_id_ex,
+        call_jmp_out => call_jmp_id_ex,
+        ret_out => ret_id_ex,
+        push_pop_out => push_pop_id_ex,
+        out_port_en_out => out_port_en_id_ex,
+        mem_free_out => mem_free_id_ex,
+        mem_protect_out => mem_protect_id_ex,
+        read_reg_one_out => read_reg_one_id_ex,
+        read_reg_two_out => read_reg_two_id_ex,
+        alu_op_out => alu_op_id_ex,
+        wb_src_out => wb_src_id_ex
+    );
 -- ------------------------- decode stage port maps end -----------------
 end architecture archProcessor;
