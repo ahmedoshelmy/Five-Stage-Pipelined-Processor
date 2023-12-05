@@ -11,5 +11,9 @@ with open('instruction.txt', 'w') as file:
 
 
 with open('cache.txt', 'w') as file:
-    for i in range(4095):
-        file.write(f'{to_binary(i)}\n')
+    file.write('0000000000000000\n')
+    file.write('0000000000000000\n')
+    file.write('0000000000000000\n')
+    file.write('0000000000000000\n')
+    for i in range(4095 - 4):
+        file.write(f'{to_binary(i+1)}\n')

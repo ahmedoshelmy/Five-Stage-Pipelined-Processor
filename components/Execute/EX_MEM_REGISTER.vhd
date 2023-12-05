@@ -8,7 +8,7 @@ generic (
     regAddrWidth : integer := 3
 );
     PORT (
-        clk, reset                                      : in  unsigned (0 downto 0);
+        clk, reset       : in  unsigned (0 downto 0);
 
         ALU_OUT :   IN unsigned(regWidth-1 DOWNTO 0);
         ALU_SRC_2 : IN unsigned(regWidth-1 DOWNTO 0);

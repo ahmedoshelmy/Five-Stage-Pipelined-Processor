@@ -89,7 +89,8 @@ architecture archProcessor of processor is
 ------------------------- forwarding unit signals end ------------------
 
 ------------------------- memory stage signals start -----------------
-    signal sp                   : unsigned        (31 downto 0) := (others => '0');
+    signal address_mem_in       : unsigned  (11 DOWNTO 0); -- out of mux to memory
+    signal sp                   : unsigned          (31 downto 0) := (others => '0');
     -- signal stack_en_ex_mem      : unsigned         (0 downto 0) :=             "0";
     signal write_sp_data_ex_mem : unsigned        (31 downto 0) := (others => '0');  
     signal pc_rst_val, pc_int_val  : unsigned(31 downto 0) := (others => '0'); 
@@ -145,6 +146,8 @@ architecture archProcessor of processor is
     signal pc_internal          : unsigned(31 downto 0) := (others => '0');
     signal stall_internal       : unsigned (0 downto 0) :=             "0";
     signal alu_out_unsigned     : unsigned(31 downto 0) := (others => '0');
+    signal mem_out_DME_in, pc_rst_val_in, pc_int_val_in :std_logic_vector(31 downto 0) := (others => '0');
+
 ------------------------- internal signals end ------------------------
 
 ------------------------- Branching signals start ---------------------
@@ -393,72 +396,59 @@ signal flush_mem : std_logic := '0';
 -- ------------------------- execute stage end -------------------------
 
 ------------------------- memory stage start ------------------------
---     component incrementer is
---         generic (
---             width : integer := 4
---         );
---         port (
---             in_value : in std_logic_vector(width - 1 downto 0);
---             out_value : out std_logic_vector(width - 1 downto 0)
---         );
---     end component incrementer;
+    component muxtomemory is
+        generic (
+            address_bits : integer := 12
+        );
+        port (
+            push_pop : in unsigned;
+            stack_en : in unsigned;
+            sp : in unsigned(31 downto 0); -- stack pointer
+            ea : in unsigned(address_bits - 1 downto 0); -- effective address
+            address_mem_in : out unsigned(address_bits - 1 downto 0)
+        );
+    end component muxtomemory;
 
---     component mem_wb_register is
---         port (
---             clk : in std_logic;
---             reset : in std_logic;
+    
+    component memory is
+        generic (
+            cache_word_width : integer := 16;
+            address_bits : integer := 12
+        );
+        port (
+            rst : in std_logic;
+            clk : in std_logic;
+            memr, memw : in std_logic;
+            protect, free : in std_logic;
+            address_bus : in std_logic_vector(address_bits - 1 downto 0);
+            datain : in std_logic_vector(31 downto 0);
+            memout : out std_logic_vector(31 downto 0);
+            pc_rst_val, pc_int_val : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+        );
+    end component memory;
 
---             alu_out : in std_logic_vector(31 downto 0);
---             mem_out : in std_logic_vector(31 downto 0);
---             alu_src_2 : in std_logic_vector(31 downto 0);
---             reg_addr1, reg_addr2 : in std_logic_vector(2 downto 0); 
---             reg_write_1, reg_write_2 : in std_logic;
---             wb_src : in std_logic_vector(1 downto 0);
---             out_port_en : in std_logic;
+    component mem_wb_register is
+        port (
+            clk, reset   : in  unsigned (0 downto 0);
+            ALU_OUT, ALU_SRC_2, MEM_OUT :   IN unsigned(regWidth-1 DOWNTO 0);
+            ra1, ra2, rdst1, rdst2 : IN unsigned(regAddrWidth-1 DOWNTO 0); 
+            reg_one_write, reg_two_write       : IN unsigned (0 downto 0);
+            wb_src : IN unsigned (1 downto 0);
+            out_port_en : IN unsigned (0 downto 0);
+            read_reg_one, read_reg_two         : IN  unsigned (0 downto 0);
             
---             reg_alu_out : out std_logic_vector(31 downto 0);
---             reg_mem_out : out std_logic_vector(31 downto 0);
---             reg_alu_src_2 : out std_logic_vector(31 downto 0);
---             reg_addr1_reg, reg_addr2_reg : out std_logic_vector(2 downto 0);
---             reg_write_1_reg, reg_write_2_reg : out std_logic;
---             reg_wb_src : out std_logic_vector(1 downto 0);
---             out_port_en_reg : out std_logic
---         );
---     end component mem_wb_register;
+            -- outputs
+            ALU_OUT_out,ALU_SRC_2_out, MEM_OUT_out :   out unsigned(regWidth-1 DOWNTO 0);
+            ra1_out, ra2_out, rdst1_out, rdst2_out : out unsigned(regAddrWidth-1 DOWNTO 0); 
+            reg_one_write_out, reg_two_write_out       : out unsigned (0 downto 0);
+            wb_src_out                             : out unsigned (1 downto 0);
+            out_port_en_out : out unsigned (0 downto 0);
+            read_reg_one_out, read_reg_two_out         : out  unsigned (0 downto 0)
+        );
+    end component mem_wb_register;
+    
 
---     component memory is
---         generic (
---             cache_word_width : integer := 16;
---             address_bits : integer := 12
---         );
---         port (
---             en : in std_logic;
---             rst : in std_logic;
---             clk : in std_logic;
---             memr : in std_logic;
---             memw : in std_logic;
---             address_bus : in std_logic_vector(address_bits - 1 downto 0);
---             datain : in std_logic_vector(cache_word_width downto 0);
---             memout : out std_logic_vector(cache_word_width - 1 downto 0);
---             pc_rst_val, pc_int_val : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
---         );
---     end component memory;
 
---     component muxtomemory is
---         generic (
---             ram_word_width : integer := 16;
---             address_bits : integer := 12
---         );
---         port (
---             clk : in std_logic;
---             push_pop : in std_logic;
---             stack_en : in std_logic;
---             sp : in std_logic_vector(address_bits - 1 downto 0); -- stack pointer
---             ea : in std_logic_vector(address_bits - 1 downto 0); -- effective address
---             sp_out : out std_logic_vector(address_bits - 1 downto 0);
---             address_mem_in : out std_logic_vector(ram_word_width - 1 downto 0)
---         );
---     end component muxtomemory;
 -- ------------------------- memory stage end --------------------------
 
 -- ------------------------- write back stage start --------------------
@@ -650,7 +640,6 @@ begin
 ------------------------- decode stage port maps end -----------------
 
 ------------------------- execute stage port maps start ------------------
-------------------------- execute stage port maps end ------------------
     executeMuxAluSrc1: FW_MUX_1  port map (
         -- inputs from D/EX
         rd1_d_ex  => rd1_id_ex,
@@ -752,4 +741,35 @@ begin
         read_reg_one_out => read_reg_one_ex_mem,
         read_reg_two_out => read_reg_two_ex_mem
     );
+------------------------- execute stage port maps end ------------------
+
+------------------------- memory stage port maps start ------------------
+    memoryMuxAddr: muxtomemory generic map(12) port map (
+        push_pop => push_pop_ex_mem,
+        stack_en => stack_en_ex_mem,
+        sp => sp,
+        ea => alu_src_2_ex_mem(11 downto 0),
+        address_mem_in => address_mem_in
+    );
+
+
+    memoryDataMemory: memory generic map (16, 12 ) port map (
+            rst => reset,
+            clk => clk,
+            memr => mem_read_ex_mem(0), 
+            memw => mem_write_ex_mem(0),
+            protect => mem_protect_ex_mem(0),
+            free => mem_free_ex_mem(0),
+            address_bus => std_logic_vector(address_mem_in),
+            datain => std_logic_vector(alu_src_2_ex_mem) ,
+            -- outputs
+            memout => mem_out_DME_in,
+            pc_rst_val => pc_rst_val_in, 
+            pc_int_val => pc_int_val_in
+        );
+        mem_out_DMEM <= unsigned(mem_out_DME_in);
+        pc_rst_val   <= unsigned(pc_rst_val_in);
+        pc_int_val   <= unsigned(pc_int_val_in);
+------------------------- memory stage port maps end ------------------
+
 end architecture archProcessor;

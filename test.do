@@ -9,9 +9,10 @@ add wave -position end  sim:/processor/alu_op_id_ex
 add wave -position end  sim:/processor/alu_out_ex
 add wave -position end  sim:/processor/alu_out_ex_mem
 add wave -position end  sim:/processor/alu_src_2_ex_mem
-add wave -position end  sim:/processor/imm_en
 add wave -position end  sim:/processor/imm_en_internal
 
+
+restart -f
 
 force -freeze sim:/processor/clk 0 5, 1 {10 ns} -r 10
 force -freeze sim:/processor/interrupt 0 0
