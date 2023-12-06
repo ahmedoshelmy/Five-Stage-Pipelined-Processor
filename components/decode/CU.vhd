@@ -297,7 +297,7 @@ begin
             when out_bits =>
                 rs1_rd         <= rd;
                 out_port_en   <= "1";
-                alu_op        <= alu_buff2;
+                alu_op        <= alu_buff1;
                 read_reg_one  <= "1";
             when free_bits =>
                 rs1_rd         <= rd;
