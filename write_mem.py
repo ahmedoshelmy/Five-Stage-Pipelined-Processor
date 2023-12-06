@@ -5,12 +5,12 @@ with open('instruction.txt', 'w') as file:
     file.write('0010110000000001\n') # 0x2C01 (NOT R3) => R3 = 0xFFFF_FFCF
     file.write('0010100000000100\n') # 0x2804 (DEC R2) => R2 = 0x0000_001F
     file.write('0010110001011100\n') # 0x2C5C (OR R3, R0, R5) => R3 = 0x0000_0050
-    file.write('1010110000001100\n') #0xAC0C (LDD R6, 20) => R6 = 0x0011_0012
+    file.write('1011100000001100\n') #0xAC0C (LDD R6, 20) => R6 = 0x0011_0012
     file.write('0000000000010100\n') #0x0014 = 20 //nop 
 
     file.write('0010110000000001\n') # 0x2C01 (NOT R3) => R3 = 0xFFFF_FFAF
-    file.write('0010100000000100\n') # 0x2804 (DEC R2) => R2 = 0x0000_001F
-    file.write('0010110001011100\n') # 0x2C5C (OR R3, R0, R5) => R3 = 0x0000_0050
+    file.write('0010100000000100\n') # 0x2804 (DEC R2) => R2 = 0x0000_001E
+    file.write('1011100000000001\n') # 0xB801 (OUT R6) => out = 0x0011_0012
     for _ in range(4095 - 5 - 3):
         file.write('0000000000000000\n')
 

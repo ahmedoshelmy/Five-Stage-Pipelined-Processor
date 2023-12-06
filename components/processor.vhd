@@ -857,7 +857,7 @@ begin
         wr_en_in => inport_en_external_device,
         wr_en_out => out_port_en_mem_wb,
         inport => inport_external_device,
-        outport => alu_src_2_mem_wb,
+        outport => alu_out_mem_wb,
         inPortReg => inport,
         outPortReg => outport
     );

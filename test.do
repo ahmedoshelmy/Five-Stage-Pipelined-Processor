@@ -20,8 +20,8 @@ add wave -position end  sim:/processor/wb_src_mem_wb
 add wave -position end  sim:/processor/reg_one_write_mem_wb
 add wave -position end  sim:/processor/rd1_mem_wb
 add wave -position end  sim:/processor/regWriteData
-add wave -position end sim:/processor/decode_REGFILE/*
-
+add wave -position end sim:/processor/decode_REGFILE/registers
+add wave -position end  sim:/processor/wb_PORTS/outPortReg
 
 
 
@@ -37,6 +37,21 @@ force -freeze sim:/processor/reset 0 0
 
 
 
+run
+run
+run
+run
+run
+run
+run
+
+run
+run
+run
+run
+run
+run
+run
 run
 run
 run
