@@ -38,7 +38,7 @@ begin
             registers(6) <= x"00000060";
             registers(7) <= x"00000070";
         -- sync behaviour of neg edge
-        elsif (clk'event and clk = "1") then
+        elsif (clk'event and clk = "0") then
             if (reg_one_write = "1") then
                 report "Writing to register " & integer'image(to_integer(wa1)) & " with value " & integer'image(to_integer(wd1)) & " at time " & time'image(now);
                 registers(to_integer(wa1)) <= wd1;
@@ -46,13 +46,11 @@ begin
             if (reg_two_write = "1") then
                 registers(to_integer(unsigned(wa2))) <= wd2;
             end if;
-
-        elsif (clk'event and clk = "0") then
-            rd1 <= registers(to_integer(ra1));
-            rd2 <= registers(to_integer(ra2));
         end if;
             
     end process;
+    rd1 <= registers(to_integer(ra1));
+    rd2 <= registers(to_integer(ra2));
 end architecture ArchRegFile;
         
 
