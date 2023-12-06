@@ -21,7 +21,7 @@ begin
             outPortReg <= (others => '0');
         elsif (CLK = "1" and WR_EN_IN = "1") then
             inPortReg <= inPort;
-        elsif (CLK = "1" and WR_EN_OUT = "1") then
+        elsif (CLK'EVENT and CLK = "0" and WR_EN_OUT = "1") then
             outPortReg <= outPort;
         end if;
 
