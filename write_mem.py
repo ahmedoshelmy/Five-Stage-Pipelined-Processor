@@ -11,7 +11,10 @@ with open('instruction.txt', 'w') as file:
     file.write('0010110000000001\n') # 0x2C01 (NOT R3) => R3 = 0xFFFF_FFAF
     file.write('0010100000000100\n') # 0x2804 (DEC R2) => R2 = 0x0000_001E
     file.write('1011100000000001\n') # 0xB801 (OUT R6) => out = 0x0011_0012
-    for _ in range(4095 - 5 - 3):
+    file.write('1010110000000001\n') # 0xAC01 (OUT R3) => out = 0xFFFF_FFAF
+    file.write('1100100000000000\n') # C800 (PROTECT R2) => MEM(30) => protected
+
+    for _ in range(4095 - 5 - 5):
         file.write('0000000000000000\n')
 
 
