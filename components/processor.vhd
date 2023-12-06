@@ -113,13 +113,11 @@ architecture archProcessor of processor is
     signal read_reg_one_mem_wb  : unsigned (0 downto 0) :=             "0";
     signal read_reg_two_mem_wb  : unsigned (0 downto 0) :=             "0";
     ------------------------- write back stage signals start --------------
-    signal wa1_mem_wb           : unsigned         (2 downto 0) := (others => '0');
-    signal wa2_mem_wb           : unsigned         (2 downto 0) := (others => '0');
-    signal regWriteData         : unsigned        (31 downto 0) := (others => '0');
+    signal regWriteData         : unsigned        (31 downto 0) := (others => '0'); --output from wb mux
+    signal inport, outport               : unsigned        (31 downto 0) := (others => '0');
     --signal alu_src_2_mem_wb     : unsigned        (31 downto 0) := (others => '0');
     --signal reg_one_write_mem_wb : unsigned         (0 downto 0) :=             "0";
     --signal reg_two_write_mem_wb : unsigned         (0 downto 0) :=             "0";
-    signal pc_mem_wb            : std_logic_vector(31 downto 0) := (others => '0');
 ------------------------- write back stage signals end ----------------
     
 ------------------------- control signals start -----------------------
@@ -163,9 +161,19 @@ architecture archProcessor of processor is
 ------------------------- internal signals end ------------------------
 
 ------------------------- Branching signals start ---------------------
-signal flush_ex : std_logic := '0';
-signal flush_mem : std_logic := '0';
+    signal flush_ex : std_logic := '0';
+    signal flush_mem : std_logic := '0';
 ------------------------- Branching signals end ---------------------
+------------------------- Mocking External devices ------------------
+-- for input port
+    signal inport_external_device : unsigned(31 downto 0) := (others => '0');
+    signal inport_en_external_device : unsigned(0 downto 0) := (others => '0');
+
+-- ============================ ============================ ============================
+-- ============================ ============================ ============================
+-- ============================ ============================ ============================
+-- ============================ ==== COMPONENTS ============ ============================
+-- ============================ ============================ ============================
 
 ------------------------- fetch stage start ---------------------------
     component instruction_memory is
@@ -298,16 +306,15 @@ signal flush_mem : std_logic := '0';
             reg_count : integer := 8
         );
         port (
-            clk, rst, reg_one_write, reg_two_write, stack_en : in  unsigned                  (0 downto 0);
+            clk, rst, reg_one_write, reg_two_write           : in  unsigned                  (0 downto 0);
             ra1, ra2, wa1, wa2                               : in  unsigned                  (2 downto 0);
             wd1, wd2                                         : in  unsigned        (reg_width-1 downto 0);
-            write_sp_data                                    : in  unsigned        (reg_width-1 downto 0);   
-            rd1, rd2, read_sp_data                           : out unsigned        (reg_width-1 downto 0)
+            rd1, rd2                           : out unsigned        (reg_width-1 downto 0)
         );
     end component regfile;
 ------------------------- decode stage end --------------------------
 
--- ------------------------- execute stage start -----------------------
+------------------------- execute stage start -----------------------
     component FW_MUX_1 is
         port (
                 -- inputs from D/EX
@@ -405,9 +412,20 @@ signal flush_mem : std_logic := '0';
             zeroflag_reg, negativeflag_reg, carryflag_reg : out std_logic
         );
     end component;
--- ------------------------- execute stage end -------------------------
+------------------------- execute stage end -------------------------
 
 ------------------------- memory stage start ------------------------
+    
+    component SP_REG is
+        GENERIC (
+            ADDRESS_BITS : INTEGER := 12
+        );
+        PORT (
+            clk, reset, int, stack_en, push_pop : IN STD_LOGIC;
+            sp_out : OUT unsigned(ADDRESS_BITS - 1 DOWNTO 0)
+        );
+    end component SP_REG;
+
     component muxtomemory is
         generic (
             address_bits : integer := 12
@@ -468,23 +486,23 @@ signal flush_mem : std_logic := '0';
 -- ------------------------- memory stage end --------------------------
 
 -- ------------------------- write back stage start --------------------
---     component ports_reg is
---         generic (n : integer := 32);
---         port (
---             clk, reset, wr_en             : in unsigned     (0 downto 0);
---             outport                       : in unsigned     (n-1 downto 0);
---             inport                        : out unsigned     (n-1 downto 0)
---         );
---     end component;
+    component ports_reg is
+        generic (n : integer := 32);
+        port (
+            clk, reset, wr_en_in, wr_en_out             : in unsigned     (0 downto 0);
+            inport, outport               : in unsigned     (n-1 downto 0);
+            inPortReg, outPortReg         : out unsigned     (n-1 downto 0)
+        );
+    end component;
 
---     component wb_src_mux is
---         generic (n : integer := 32);
---         port (
---             memout, aluout, imm, inport   : in unsigned     (n-1 downto 0);
---             wbsrc                         : in unsigned     (1 downto 0);
---             regwritedata                  : out unsigned    (n-1 downto 0)
---         );
---     end component;
+    component wb_src_mux is
+        generic (n : integer := 32);
+        port (
+            memout, aluout, imm, inport   : in unsigned     (n-1 downto 0);
+            wbsrc                         : in unsigned     (1 downto 0);
+            regwritedata                  : out unsigned    (n-1 downto 0)
+        );
+    end component;
 ------------------------- write back stage end ----------------------
 begin
 ------------------------- fetch stage port maps start ----------------
@@ -517,9 +535,9 @@ begin
 
     fetchPipeREG: if_ex_register port map (
         clk => clk,
-        reset => (reset or (not interrupt and (FLUSH_EX or FLUSH_MEM or imm_en_id_ex(0)))),
+        reset => (reset or (not interrupt and (FLUSH_EX or FLUSH_MEM ))),
         int => interrupt,
-        imm_en => imm_en_id_ex(0),
+        imm_en =>  imm_en_internal(0),
         instruction => instruction,
         pc => std_logic_vector(pc),
         enable => "not"(stall),
@@ -579,17 +597,14 @@ begin
         rst => reset_internal,
         reg_one_write => reg_one_write_mem_wb,
         reg_two_write => reg_two_write_mem_wb,
-        stack_en => stack_en_ex_mem,
         ra1 => ra1,
         ra2 => ra2,
-        wa1 => wa1_mem_wb,
-        wa2 => wa2_mem_wb,
+        wa1 => rd1_mem_wb,
+        wa2 => rd2_mem_wb,
         wd1 => regWriteData, -- from wb_src_mux
         wd2 => alu_src_2_mem_wb, -- from mem_wb buffer
-        write_sp_data => write_sp_data_ex_mem,
         rd1 => rd1,
-        rd2 => rd2,
-        read_sp_data => sp
+        rd2 => rd2
     );
 
     imm_internal <= unsigned(instruction);
@@ -760,6 +775,17 @@ begin
 ------------------------- execute stage port maps end ------------------
 
 ------------------------- memory stage port maps start ------------------
+    
+    memorySP: SP_REG port map (
+        clk => clk,
+        reset => reset,
+        int => interrupt,
+        stack_en => stack_en_ex_mem(0),
+        push_pop => push_pop_ex_mem(0),
+        sp_out => sp
+    );
+
+
     memoryMuxAddr: muxtomemory generic map(12) port map (
         push_pop => push_pop_ex_mem,
         stack_en => stack_en_ex_mem,
@@ -820,5 +846,33 @@ begin
     );
 
 ------------------------- memory stage port maps end ------------------
+
+
+------------------------- wb stage port maps start ------------------
+    wb_PORTS:  ports_reg
+    generic map (32)
+    port map (
+        clk => clk_internal,
+        reset => reset_internal,
+        wr_en_in => inport_en_external_device,
+        wr_en_out => out_port_en_mem_wb,
+        inport => inport_external_device,
+        outport => alu_src_2_mem_wb,
+        inPortReg => inport,
+        outPortReg => outport
+    );
+
+    wb_STAGE_SRC_MUX: wb_src_mux 
+    generic map (32)
+    port map (
+        memout => mem_out_mem_wb,
+        aluout => alu_out_mem_wb,
+        imm => alu_src_2_mem_wb,
+        inport => inport,
+        wbsrc => wb_src_mem_wb,
+        regwritedata => regWriteData
+    );
+
+------------------------- wb stage port maps end ------------------
 
 end architecture archProcessor;

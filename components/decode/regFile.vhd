@@ -1,6 +1,10 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.std_logic_textio.ALL;
+USE IEEE.STD_LOGIC_UNSIGNED.ALL;
+USE IEEE.numeric_std.ALL;
+USE std.textio.ALL;
 
 entity regfile is
     generic (
@@ -8,40 +12,48 @@ entity regfile is
         reg_count : integer := 8
     );
     port (
-        clk, rst, reg_one_write, reg_two_write, stack_en : in  unsigned                  (0 downto 0);
+        clk, rst, reg_one_write, reg_two_write : in  unsigned                  (0 downto 0);
         ra1, ra2, wa1, wa2                               : in  unsigned                  (2 downto 0);
         wd1, wd2                                         : in  unsigned        (reg_width-1 downto 0);
-        write_sp_data                                    : in  unsigned        (reg_width-1 downto 0);   
-        rd1, rd2, read_sp_data                           : out unsigned        (reg_width-1 downto 0)
+        rd1, rd2                           : out unsigned        (reg_width-1 downto 0)
     );
 end entity regfile;
 
 architecture ArchRegFile of regFile is
     type reg_array is array (0 to REG_COUNT-1) of unsigned   (REG_WIDTH-1 downto 0);
-    signal reg_file : reg_array                              := (others => (others => '0'));
-    signal sp       : unsigned(REG_WIDTH-1 downto 0)         :=             (others => '0');
-
+    signal registers : reg_array  := (others => (others => '0'));
 begin
-    rd1 <= reg_file(to_integer(unsigned(ra1)));
-    rd2 <= reg_file(to_integer(unsigned(ra2)));
-    read_sp_data <= sp;
-
-    process (clk) is
+    
+    process (clk, rst) 
     begin
-        if (clk'event and clk = "0") then
-            if (rst = "1") then
-                sp <= to_unsigned(4095, sp'length);
-                reg_file <= (others => (others => '0'));
+        if (rst = "1") then
+            -- REMOVE THIS LINE 
+            --registers <= (others => (others => '0'));
+            registers(0) <= x"00000000";
+            registers(1) <= x"00000010";
+            registers(2) <= x"00000020";
+            registers(3) <= x"00000030";
+            registers(4) <= x"00000040";
+            registers(5) <= x"00000050";
+            registers(6) <= x"00000060";
+            registers(7) <= x"00000070";
+        -- sync behaviour of neg edge
+        elsif (clk'event and clk = "1") then
+            if (reg_one_write = "1") then
+                report "Writing to register " & integer'image(to_integer(wa1)) & " with value " & integer'image(to_integer(wd1)) & " at time " & time'image(now);
+                registers(to_integer(wa1)) <= wd1;
             end if;
-            if (reg_one_write = "1" and rst = "0") then
-                reg_file(to_integer(unsigned(wa1))) <= wd1;
+            if (reg_two_write = "1") then
+                registers(to_integer(unsigned(wa2))) <= wd2;
             end if;
-            if (reg_two_write = "1" and rst = "0") then
-                reg_file(to_integer(unsigned(wa2))) <= wd2;
-            end if;
-            if (stack_en = "1" and rst = "0") then
-                sp <= write_sp_data;
-            end if;
+
+        elsif (clk'event and clk = "0") then
+            rd1 <= registers(to_integer(ra1));
+            rd2 <= registers(to_integer(ra2));
         end if;
+            
     end process;
 end architecture ArchRegFile;
+        
+
+        

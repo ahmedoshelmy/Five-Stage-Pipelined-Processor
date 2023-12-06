@@ -41,6 +41,7 @@ BEGIN
         PC_INT_VAL <= CACHE(2) & CACHE(3);
         IF RST = '1' THEN
             CACHE <= (OTHERS => (OTHERS => '0'));
+            ISPROTECTEDMEMORY <= ((OTHERS => '0'));
             INITIAL_FLAG <= '1';
             PC_RST_VAL <= (OTHERS => '0');
             PC_INT_VAL <= (OTHERS => '0');
@@ -59,7 +60,7 @@ BEGIN
             END LOOP;
             initial_flag <= '0';
         -- syncronys behaviour
-        ELSIF RISING_EDGE(CLK) THEN
+        ELSIF falling_edge(CLK) THEN
             IF MEMR = '1' THEN
                 MEMOUT(31 DOWNTO 16) <= CACHE(TO_INTEGER (unsigned(ADDRESS_BUS)));
                 MEMOUT(15 DOWNTO 0) <= CACHE(TO_INTEGER(unsigned(ADDRESS_BUS)) + 1);

@@ -31,7 +31,7 @@ BEGIN
         ELSIF RISING_EDGE(CLK) and ENABLE = '1'  THEN
             -- Synchronous behavior
                 IF imm_en = '1' THEN
-                    INSTRUCTION_IF_EX <= INSTRUCTION;
+                    INSTRUCTION_IF_EX <= x"0000";
                     PC_IF_EX <= x"00000000";
                 ELSIF INT = '1' THEN
                     INSTRUCTION_IF_EX <= x"F000"; -- Interrupt opcode

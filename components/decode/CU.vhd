@@ -100,9 +100,12 @@ architecture ArchCU of CU is
     constant rs             : unsigned(0 downto 0) := "0";
     constant one_op         : unsigned(0 downto 0) := "0";
     constant two_op         : unsigned(0 downto 0) := "1";
-    constant alu_out        : unsigned(1 downto 0) := "00";
-    constant mem_out        : unsigned(1 downto 0) := "01";
+    -- wb src
+    constant mem_out        : unsigned(1 downto 0) := "00";
+    constant alu_out        : unsigned(1 downto 0) := "01";
     constant immediate      : unsigned(1 downto 0) := "10";
+    constant inport_out     : unsigned(1 downto 0) := "11";
+    -- wb src
     constant reg            : unsigned(1 downto 0) := "00";
     constant imm            : unsigned(1 downto 0) := "01";
     constant pc_plus_one    : unsigned(1 downto 0) := "10";
@@ -290,6 +293,7 @@ begin
             when in_bits =>
                 reg_one_write <= "1";
                 alu_op        <= alu_buff2;
+                wb_src        <= inport_out;
             when out_bits =>
                 rs1_rd         <= rd;
                 out_port_en   <= "1";
