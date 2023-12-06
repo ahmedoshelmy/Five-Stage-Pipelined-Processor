@@ -14,7 +14,7 @@ end entity INSTRUCTIONS_MEMORY;
 architecture INSTRUCTIONS_MEMORY_ARCH of INSTRUCTIONS_MEMORY is
     type inst_array is array(0 to 4095) of std_logic_vector (15 downto 0);
     signal instArray : inst_array;
-    signal  i: std_logic_vector (11 downto 0):="000000000000"; 
+    signal  i: std_logic_vector (11 downto 0):= (OTHERS => '0'); 
 begin
     process(clk) is 
     begin

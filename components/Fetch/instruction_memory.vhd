@@ -23,7 +23,7 @@ ARCHITECTURE arch_instruction_memory OF instruction_memory IS
 BEGIN
 
     instruction_memory : PROCESS (clk, RESET) IS
-        FILE memory_file : text OPEN read_mode IS "instruction.txt";
+        FILE memory_file : text;
         VARIABLE file_line : line;
         VARIABLE temp_data : STD_LOGIC_VECTOR(15 DOWNTO 0);
     BEGIN
@@ -32,13 +32,14 @@ BEGIN
             dataout <= (OTHERS => '0');
             INITIAL_FLAG <= '1';
         ELSIF (initial_flag = '1') THEN
+            file_open(memory_file, "instruction.txt",  read_mode);
             FOR i IN ram'RANGE LOOP
                 IF NOT endfile(memory_file) THEN
                     readline(memory_file, file_line);
                     read(file_line, temp_data);
                     ram(i) <= temp_data;
-                ELSE
-                    file_close(memory_file);
+                -- ELSE
+                --     file_close(memory_file);
 
                 END IF;
             END LOOP;

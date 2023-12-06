@@ -304,7 +304,8 @@ begin
                 mem_free      <= "1";
                 read_reg_one  <= "1";
             when protect_bits =>
-                rs1_rd         <= rd;
+                rs2_rd         <= rd;
+                -- rs1_rd         <= rd;
                 mem_protect   <= "1";
                 read_reg_one  <= "1";
             when reset_bits =>

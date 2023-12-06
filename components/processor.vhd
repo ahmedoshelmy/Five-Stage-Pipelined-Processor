@@ -184,7 +184,7 @@ architecture archProcessor of processor is
         );
     end component;
 
-    component if_ex_register is
+    component IF_ID_REGISTER is
         port (
             clk   : in std_logic;
             reset : in std_logic;
@@ -198,7 +198,7 @@ architecture archProcessor of processor is
             instruction_if_ex : out std_logic_vector(15 downto 0);
             pc_if_ex : out std_logic_vector(31 downto 0)
         );
-    end component if_ex_register;
+    end component IF_ID_REGISTER;
 
     component PC_REG IS
     PORT (
@@ -533,7 +533,7 @@ begin
         dataout => instruction
     );
 
-    fetchPipeREG: if_ex_register port map (
+    fetchPipeREG: IF_ID_REGISTER port map (
         clk => clk,
         reset => (reset or (not interrupt and (FLUSH_EX or FLUSH_MEM ))),
         int => interrupt,
