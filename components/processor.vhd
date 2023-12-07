@@ -803,7 +803,7 @@ begin
             protect => mem_protect_ex_mem(0),
             free => mem_free_ex_mem(0),
             address_bus => std_logic_vector(address_mem_in),
-            datain => std_logic_vector(alu_src_2_ex_mem) ,
+            datain => std_logic_vector(alu_out_ex_mem) ,
             -- outputs
             memout => mem_out_DME_in,
             pc_rst_val => pc_rst_val_in, 

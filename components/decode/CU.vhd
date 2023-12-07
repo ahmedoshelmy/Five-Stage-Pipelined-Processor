@@ -275,6 +275,7 @@ begin
             when std_bits =>
                 rs1_rd         <= rd;
                 alu_src       <= imm;
+                alu_op        <= alu_buff1;
                 imm_en        <= "1";
                 mem_write     <= "1";
                 read_reg_one  <= "1";

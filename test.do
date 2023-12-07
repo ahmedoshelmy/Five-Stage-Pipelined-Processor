@@ -31,7 +31,7 @@ add wave -position end  sim:/processor/regWriteData
 add wave -position end  sim:/processor/decode_REGFILE/*
 add wave -position end  sim:/processor/outport
 add wave -position end  sim:/processor/out_port_en_mem_wb
-
+add wave -position end  sim:/processor/memoryDataMemory/cache
 
 
 
@@ -47,6 +47,16 @@ force -freeze sim:/processor/reset 0 0
 
 
 
+run
+run
+run
+run
+run
+run
+run
+run
+run
+run
 run
 run
 run
