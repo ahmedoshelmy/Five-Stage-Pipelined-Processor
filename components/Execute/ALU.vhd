@@ -42,33 +42,34 @@ architecture archALU of ALU is
             variable CarryOnRight : signed(n downto 0) := (others => '0');
             variable CarryOnLeft : signed(n downto 0) := (others => '0');
             variable CarryO : signed(n downto 0) := (others => '0');
+            variable aluOutVar : signed(n-1 downto 0) := (others => '0');
         begin
-            -- main role
-            -- main alu operation
+
+
             case func is
                 when ALU_NOT =>
-                    aluOut <= not aluIn1;
+                    aluOutVar := not aluIn1;
                 when ALU_NEG =>
-                    aluOut <= (0 - aluIn1);
+                    aluOutVar := (0 - aluIn1);
                 when ALU_INC =>
                     CarryOnLeft := aluIn1 + 1;
-                    aluOut <= CarryOnLeft(n-1 downto 0);
+                    aluOutVar := CarryOnLeft(n-1 downto 0);
                     flagsOut(2) <= CarryOnLeft(n); -- C
                 when ALU_DEC =>
-                    aluOut <= aluIn1 - 1; 
+                    aluOutVar := aluIn1 - 1; 
                     flagsOut(2) <= '1' when aluIn1 = "0" else '0'; -- C
 
                 --- !! TODO: implement these operations
                 when ALU_BITSET =>
                     flagsOut(2) <= aluIn1(to_integer(unsigned(aluIn2)));
-                    aluOut <= (aluIn1 or (2 * aluIn2 )); 
+                    aluOutVar := (aluIn1 or (2 * aluIn2 )); 
 
                 when ALU_RCL =>
                     CarryOnLeft(n-1 downto 0) := aluIn1(n-1 downto 0);
                     CarryOnLeft(n) := flagsIn(2);
                     CarryO := CarryOnLeft rol to_integer(unsigned(aluIn2));
                     
-                    aluOut <= CarryO(n-1 downto 0);
+                    aluOutVar := CarryO(n-1 downto 0);
                     flagsOut(2)    <= CarryO(n);
                     
                 when ALU_RCR =>
@@ -76,7 +77,7 @@ architecture archALU of ALU is
                     CarryOnRight(0) := flagsIn(2);
                     CarryO := CarryOnLeft ror to_integer(unsigned(aluIn2));
 
-                    aluOut <= CarryO(n downto 1);
+                    aluOutVar := CarryO(n downto 1);
                     flagsOut(2)    <= CarryO(0);
                 
                 -- two operands
@@ -85,38 +86,39 @@ architecture archALU of ALU is
                     CarryOnLeft := signed(aluIn1) + signed(aluIn2);
                     aluOut   <= CarryOnLeft(n-1 downto 0);
                     flagsOut(2) <= CarryOnLeft(n); -- C
-                    when ALU_SUB =>
+                when ALU_SUB =>
                     CarryOnLeft := aluIn1 - aluIn2;
-                    aluOut <= CarryOnLeft(n-1 downto 0);
+                    aluOutVar := CarryOnLeft(n-1 downto 0);
                     flagsOut(2) <= CarryOnLeft(n); -- C
                 when ALU_AND =>
-                    aluOut <= aluIn1 and aluIn2;
+                    aluOutVar := aluIn1 and aluIn2;
                 when ALU_OR =>
-                    aluOut <= aluIn1 or aluIn2;
+                    aluOutVar := aluIn1 or aluIn2;
                 when ALU_XOR =>
-                    aluOut <= aluIn1 xor aluIn2;
+                    aluOutVar := aluIn1 xor aluIn2;
                 -- buffers
                 when ALU_BUFF1 =>
-                    aluOut <= aluIn1;
+                    aluOutVar := aluIn1;
                 when ALU_BUFF2 =>
-                    aluOut <= aluIn2;
+                    aluOutVar := aluIn2;
     
                 -- unknown operation, NOP, or '-', 'z', 'x', etc => output = Z
                 when others =>
-                    aluOut <= (others => '0');
+                    aluOutVar := (others => '0');
 
             end case;
 
-            -- keep flags if NOP 
+            -- main role
+            -- main alu operation
+                        -- keep flags if NOP 
             -- !TODO: check if there's another operations that not affect flags
+            aluOut <= aluOutVar;
             if (func = ALU_NOP) then
                 flagsOut <= flagsIn;
             else  
-                flagsOut(0) <= '1' when aluOut = 0 else '0'; -- Z
-                flagsOut(1) <= '1' when aluOut < 0 else '0'; -- N
+                flagsOut(0) <= '1' when signed(aluOutVar) = "0" else '0'; -- Z
+                flagsOut(1) <= '1' when signed(aluOutVar) < 0 else '0'; -- N
+                REPORT "flags changed: " & to_string(flagsOut) & " alu out: " & to_string(aluOut);
             end if;
-
-            
-
         end process;
 end archALU ; -- archALU
