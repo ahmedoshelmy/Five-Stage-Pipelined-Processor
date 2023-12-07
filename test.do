@@ -3,6 +3,8 @@ vsim -voptargs=+acc work.processor -t ps
 
 restart -f
 
+restart -f
+
 add wave -position end  sim:/processor/reset
 add wave -position end  sim:/processor/reset_internal
 add wave -position end  sim:/processor/clk
