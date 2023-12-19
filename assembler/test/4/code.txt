@@ -1,0 +1,7 @@
+
+    JZ R3
+    JMP R3
+    CALL R3
+    RET R3
+    RTI R3
+   

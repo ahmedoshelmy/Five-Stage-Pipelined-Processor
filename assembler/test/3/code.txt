@@ -1,0 +1,7 @@
+
+    BITSET R3, 7
+    RCL R3, -5
+    RCR R3, 2
+    LDM R3, 32767
+    LDM R3, -32768
+    

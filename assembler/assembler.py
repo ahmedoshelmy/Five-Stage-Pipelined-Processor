@@ -166,9 +166,9 @@ class Assembler:
 
 
     def getInputSignalInstrucion(self, parts):
-        is_reset = "0"
+        is_reset = "1"
         if parts[0] == "INTERRUPT":
-            is_reset = "1"
+            is_reset = "0"
         return "0" * 6 + is_reset + "0" * 3
 
 
@@ -212,7 +212,7 @@ class Assembler:
             result = self.getMemorySecurityInstruction(parts)
 
         elif op_code == "111":  # Input Signals instruction
-            result = self.getInputSignalInstrucion(op_code)
+            result = self.getInputSignalInstrucion(parts)
 
         output_instruction += result
         return output_instruction
@@ -272,7 +272,7 @@ class Assembler:
 
 
 if __name__ == "__main__":
-    assembler = Assembler("./test/1/code.txt", "./test/1/instructions.txt")
+    assembler = Assembler("./test/6/code.txt", "./test/6/instructions.txt")
     assembler.main()
-    _, lines_index = compare_files("./test/1/instructions.txt", "./test/1/instructions_expected.txt")
+    _, lines_index = compare_files("./test/6/instructions.txt", "./test/6/instructions_expected.txt")
     print(lines_index)
