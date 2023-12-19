@@ -1,5 +1,5 @@
      ADDI R3, R1, 123
-     # ADDI R3, R1, -123
+      ADDI R3, R1, -123
  NOT R2
     NEG R5
     INC R0
@@ -24,7 +24,7 @@
     # OUT R3
     # PUSH R3
     # POP R3
-    # LDD R3, 125
+    # LDD R3, -125
     # STD R3, 1024
     # FREE R4
     # PROTECT R4
