@@ -111,7 +111,7 @@ class Assembler:
         idx = 2
         if parts[0] == "ADDI":
             idx = 3
-        immediate_value = self.immediate_value_to_binary(parts[idx])
+        immediate_value = self.signed_int_to_binary_16_bits(parts[idx])
         return rsrc1 + rsrc2 + is_load + is_rotate + function + "\n" + immediate_value
 
 
@@ -241,7 +241,12 @@ class Assembler:
         immediate_func_map = {"ADDI": "01", "BITSET": "10", "RCL": "X0", "RCR": "X1", "LDM": "XX"}
         return immediate_func_map[func]
 
-
+    def signed_int_to_binary_16_bits(self, number):
+    # Ensure the number is within the 16-bit range
+        number = int(number)
+        number &= 0xFFFF
+        binary_representation = format(number, '016b')
+        return binary_representation
     def is_value_within_16_bits(self, value, signed=True):
         value = int(value)
         if signed:
