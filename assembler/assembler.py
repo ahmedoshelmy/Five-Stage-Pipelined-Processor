@@ -168,7 +168,7 @@ class Assembler:
     def getInputSignalInstrucion(self, parts):
         is_reset = "0"
         if parts[0] == "INTERRUPT":
-            is_free = "1"
+            is_reset = "1"
         return "0" * 6 + is_reset + "0" * 3
 
 
@@ -249,10 +249,18 @@ class Assembler:
         else:
             return 0 <= value <= 65535
 
+    def is_number_type(self, value):
+       try:
+            int_number = int(value)
+            print(f"Converted Integer: {int_number}")
+            return True
+       except ValueError:
+            print(f"Cannot convert '{value}' to an integer.")
+            return False
 
     def immediate_value_to_binary(self, value):
         # Convert immediate value to binary representation
-        if not value.isdigit() or not self.is_value_within_16_bits(value):
+        if not self.is_number_type(value) or not self.is_value_within_16_bits(value):
             print("Invalid Immediate Value " + str(value))
             exit()
         return format(int(value), '016b')
