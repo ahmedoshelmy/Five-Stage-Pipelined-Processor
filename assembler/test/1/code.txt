@@ -1,5 +1,5 @@
      ADDI R3, R1, 123
-     # ADDI R3, R1, -123
+     ADDI R3, R1, -123
  NOT R2
     NEG R5
     INC R0
