@@ -1,0 +1,32 @@
+     ADDI R3, R1, 123
+     ADDI R3, R1, -123
+ NOT R2
+    NEG R5
+    INC R0
+    DEC R0
+    # ADD R4 ,  R1  , R2
+    # SUB R4,R1,R2
+    # AND R4,R1,R2
+    # OR R4,R1,R2
+    # xoR R4 , R1 , R2
+    # CMP R4,R1,R2
+    # SWAP R4,R1
+    # BITSET R3, 7
+    # RCL R3, 5
+    # RCR R3, 2
+    # LDM R3, 500
+    # JZ R3
+    # JMP R3
+    # CALL R3
+    # RET R3
+    # RTI R3
+    # IN R3
+    # OUT R3
+    # PUSH R3
+    # POP R3
+    # LDD R3, 125
+    # STD R3, 1024
+    # FREE R4
+    # PROTECT R4
+    # RESET
+    # INTERRUPT
