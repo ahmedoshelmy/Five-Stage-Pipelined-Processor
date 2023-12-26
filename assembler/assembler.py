@@ -69,7 +69,7 @@ class Assembler:
         elif operation in input_signals_instructions:
             return "111"
         else:
-            return None
+            return "000"
 
 
     def operand_count(self, parts):
@@ -190,13 +190,14 @@ class Assembler:
 
         # 2. Rdst
         rdst = "XXX"
-        if op_code != "111":
+        if op_code not in ["111", "000"]:
             rdst = self.register_to_binary(parts[1])
         output_instruction += rdst
 
         # 3. The rest of the instruction depends on the instruction type
         result = ""
-
+        if op_code == "000":  # No operation
+            result = "0" * 10
         if op_code == "001":  # ALU instruction
             result = self.getALUInstruction(parts)
 
