@@ -10,6 +10,7 @@ entity CU is
         rs1_rd, rs2_rd : out unsigned(0 downto 0);
         alu_src        : out unsigned(1 downto 0);
         out_port_en    : out unsigned(0 downto 0);
+        ior, iow       : out unsigned(0 downto 0);
         one_two_op     : out unsigned(0 downto 0);
         alu_op         : out unsigned(3 downto 0);
         wb_src         : out unsigned(1 downto 0);
@@ -123,6 +124,8 @@ begin
         rs2_rd        <= rs;
         alu_src       <= reg;
         out_port_en   <= "0";
+        ior           <= "0";
+        iow           <= "0";
         one_two_op    <= one_op;
         alu_op        <= alu_nop;
         wb_src        <= alu_out;
@@ -295,11 +298,13 @@ begin
                 reg_one_write <= "1";
                 alu_op        <= alu_buff2;
                 wb_src        <= inport_out;
+                ior           <= "1";
             when out_bits =>
                 rs1_rd         <= rd;
                 out_port_en   <= "1";
                 alu_op        <= alu_buff1;
                 read_reg_one  <= "1";
+                iow           <= "1";
             when free_bits =>
                 rs1_rd         <= rd;
                 mem_free      <= "1";
