@@ -1,2 +1,2 @@
 SWAP R5, R7
-ADDI R0, R1, 20
+ADDI R0, R0, -1

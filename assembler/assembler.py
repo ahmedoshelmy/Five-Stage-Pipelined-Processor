@@ -88,6 +88,9 @@ class Assembler:
         rsrc2 = "XXX"
         one_two_operand = "0"
         function = self.alu_func_to_binary(parts[0])
+        if parts[0] == "CMP" or parts[0] == "SWAP":
+            rsrc1 = self.register_to_binary(parts[1])
+            rsrc2 = self.register_to_binary(parts[2])
         if self.operand_count(parts) == 2:  # This means that it is 2 operand
             one_two_operand = "1"
             rsrc1 = self.register_to_binary(parts[2])
