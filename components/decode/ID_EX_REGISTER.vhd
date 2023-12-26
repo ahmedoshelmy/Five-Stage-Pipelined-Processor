@@ -11,6 +11,7 @@ entity ID_EX_REGISTER is
         mem_read_in, mem_write_in, call_jmp_in, ret_in      : in  unsigned (0 downto 0);
         is_jz_in                                            : in unsigned  (0 downto 0);
         push_pop_in, out_port_en_in                         : in  unsigned (0 downto 0);
+        ior_in, iow_in                                      : in  unsigned (0 downto 0);
         mem_free_in, mem_protect_in                         : in  unsigned (0 downto 0);
         read_reg_one_in, read_reg_two_in, imm_en_in         : in  unsigned (0 downto 0);
         alu_op_in                                           : in  unsigned (3 downto 0);
@@ -20,6 +21,7 @@ entity ID_EX_REGISTER is
         reg_one_write_out, reg_two_write_out, stack_en_out  : out unsigned (0 downto 0);
         mem_read_out, mem_write_out, call_jmp_out, ret_out  : out unsigned (0 downto 0);
         push_pop_out, out_port_en_out                       : out unsigned (0 downto 0);
+        ior_out, iow_out                                    : out unsigned (0 downto 0);
         mem_free_out, mem_protect_out                       : out unsigned (0 downto 0);
         read_reg_one_out, read_reg_two_out, imm_en_out      : out unsigned (0 downto 0);
         alu_op_out                                          : out unsigned (3 downto 0);
@@ -34,6 +36,7 @@ architecture ID_EX_REGISTER_ARCHITECTURE of ID_EX_REGISTER is
     signal reg_one_write, reg_two_write, stack_en : unsigned (0 downto 0);
     signal mem_read, mem_write, call_jmp, ret, is_jz     : unsigned (0 downto 0);
     signal push_pop, out_port_en                  : unsigned (0 downto 0);
+    signal ior, iow                               : unsigned (0 downto 0);
     signal mem_free, mem_protect                  : unsigned (0 downto 0);
     signal read_reg_one, read_reg_two,imm_en      : unsigned (0 downto 0);
     signal alu_op                                 : unsigned (3 downto 0);
@@ -71,6 +74,10 @@ begin
     else (others => '0');
     out_port_en_out <= out_port_en when en = "1"
     else (others => '0');
+    ior_out <= ior when en = "1"
+    else (others => '0');
+    iow_out <= iow when en = "1"
+    else (others => '0');
     mem_free_out <= mem_free when en = "1"
     else (others => '0');
     mem_protect_out <= mem_protect when en = "1"
@@ -104,6 +111,8 @@ begin
             ret            <= (others => '0');
             push_pop       <= (others => '0');
             out_port_en    <= (others => '0');
+            ior            <= (others => '0');
+            iow            <= (others => '0');
             mem_free       <= (others => '0');
             mem_protect    <= (others => '0');
             read_reg_one   <= (others => '0');
@@ -129,6 +138,8 @@ begin
                 ret            <= ret_in;
                 push_pop       <= push_pop_in;
                 out_port_en    <= out_port_en_in;
+                ior            <= ior_in;
+                iow            <= iow_in;
                 mem_free       <= mem_free_in;
                 mem_protect    <= mem_protect_in;
                 read_reg_one   <= read_reg_one_in;
