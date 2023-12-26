@@ -83,11 +83,11 @@ architecture archALU of ALU is
                 -- two operands
                 -- TODO: check on flags
                 when ALU_ADD =>
-                    CarryOnLeft := signed(aluIn1) + signed(aluIn2);
-                    aluOut   <= CarryOnLeft(n-1 downto 0);
+                    CarryOnLeft := resize(aluIn1, n+1) + resize(aluIn2, n+1);
+                    aluOutVar   := CarryOnLeft(n-1 downto 0);
                     flagsOut(2) <= CarryOnLeft(n); -- C
                 when ALU_SUB =>
-                    CarryOnLeft := aluIn1 - aluIn2;
+                    CarryOnLeft := resize(aluIn1, n+1) - resize(aluIn2, n+1);
                     aluOutVar := CarryOnLeft(n-1 downto 0);
                     flagsOut(2) <= CarryOnLeft(n); -- C
                 when ALU_AND =>

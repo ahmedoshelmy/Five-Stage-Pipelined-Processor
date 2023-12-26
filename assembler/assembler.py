@@ -88,7 +88,10 @@ class Assembler:
         rsrc2 = "XXX"
         one_two_operand = "0"
         function = self.alu_func_to_binary(parts[0])
-        if self.operand_count(parts) == 2:  # This means that it is 2 operand
+        if parts[0] == "CMP" or parts[0] == "SWAP":
+            one_two_operand = "1"
+            rsrc1 = self.register_to_binary(parts[2])
+        elif self.operand_count(parts) == 2:  # This means that it is 2 operand
             one_two_operand = "1"
             rsrc1 = self.register_to_binary(parts[2])
             rsrc2 = self.register_to_binary(parts[3])
@@ -213,7 +216,6 @@ class Assembler:
 
         elif op_code == "111":  # Input Signals instruction
             result = self.getInputSignalInstrucion(parts)
-
         output_instruction += result
         return output_instruction
 
@@ -270,9 +272,27 @@ class Assembler:
             exit()
         return format(int(value), '016b')
 
+def fix_xxx(file_path):
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+    with open(file_path, 'w') as f:
+        for line in lines:
+            f.write(line.replace('X', '0'))
+
+def easy_reading(instruction_path, output_path):
+    with open(instruction_path, 'r') as f:
+        lines = f.readlines()
+    with open(output_path, 'w') as f:
+        # convert binary  to hexadecimal
+        for line in lines:
+            decimal = int(line, 2)
+            hexa = hex(decimal)
+            f.write(hexa[2:] + "\n")
+
 
 if __name__ == "__main__":
-    assembler = Assembler("./test/6/code.txt", "./test/6/instructions.txt")
+    component_path = "E:/3rd/04 Arc/07 Project/Five-Stage-Pipelined-Processor/components/"
+    assembler = Assembler(f"{component_path}code.txt", f"{component_path}/instruction.txt")
     assembler.main()
-    _, lines_index = compare_files("./test/6/instructions.txt", "./test/6/instructions_expected.txt")
-    print(lines_index)
+    fix_xxx(f"{component_path}/instruction.txt")
+    easy_reading(f"{component_path}/instruction.txt", f"{component_path}/instruction_hex.txt")

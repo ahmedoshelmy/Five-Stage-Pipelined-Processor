@@ -269,6 +269,7 @@ begin
                 stack_en      <= "1";
                 mem_read      <= "1";
                 push_pop      <= pop;
+                ret           <= "1";
             when ldd_bits =>
                 reg_one_write <= "1";
                 alu_src       <= imm;
