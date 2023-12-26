@@ -270,9 +270,27 @@ class Assembler:
             exit()
         return format(int(value), '016b')
 
+def fix_xxx(file_path):
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+    with open(file_path, 'w') as f:
+        for line in lines:
+            f.write(line.replace('X', '0'))
+
+def easy_reading(instruction_path, output_path):
+    with open(instruction_path, 'r') as f:
+        lines = f.readlines()
+    with open(output_path, 'w') as f:
+        # convert binary  to hexadecimal
+        for line in lines:
+            decimal = int(line, 2)
+            hexa = hex(decimal)
+            f.write(hexa[2:] + "\n")
+
 
 if __name__ == "__main__":
-    assembler = Assembler("./test/6/code.txt", "./test/6/instructions.txt")
+    component_path = "E:/3rd/04 Arc/07 Project/Five-Stage-Pipelined-Processor/components/"
+    assembler = Assembler(f"{component_path}code.txt", f"{component_path}/instruction.txt")
     assembler.main()
-    _, lines_index = compare_files("./test/6/instructions.txt", "./test/6/instructions_expected.txt")
-    print(lines_index)
+    fix_xxx(f"{component_path}/instruction.txt")
+    easy_reading(f"{component_path}/instruction.txt", f"{component_path}/instruction_hex.txt")
