@@ -924,7 +924,7 @@ begin
 ------------------------- wb stage port maps end ------------------
 
 ------------------------- other components port map start ---------
-    io: io generic map(32) port map (
+    i_o: io generic map(32) port map (
         inport => port_in,
         data_in => alu_out_ex_mem,
         ior => ior,
