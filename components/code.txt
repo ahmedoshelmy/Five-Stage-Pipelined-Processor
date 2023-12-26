@@ -1,1 +1,2 @@
-LDD R2, 10
+SWAP R5, R7
+ADDI R0, R1, 20

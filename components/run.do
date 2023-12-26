@@ -9,11 +9,8 @@ add wave -position end  sim:/processor/clk
 add wave -position end  sim:/processor/pc
 add wave -position end  sim:/processor/instruction_if_ex
 add wave -position end  sim:/processor/pc_if_ex
-add wave -position end  sim:/processor/stall
-add wave -position end  sim:/processor/fetchPcEG/WEN
-add wave -position end  sim:/processor/fetchPipeREG/
-add wave -position end  sim:/processor/decodePipeReg/EN
 
+add wave -position end  sim:/processor/decode_CU/wb_src
 add wave -position end  sim:/processor/alu_src_2_id_ex
 add wave -position end  sim:/processor/alu_op_id_ex
 
