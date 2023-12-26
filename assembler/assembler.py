@@ -129,6 +129,7 @@ class Assembler:
         is_call = "0"
         is_ret = "0"
         is_rti = "0"
+        print(parts[0])
 
         if parts[0] == "JMP":
             is_jmp = "1"
@@ -206,7 +207,7 @@ class Assembler:
             result = self.getConditionalJumpInstructions(parts)
 
         elif op_code == "100":  # Unconditional Jump instruction
-            result = self.getUnconditionalJumpInstructions(parts)
+            result = self.getConditionalJumpInstructions(parts)
 
         elif op_code == "101":  # Data Operation instruction
             result = self.getDataOperationInstruction(parts)

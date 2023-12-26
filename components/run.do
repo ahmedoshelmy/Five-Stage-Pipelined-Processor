@@ -10,9 +10,15 @@ add wave -position end  sim:/processor/pc
 add wave -position end  sim:/processor/instruction_if_ex
 add wave -position end  sim:/processor/pc_if_ex
 
-add wave -position end  sim:/processor/decode_CU/wb_src
+add wave -position end  sim:/processor/flush_ex
+add wave -position end  sim:/processor/executeBU/*
+add wave -position end  sim:/processor/call_jmp
+add wave -position end  sim:/processor/is_jz
+
+add wave -position end  sim:/processor/call_jmp_id_ex
+add wave -position end  sim:/processor/is_jz_id_ex
+
 add wave -position end  sim:/processor/alu_src_2_id_ex
-add wave -position end  sim:/processor/alu_op_id_ex
 
 add wave -position end  sim:/processor/flags_out_alu
 add wave -position end  sim:/processor/flags_in_alu

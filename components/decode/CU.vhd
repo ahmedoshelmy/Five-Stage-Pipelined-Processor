@@ -10,6 +10,7 @@ entity CU is
         rs1_rd, rs2_rd : out unsigned(0 downto 0);
         alu_src        : out unsigned(1 downto 0);
         out_port_en    : out unsigned(0 downto 0);
+        ior, iow       : out unsigned(0 downto 0);
         one_two_op     : out unsigned(0 downto 0);
         alu_op         : out unsigned(3 downto 0);
         wb_src         : out unsigned(1 downto 0);
@@ -23,6 +24,7 @@ entity CU is
         call_jmp       : out unsigned(0 downto 0);
         ret            : out unsigned(0 downto 0);
         read_reg_one   : out unsigned(0 downto 0);
+        is_jz          : out unsigned(0 downto 0);
         read_reg_two   : out unsigned(0 downto 0)
     );
 end entity CU;
@@ -117,12 +119,15 @@ architecture ArchCU of CU is
 begin
     process (instruction) is
     begin
+            report "instruction: " & to_string(instruction);
         reg_one_write <= "0";
         reg_two_write <= "0";
         rs1_rd        <= rs;
         rs2_rd        <= rs;
         alu_src       <= reg;
         out_port_en   <= "0";
+        ior           <= "0";
+        iow           <= "0";
         one_two_op    <= one_op;
         alu_op        <= alu_nop;
         wb_src        <= alu_out;
@@ -137,6 +142,7 @@ begin
         ret           <= "0";
         read_reg_one  <= "0";
         read_reg_two  <= "0";
+        is_jz         <= "0";
         case instruction is
             when not_bits =>
                 reg_one_write <= "1";
@@ -242,11 +248,14 @@ begin
                 rs1_rd         <= rd;
                 alu_op        <= alu_buff2;
                 read_reg_one  <= "1";
+                is_jz <= "1";
             when jmp_bits =>
                 rs1_rd         <= rd;
                 alu_op        <= alu_buff2;
                 call_jmp      <= jmp;
                 read_reg_one  <= "1";
+                report "JMP";
+                
             when call_bits =>
                 rs1_rd         <= rd;
                 alu_op        <= alu_nop;
@@ -296,11 +305,13 @@ begin
                 reg_one_write <= "1";
                 alu_op        <= alu_buff2;
                 wb_src        <= inport_out;
+                ior           <= "1";
             when out_bits =>
                 rs1_rd         <= rd;
                 out_port_en   <= "1";
                 alu_op        <= alu_buff1;
                 read_reg_one  <= "1";
+                iow           <= "1";
             when free_bits =>
                 rs1_rd         <= rd;
                 mem_free      <= "1";

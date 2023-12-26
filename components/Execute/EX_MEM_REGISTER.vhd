@@ -18,6 +18,8 @@ generic (
         reg_one_write, reg_two_write       : IN unsigned (0 downto 0);
         stack_en, mem_read,  mem_write     : IN unsigned (0 downto 0);
         ret, push_pop, out_port_en         : IN unsigned (0 downto 0);
+        ior, iow                           : IN unsigned (0 downto 0);
+        inport_data                        : IN unsigned (regWidth-1 DOWNTO 0);
         mem_free, mem_protect              : IN unsigned (0 downto 0);
         wb_src                             : IN unsigned (1 downto 0);
         read_reg_one, read_reg_two         : IN  unsigned (0 downto 0);
@@ -33,6 +35,8 @@ generic (
         reg_one_write_out, reg_two_write_out       : out unsigned (0 downto 0);
         stack_en_out, mem_read_out,  mem_write_out     : out unsigned (0 downto 0);
         ret_out, push_pop_out, out_port_en_out         : out unsigned (0 downto 0);
+        ior_out, iow_out                           : out unsigned (0 downto 0);
+        inport_data_out                        : out unsigned (regWidth-1 DOWNTO 0);
         mem_free_out, mem_protect_out              : out unsigned (0 downto 0);
         wb_src_out                             : out unsigned (1 downto 0);
         read_reg_one_out, read_reg_two_out         : out  unsigned (0 downto 0)
@@ -65,6 +69,9 @@ BEGIN
             ret_out <= "0";
             push_pop_out <= "0";
             out_port_en_out <= "0";
+            ior_out <= "0";
+            iow_out <= "0";
+            inport_data_out <= (OTHERS => '0');
 
             mem_free_out <= "0";
             mem_protect_out <= "0";
@@ -90,6 +97,9 @@ BEGIN
             ret_out <= ret ;
             push_pop_out <= push_pop ;
             out_port_en_out <= out_port_en ;
+            ior_out <= ior ;
+            iow_out <= iow ;
+            inport_data_out <= inport_data ;
             mem_free_out <= mem_free ;
             mem_protect_out <= mem_protect ;
             read_reg_one_out <= read_reg_one ;

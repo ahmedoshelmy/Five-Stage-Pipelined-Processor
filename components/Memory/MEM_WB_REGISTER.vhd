@@ -15,6 +15,8 @@ ENTITY MEM_WB_REGISTER IS
         reg_one_write, reg_two_write       : IN unsigned (0 downto 0);
         wb_src : IN unsigned (1 downto 0);
         out_port_en : IN unsigned (0 downto 0);
+        ior, iow : IN unsigned (0 downto 0);
+        inport_data : IN unsigned (regWidth-1 DOWNTO 0);
         read_reg_one, read_reg_two         : IN  unsigned (0 downto 0);
         
         -- outputs
@@ -23,6 +25,8 @@ ENTITY MEM_WB_REGISTER IS
         reg_one_write_out, reg_two_write_out       : out unsigned (0 downto 0);
         wb_src_out                             : out unsigned (1 downto 0);
         out_port_en_out : out unsigned (0 downto 0);
+        ior_out, iow_out : out unsigned (0 downto 0);
+        inport_data_out : out unsigned (regWidth-1 DOWNTO 0);
         read_reg_one_out, read_reg_two_out         : out  unsigned (0 downto 0)
     
     );
@@ -46,6 +50,9 @@ BEGIN
             reg_two_write_out <= "0";
             wb_src_out <= (OTHERS => '0');
             out_port_en_out <= "0";
+            ior_out <= "0";
+            iow_out <= "0";
+            inport_data_out <= (OTHERS => '0');
             read_reg_one_out <= "0";
             read_reg_two_out <= "0";
         ELSIF (clk'event and clk = "1") THEN
@@ -61,6 +68,9 @@ BEGIN
             reg_two_write_out <= reg_two_write ;
             wb_src_out <= wb_src; 
             out_port_en_out <= out_port_en ;
+            ior_out <= ior ;
+            iow_out <= iow ;
+            inport_data_out <= inport_data ;
             read_reg_one_out <= read_reg_one ;
             read_reg_two_out <= read_reg_two ;
         END IF;
