@@ -114,7 +114,7 @@ class Assembler:
         idx = 2
         if parts[0] == "ADDI":
             idx = 3
-        immediate_value = self.signed_int_to_binary_16_bits(parts[idx])
+        immediate_value = self.hex_to_signed_int_binary_16_bits(parts[idx])
         return rsrc1 + rsrc2 + is_load + is_rotate + function + "\n" + immediate_value
 
 
@@ -158,8 +158,12 @@ class Assembler:
             port_operation = "1"
         elif parts[0] in ["POP", "PUSH"]:
             stack_operation = "1"
+        
+        output = rsrc1 + rsrc2 + will_input_in_reg + mem_operation + stack_operation + port_operation
+        if mem_operation == "1":
+            output += "\n" + self.hex_to_signed_int_binary_16_bits(parts[2])
 
-        return rsrc1 + rsrc2 + will_input_in_reg + mem_operation + stack_operation + port_operation
+        return output 
 
 
     def getMemorySecurityInstruction(self, parts):
@@ -251,6 +255,12 @@ class Assembler:
         number &= 0xFFFF
         binary_representation = format(number, '016b')
         return binary_representation
+    def hex_to_signed_int_binary_16_bits(self, hex_number):
+        # Convert hexadecimal to integer
+        number = int(hex_number, 16)
+        number &= 0xFFFF
+        binary_representation = format(number, '016b')
+        return binary_representation
     def is_value_within_16_bits(self, value, signed=True):
         value = int(value)
         if signed:
@@ -293,7 +303,7 @@ def easy_reading(instruction_path, output_path):
 
 
 if __name__ == "__main__":
-    component_path = "E:/3rd/04 Arc/07 Project/Five-Stage-Pipelined-Processor/components/"
+    component_path = "C:/Users/Dell/Desktop/Ahmed/Projects/University/Five-Stage-Pipelined-Processor/components/"
     assembler = Assembler(f"{component_path}code.txt", f"{component_path}/instruction.txt")
     assembler.main()
     fix_xxx(f"{component_path}/instruction.txt")
