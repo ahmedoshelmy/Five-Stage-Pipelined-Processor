@@ -30,7 +30,7 @@ begin
             -- REMOVE THIS LINE 
             --registers <= (others => (others => '0'));
             registers(0) <= x"00000000";
-            registers(1) <= x"00000010";
+            registers(1) <= x"00000005";
             registers(2) <= x"00000013";
             registers(3) <= x"0000FFFD";
             registers(4) <= x"0000F320";
