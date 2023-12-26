@@ -1,5 +1,6 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
 
 ENTITY FU IS
     PORT (
@@ -24,8 +25,8 @@ ENTITY FU IS
         wb_src_mem_wb : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
 
         -- Selectors 
-        rsrc1_d_ex_sel : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        rsrc2_d_ex_sel : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
+        rsrc1_d_ex_sel : OUT UNSIGNED(2 DOWNTO 0);
+        rsrc2_d_ex_sel : OUT UNSIGNED(2 DOWNTO 0)
     );
 
 END ENTITY FU;
