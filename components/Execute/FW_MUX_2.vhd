@@ -31,7 +31,7 @@ BEGIN
             WHEN "100" => alu_src_2 <= in_port_ex_mem;
             WHEN "110" => alu_src_2 <= in_port_mem_wb;
             WHEN "101" => alu_src_2 <= mem_out;
-            WHEN "110" => alu_src_2 <= alu_src_2_mem;
+            WHEN "111" => alu_src_2 <= alu_src_2_mem;
             WHEN OTHERS => alu_src_2 <= (OTHERS => '0');
         END CASE;
     END PROCESS;

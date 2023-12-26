@@ -32,7 +32,7 @@ BEGIN
             WHEN "100" => alu_src_1 <= in_port_ex_mem; -- IN PORT DATA FROM PREV  
             WHEN "110" => alu_src_1 <= in_port_mem_wb; -- IN PORT DATA FROM PREV  
             WHEN "101" => alu_src_1 <= mem_out; -- MEM OUT
-            WHEN "110" => alu_src_1 <= alu_src_2_mem; -- ALU SRC2 FROM BEFORE PREV
+            WHEN "111" => alu_src_1 <= alu_src_2_mem; -- ALU SRC2 FROM BEFORE PREV
             WHEN OTHERS => alu_src_1 <= (OTHERS => '0'); -- NO 
         END CASE;
     END PROCESS;

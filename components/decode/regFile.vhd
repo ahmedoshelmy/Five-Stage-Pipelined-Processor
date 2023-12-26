@@ -31,10 +31,10 @@ begin
             --registers <= (others => (others => '0'));
             registers(0) <= x"00000000";
             registers(1) <= x"00000010";
-            registers(2) <= x"00000020";
-            registers(3) <= x"00000030";
-            registers(4) <= x"00000040";
-            registers(5) <= x"00000050";
+            registers(2) <= x"00000013";
+            registers(3) <= x"0000FFFD";
+            registers(4) <= x"0000F320";
+            registers(5) <= x"00000005";
             registers(6) <= x"00000060";
             registers(7) <= x"00000070";
         -- sync behaviour of neg edge

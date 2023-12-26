@@ -1,449 +1,447 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
 
-entity processor is
-    port (
-        clk, reset, interrupt : in  std_logic;
-        port_in               : in  unsigned(31 downto 0);
-        port_out              : out unsigned(31 downto 0)
+ENTITY processor IS
+    PORT (
+        clk, reset, interrupt : IN STD_LOGIC;
+        port_in : IN unsigned(31 DOWNTO 0);
+        port_out : OUT unsigned(31 DOWNTO 0)
     );
-end entity processor;
+END ENTITY processor;
 
-architecture archProcessor of processor is
-------------------------- fetch stage signals start -------------------
-    signal pc                : unsigned(31 downto 0) := (others => '0');
-    signal instruction       : std_logic_vector(15 downto 0) := (others => '0');
-    signal instruction_if_ex : std_logic_vector(15 downto 0) := (others => '0');
-    signal pc_if_ex          : std_logic_vector(31 downto 0) := (others => '0');
-    signal next_pc_src       : unsigned(31 downto 0) := (others => '0');
-------------------------- fetch stage signals end ---------------------
+ARCHITECTURE archProcessor OF processor IS
+    ------------------------- fetch stage signals start -------------------
+    SIGNAL pc : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL instruction : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL instruction_if_ex : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL pc_if_ex : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL next_pc_src : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    ------------------------- fetch stage signals end ---------------------
 
-------------------------- decode stage signals start ------------------
-    signal ra1                 : unsigned (2 downto 0) := (others => '0');
-    signal ra2                 : unsigned (2 downto 0) := (others => '0');
-    signal wa1                 : unsigned (2 downto 0) := (others => '0');
-    signal wa2                 : unsigned (2 downto 0) := (others => '0');
-    signal rd1                 : unsigned(31 downto 0) := (others => '0');
-    signal rd2                 : unsigned(31 downto 0) := (others => '0');
-    signal alu_src_2           : unsigned(31 downto 0) := (others => '0');
-    signal rd1_id_ex           : unsigned(31 downto 0) := (others => '0');
-    signal rd2_id_ex           : unsigned(31 downto 0) := (others => '0');
-    signal alu_src_2_id_ex     : unsigned(31 downto 0) := (others => '0');
-    signal ra1_id_ex           : unsigned (2 downto 0) := (others => '0');
-    signal ra2_id_ex           : unsigned (2 downto 0) := (others => '0');
-    signal wa1_id_ex           : unsigned (2 downto 0) := (others => '0');
-    signal wa2_id_ex           : unsigned (2 downto 0) := (others => '0');
-    signal reg_one_write_id_ex : unsigned (0 downto 0) :=             "0";
-    signal reg_two_write_id_ex : unsigned (0 downto 0) :=             "0";
-    signal stack_en_id_ex      : unsigned (0 downto 0) :=             "0";
-    signal mem_read_id_ex      : unsigned (0 downto 0) :=             "0";
-    signal mem_write_id_ex     : unsigned (0 downto 0) :=             "0";
-    signal call_jmp_id_ex      : unsigned (0 downto 0) :=             "0";
-    signal is_jz_id_ex      : unsigned (0 downto 0) :=             "0";
-    signal ret_id_ex           : unsigned (0 downto 0) :=             "0";
-    signal push_pop_id_ex      : unsigned (0 downto 0) :=             "0";
-    signal out_port_en_id_ex   : unsigned (0 downto 0) :=             "0";
-    signal ior_id_ex           : unsigned (0 downto 0) :=             "0";
-    signal iow_id_ex           : unsigned (0 downto 0) :=             "0";
-    signal mem_free_id_ex      : unsigned (0 downto 0) :=             "0";
-    signal mem_protect_id_ex   : unsigned (0 downto 0) :=             "0";
-    signal read_reg_one_id_ex  : unsigned (0 downto 0) :=             "0";
-    signal read_reg_two_id_ex  : unsigned (0 downto 0) :=             "0";
-    signal imm_en_id_ex        : unsigned (0 downto 0) :=             "0";
-    signal alu_op_id_ex        : unsigned (3 downto 0) := (others => '0');
-    signal wb_src_id_ex        : unsigned (1 downto 0) := (others => '0');
-------------------------- decode stage signals end --------------------
+    ------------------------- decode stage signals start ------------------
+    SIGNAL ra1 : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL ra2 : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL wa1 : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL wa2 : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd1 : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd2 : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL alu_src_2 : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd1_id_ex : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd2_id_ex : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL alu_src_2_id_ex : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL ra1_id_ex : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL ra2_id_ex : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL wa1_id_ex : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL wa2_id_ex : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL reg_one_write_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL reg_two_write_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL stack_en_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL mem_read_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL mem_write_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL call_jmp_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL is_jz_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL ret_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL push_pop_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL out_port_en_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL ior_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL iow_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL mem_free_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL mem_protect_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL read_reg_one_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL read_reg_two_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL imm_en_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL alu_op_id_ex : unsigned (3 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL wb_src_id_ex : unsigned (1 DOWNTO 0) := (OTHERS => '0');
+    ------------------------- decode stage signals end --------------------
 
-------------------------- execute stage signals start --------------------
-    signal alu_src_2_FW_MUX   : unsigned        (31 downto 0) := (others => '0');
-    signal alu_src_1_FW_MUX   : unsigned        (31 downto 0) := (others => '0');
-    signal flags_in_alu       : unsigned        (2 downto 0) := (others => '0');
-    signal flags_out_alu       : unsigned        (2 downto 0) := (others => '0');
+    ------------------------- execute stage signals start --------------------
+    SIGNAL alu_src_2_FW_MUX : unsigned (31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL alu_src_1_FW_MUX : unsigned (31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL flags_in_alu : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL flags_out_alu : unsigned (2 DOWNTO 0) := (OTHERS => '0');
 
-    signal alu_out_ex     : signed        (31 downto 0) := (others => '0');
+    SIGNAL alu_out_ex : signed (31 DOWNTO 0) := (OTHERS => '0');
     -- output from pipeline reg
-    signal alu_out_ex_mem     : unsigned        (31 downto 0) := (others => '0');
-    signal alu_src_2_ex_mem   : unsigned        (31 downto 0) := (others => '0');
-    signal ra1_ex_mem         : unsigned        (2 downto 0) := (others => '0');
-    signal ra2_ex_mem         : unsigned        (2 downto 0) := (others => '0');
-    signal rd1_ex_mem         : unsigned        (2 downto 0) := (others => '0');
-    signal rd2_ex_mem         : unsigned        (2 downto 0) := (others => '0');
+    SIGNAL alu_out_ex_mem : unsigned (31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL alu_src_2_ex_mem : unsigned (31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL ra1_ex_mem : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL ra2_ex_mem : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd1_ex_mem : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd2_ex_mem : unsigned (2 DOWNTO 0) := (OTHERS => '0');
 
-    signal reg_one_write_ex_mem : unsigned (0 downto 0) :=             "0";
-    signal reg_two_write_ex_mem : unsigned (0 downto 0) :=             "0";
-    signal wb_src_ex_mem        : unsigned (1 downto 0) := (others => '0');
-    signal stack_en_ex_mem       : unsigned (0 downto 0) :=             "0";
-    signal mem_read_ex_mem      : unsigned (0 downto 0) :=             "0";
-    signal mem_write_ex_mem     : unsigned (0 downto 0) :=             "0";
-    signal push_pop_ex_mem      : unsigned (0 downto 0) :=             "0";
-    signal out_port_en_ex_mem    : unsigned (0 downto 0) :=             "0";
-    signal ior_ex_mem           : unsigned (0 downto 0) :=             "0";
-    signal iow_ex_mem           : unsigned (0 downto 0) :=             "0";
-    signal inport_data_ex_mem   : unsigned (31 downto 0) := (others => '0');
-    signal mem_free_ex_mem       : unsigned (0 downto 0) :=             "0";
-    signal mem_protect_ex_mem    : unsigned (0 downto 0) :=             "0";
-    signal read_reg_one_ex_mem  : unsigned (0 downto 0) :=             "0";
-    signal read_reg_two_ex_mem  : unsigned (0 downto 0) :=             "0";
-    signal ret_ex_mem            : unsigned (0 downto 0) :=             "0";
+    SIGNAL reg_one_write_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL reg_two_write_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL wb_src_ex_mem : unsigned (1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL stack_en_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL mem_read_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL mem_write_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL push_pop_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL out_port_en_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL ior_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL iow_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL inport_data_ex_mem : unsigned (31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL mem_free_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL mem_protect_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL read_reg_one_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL read_reg_two_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL ret_ex_mem : unsigned (0 DOWNTO 0) := "0";
 
-------------------------- execute stage signals end --------------------
+    ------------------------- execute stage signals end --------------------
 
-------------------------- forwarding unit signals start ------------------
-    signal alu_src_1_SEL   : unsigned        (2 downto 0) := (others => '0');
-    signal alu_src_2_SEL   : unsigned        (2 downto 0) := (others => '0');
-------------------------- forwarding unit signals end ------------------
+    ------------------------- forwarding unit signals start ------------------
+    SIGNAL alu_src_1_SEL : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL alu_src_2_SEL : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    ------------------------- forwarding unit signals end ------------------
 
-------------------------- memory stage signals start -----------------
-    signal address_mem_in       : unsigned  (11 DOWNTO 0); -- out of mux to memory
-    signal sp                   : unsigned          (31 downto 0) := (others => '0');
+    ------------------------- memory stage signals start -----------------
+    SIGNAL address_mem_in : unsigned (11 DOWNTO 0); -- out of mux to memory
+    SIGNAL sp : unsigned (31 DOWNTO 0) := (OTHERS => '0');
     -- signal stack_en_ex_mem      : unsigned         (0 downto 0) :=             "0";
-    signal write_sp_data_ex_mem : unsigned        (31 downto 0) := (others => '0');  
-    signal pc_rst_val, pc_int_val  : unsigned(31 downto 0) := (others => '0'); 
-    
-    signal mem_out_DMEM         : unsigned(31 downto 0) := (others => '0');
+    SIGNAL write_sp_data_ex_mem : unsigned (31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL pc_rst_val, pc_int_val : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+
+    SIGNAL mem_out_DMEM : unsigned(31 DOWNTO 0) := (OTHERS => '0');
 
     -- output from pipeline reg
-    signal alu_out_mem_wb     : unsigned        (31 downto 0) := (others => '0');
-    signal alu_src_2_mem_wb   : unsigned        (31 downto 0) := (others => '0');
-    signal mem_out_mem_wb   : unsigned        (31 downto 0) := (others => '0');
-    signal ra1_mem_wb         : unsigned        (2 downto 0) := (others => '0');
-    signal ra2_mem_wb         : unsigned        (2 downto 0) := (others => '0');
-    signal rd1_mem_wb         : unsigned        (2 downto 0) := (others => '0');
-    signal rd2_mem_wb         : unsigned        (2 downto 0) := (others => '0');
+    SIGNAL alu_out_mem_wb : unsigned (31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL alu_src_2_mem_wb : unsigned (31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL mem_out_mem_wb : unsigned (31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL ra1_mem_wb : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL ra2_mem_wb : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd1_mem_wb : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd2_mem_wb : unsigned (2 DOWNTO 0) := (OTHERS => '0');
 
-    signal reg_one_write_mem_wb : unsigned (0 downto 0) :=             "0";
-    signal reg_two_write_mem_wb : unsigned (0 downto 0) :=             "0";
-    signal wb_src_mem_wb        : unsigned (1 downto 0) := (others => '0');
-    signal out_port_en_mem_wb    : unsigned (0 downto 0) :=             "0";
-    signal ior_mem_wb           : unsigned (0 downto 0) :=             "0";
-    signal iow_mem_wb           : unsigned (0 downto 0) :=             "0";
-    signal inport_data_mem_wb   : unsigned (31 downto 0) := (others => '0');
-    signal read_reg_one_mem_wb  : unsigned (0 downto 0) :=             "0";
-    signal read_reg_two_mem_wb  : unsigned (0 downto 0) :=             "0";
+    SIGNAL reg_one_write_mem_wb : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL reg_two_write_mem_wb : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL wb_src_mem_wb : unsigned (1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL out_port_en_mem_wb : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL ior_mem_wb : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL iow_mem_wb : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL inport_data_mem_wb : unsigned (31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL read_reg_one_mem_wb : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL read_reg_two_mem_wb : unsigned (0 DOWNTO 0) := "0";
     ------------------------- write back stage signals start --------------
-    signal regWriteData         : unsigned        (31 downto 0) := (others => '0'); --output from wb mux
-    signal inport, outport               : unsigned        (31 downto 0) := (others => '0');
+    SIGNAL regWriteData : unsigned (31 DOWNTO 0) := (OTHERS => '0'); --output from wb mux
+    SIGNAL inport, outport : unsigned (31 DOWNTO 0) := (OTHERS => '0');
     --signal alu_src_2_mem_wb     : unsigned        (31 downto 0) := (others => '0');
     --signal reg_one_write_mem_wb : unsigned         (0 downto 0) :=             "0";
     --signal reg_two_write_mem_wb : unsigned         (0 downto 0) :=             "0";
-------------------------- write back stage signals end ----------------
-    
-------------------------- control signals start -----------------------
-    signal imm_en        : std_logic            :=             '0';
-    signal stall         : std_logic            :=             '0';
-    signal reg_one_write : unsigned(0 downto 0) :=             "0";
-    signal reg_two_write : unsigned(0 downto 0) :=             "0";
-    signal rs1_rd        : unsigned(0 downto 0) :=             "0";
-    signal rs2_rd        : unsigned(0 downto 0) :=             "0";
-    signal alu_src       : unsigned(1 downto 0) := (others => '0');
-    signal out_port_en   : unsigned(0 downto 0) :=             "0";
-    signal ior           : unsigned(0 downto 0) :=             "0";
-    signal iow           : unsigned(0 downto 0) :=             "0";
-    signal one_two_op    : unsigned(0 downto 0) :=             "0";
-    signal alu_op        : unsigned(3 downto 0) := (others => '0');
-    signal wb_src        : unsigned(1 downto 0) := (others => '0');
-    signal stack_en      : unsigned(0 downto 0) :=             "0";
-    signal mem_read      : unsigned(0 downto 0) :=             "0";
-    signal mem_write     : unsigned(0 downto 0) :=             "0";
-    signal mem_free      : unsigned(0 downto 0) :=             "0";
-    signal mem_protect   : unsigned(0 downto 0) :=             "0";
-    signal push_pop      : unsigned(0 downto 0) :=             "0";
-    signal call_jmp      : unsigned(0 downto 0) :=             "0";
-    signal ret           : unsigned(0 downto 0) :=             "0";
-    signal read_reg_one  : unsigned(0 downto 0) :=             "0";
-    signal is_jz         : unsigned(0 downto 0) :=             "0";
-    signal read_reg_two  : unsigned(0 downto 0) :=             "0";
-------------------------- control signals end -------------------------
+    ------------------------- write back stage signals end ----------------
 
-------------------------- internal signals start ----------------------
-    signal instruction_internal : unsigned (6 downto 0) := (others => '0');
-    signal imm_en_internal      : unsigned (0 downto 0) :=             "0";
-    signal rs1_internal         : unsigned (2 downto 0) := (others => '0');
-    signal rs2_internal         : unsigned (2 downto 0) := (others => '0');
-    signal rd_internal          : unsigned (2 downto 0) := (others => '0');
-    signal clk_internal         : unsigned (0 downto 0) :=             "0";
-    signal reset_internal       : unsigned (0 downto 0) :=             "0";
-    signal imm_internal         : unsigned(15 downto 0) := (others => '0');
-    signal pc_internal          : unsigned(31 downto 0) := (others => '0');
-    signal stall_internal       : unsigned (0 downto 0) :=             "0";
-    signal alu_out_unsigned     : unsigned(31 downto 0) := (others => '0');
-    signal mem_out_DME_in, pc_rst_val_in, pc_int_val_in :std_logic_vector(31 downto 0) := (others => '0');
+    ------------------------- control signals start -----------------------
+    SIGNAL imm_en : STD_LOGIC := '0';
+    SIGNAL stall : STD_LOGIC := '0';
+    SIGNAL reg_one_write : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL reg_two_write : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL rs1_rd : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL rs2_rd : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL alu_src : unsigned(1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL out_port_en : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL ior : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL iow : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL one_two_op : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL alu_op : unsigned(3 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL wb_src : unsigned(1 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL stack_en : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL mem_read : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL mem_write : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL mem_free : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL mem_protect : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL push_pop : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL call_jmp : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL ret : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL read_reg_one : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL is_jz : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL read_reg_two : unsigned(0 DOWNTO 0) := "0";
+    ------------------------- control signals end -------------------------
 
-------------------------- internal signals end ------------------------
+    ------------------------- internal signals start ----------------------
+    SIGNAL instruction_internal : unsigned (6 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL imm_en_internal : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL rs1_internal : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rs2_internal : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL rd_internal : unsigned (2 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL clk_internal : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL reset_internal : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL imm_internal : unsigned(15 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL pc_internal : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL stall_internal : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL alu_out_unsigned : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL mem_out_DME_in, pc_rst_val_in, pc_int_val_in : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
 
-------------------------- Branching signals start ---------------------
-    signal flush_ex : std_logic := '0';
-    signal flush_mem : std_logic := '0';
-------------------------- Branching signals end ---------------------
+    ------------------------- internal signals end ------------------------
 
-------------------------- I/O signals start -------------------------
-    signal inport_data : unsigned(31 downto 0) := (others => '0');
-------------------------- I/O signals end ---------------------------
+    ------------------------- Branching signals start ---------------------
+    SIGNAL flush_ex : STD_LOGIC := '0';
+    SIGNAL flush_mem : STD_LOGIC := '0';
+    ------------------------- Branching signals end ---------------------
 
-------------------------- Mocking External devices ------------------
--- for input port
-    signal inport_external_device : unsigned(31 downto 0) := (others => '0');
-    signal inport_en_external_device : unsigned(0 downto 0) := (others => '0');
+    ------------------------- I/O signals start -------------------------
+    SIGNAL inport_data : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    ------------------------- I/O signals end ---------------------------
 
--- ============================ ============================ ============================
--- ============================ ============================ ============================
--- ============================ ============================ ============================
--- ============================ ==== COMPONENTS ============ ============================
--- ============================ ============================ ============================
+    ------------------------- Mocking External devices ------------------
+    -- for input port
+    SIGNAL inport_external_device : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL inport_en_external_device : unsigned(0 DOWNTO 0) := (OTHERS => '0');
 
-------------------------- fetch stage start ---------------------------
-    component instruction_memory is
-        port (
-            clk, reset : in std_logic;
-            address : in std_logic_vector(11 downto 0);
-            dataout : out std_logic_vector(15 downto 0)
+    -- ============================ ============================ ============================
+    -- ============================ ============================ ============================
+    -- ============================ ============================ ============================
+    -- ============================ ==== COMPONENTS ============ ============================
+    -- ============================ ============================ ============================
+
+    ------------------------- fetch stage start ---------------------------
+    COMPONENT instruction_memory IS
+        PORT (
+            clk, reset : IN STD_LOGIC;
+            address : IN STD_LOGIC_VECTOR(11 DOWNTO 0);
+            dataout : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
         );
-    end component;
+    END COMPONENT;
 
-    component IF_ID_REGISTER is
-        port (
-            clk   : in std_logic;
-            reset : in std_logic;
-            int   : in std_logic;
-            imm_en   : in std_logic;
+    COMPONENT IF_ID_REGISTER IS
+        PORT (
+            clk : IN STD_LOGIC;
+            reset : IN STD_LOGIC;
+            int : IN STD_LOGIC;
+            imm_en : IN STD_LOGIC;
 
-            instruction : in std_logic_vector(15 downto 0);
-            pc : in std_logic_vector(31 downto 0);
-            enable : in std_logic;
-            
-            instruction_if_ex : out std_logic_vector(15 downto 0);
-            pc_if_ex : out std_logic_vector(31 downto 0)
+            instruction : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+            pc : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            enable : IN STD_LOGIC;
+
+            instruction_if_ex : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+            pc_if_ex : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
         );
-    end component IF_ID_REGISTER;
+    END COMPONENT IF_ID_REGISTER;
 
-    component PC_REG IS
-    PORT (
-        CLK, RESET, INT, WEN : IN STD_LOGIC;
-        RST_val, INT_val, PC_IN : IN unsigned(11 DOWNTO 0);
-        PC_OUT : OUT unsigned(11 DOWNTO 0)
-    );
-    END component PC_REG;
-
-    component PC_SRC_MUX is
-         port (
-                memOut, aluSrc2, next_pc      : IN unsigned     (31 Downto 0);
-                FLUSH_MEM, FLUSH_EX           : IN std_logic ;
-                PC_OUT                        : OUT unsigned     (31 Downto 0)
-           );
-    end component;
-------------------------- fetch stage end ---------------------------
-
-------------------------- decode stage start ------------------------
-    component alu_src_2_mux is
-        port (
-            rd2, pc   : in  unsigned(31 downto 0);
-            imm       : in  unsigned(15 downto 0);
-            alu_src   : in  unsigned (1 downto 0);
-            alu_src_2 : out unsigned(31 downto 0)
+    COMPONENT PC_REG IS
+        PORT (
+            CLK, RESET, INT, WEN : IN STD_LOGIC;
+            RST_val, INT_val, PC_IN : IN unsigned(11 DOWNTO 0);
+            PC_OUT : OUT unsigned(11 DOWNTO 0)
         );
-    end component alu_src_2_mux;
+    END COMPONENT PC_REG;
 
-    component rs1_rd_mux is
-        port (
-            rs1, rd   : in  unsigned(2 downto 0);
-            rs1_rd    : in  unsigned(0 downto 0);
-            ra1       : out unsigned(2 downto 0)
+    COMPONENT PC_SRC_MUX IS
+        PORT (
+            memOut, aluSrc2, next_pc : IN unsigned (31 DOWNTO 0);
+            FLUSH_MEM, FLUSH_EX : IN STD_LOGIC;
+            PC_OUT : OUT unsigned (31 DOWNTO 0)
         );
-    end component rs1_rd_mux;
+    END COMPONENT;
+    ------------------------- fetch stage end ---------------------------
 
-    component rs2_rd_mux is
-        port (
-            rs2, rd   : in  unsigned(2 downto 0);
-            rs2_rd    : in  unsigned(0 downto 0);
-            ra2       : out unsigned(2 downto 0)
+    ------------------------- decode stage start ------------------------
+    COMPONENT alu_src_2_mux IS
+        PORT (
+            rd2, pc : IN unsigned(31 DOWNTO 0);
+            imm : IN unsigned(15 DOWNTO 0);
+            alu_src : IN unsigned (1 DOWNTO 0);
+            alu_src_2 : OUT unsigned(31 DOWNTO 0)
         );
-    end component rs2_rd_mux;
+    END COMPONENT alu_src_2_mux;
 
-    component cu is
-        port (
-            instruction    : in  unsigned(6 downto 0);
-            reg_one_write  : out unsigned(0 downto 0);
-            reg_two_write  : out unsigned(0 downto 0);
-            rs1_rd, rs2_rd : out unsigned(0 downto 0);
-            alu_src        : out unsigned(1 downto 0);
-            out_port_en    : out unsigned(0 downto 0);
-            ior, iow       : out unsigned(0 downto 0);
-            one_two_op     : out unsigned(0 downto 0);
-            alu_op         : out unsigned(3 downto 0);
-            wb_src         : out unsigned(1 downto 0);
-            imm_en         : out unsigned(0 downto 0);
-            stack_en       : out unsigned(0 downto 0);
-            mem_read       : out unsigned(0 downto 0);
-            mem_write      : out unsigned(0 downto 0);
-            mem_free       : out unsigned(0 downto 0);
-            mem_protect    : out unsigned(0 downto 0);
-            push_pop       : out unsigned(0 downto 0);
-            call_jmp       : out unsigned(0 downto 0);
-            ret            : out unsigned(0 downto 0);
-            read_reg_one   : out unsigned(0 downto 0);
-            is_jz          : out unsigned(0 downto 0);
-            read_reg_two   : out unsigned(0 downto 0)
+    COMPONENT rs1_rd_mux IS
+        PORT (
+            rs1, rd : IN unsigned(2 DOWNTO 0);
+            rs1_rd : IN unsigned(0 DOWNTO 0);
+            ra1 : OUT unsigned(2 DOWNTO 0)
         );
-    end component cu;
+    END COMPONENT rs1_rd_mux;
 
-    component hdu is
-        port (
-            old_dst, cur_ra_one, cur_ra_two                     : in  unsigned(2 downto 0);
-            reg_write_one, mem_read, read_reg_one, read_reg_two : in  unsigned(0 downto 0);
-            stall                                               : out unsigned(0 downto 0)
+    COMPONENT rs2_rd_mux IS
+        PORT (
+            rs2, rd : IN unsigned(2 DOWNTO 0);
+            rs2_rd : IN unsigned(0 DOWNTO 0);
+            ra2 : OUT unsigned(2 DOWNTO 0)
         );
-    end component hdu;
+    END COMPONENT rs2_rd_mux;
 
-    component id_ex_register is
-        port (
-            clk, reset, en                                      : in  unsigned (0 downto 0);
-            rd1_in, alu_src_2_in                                : in  unsigned(31 downto 0);
-            ra1_in, ra2_in, rdst1_in, rdst2_in                  : in  unsigned (2 downto 0);
-            reg_one_write_in, reg_two_write_in, stack_en_in     : in  unsigned (0 downto 0);
-            mem_read_in, mem_write_in, call_jmp_in, ret_in      : in  unsigned (0 downto 0);
-            is_jz_in                                            : in unsigned  (0 downto 0);
-            push_pop_in, out_port_en_in                         : in  unsigned (0 downto 0);
-            ior_in, iow_in                                      : in  unsigned (0 downto 0);
-            mem_free_in, mem_protect_in                         : in  unsigned (0 downto 0);
-            read_reg_one_in, read_reg_two_in, imm_en_in         : in  unsigned (0 downto 0);
-            alu_op_in                                           : in  unsigned (3 downto 0);
-            wb_src_in                                           : in  unsigned (1 downto 0);        
-            rd1_out, alu_src_2_out                              : out unsigned(31 downto 0);
-            ra1_out, ra2_out, rdst1_out, rdst2_out              : out unsigned (2 downto 0);
-            reg_one_write_out, reg_two_write_out, stack_en_out  : out unsigned (0 downto 0);
-            mem_read_out, mem_write_out, call_jmp_out, ret_out  : out unsigned (0 downto 0);
-            push_pop_out, out_port_en_out                       : out unsigned (0 downto 0);
-            ior_out, iow_out                                    : out unsigned (0 downto 0);
-            mem_free_out, mem_protect_out                       : out unsigned (0 downto 0);
-            read_reg_one_out, read_reg_two_out, imm_en_out      : out unsigned (0 downto 0);
-            alu_op_out                                          : out unsigned (3 downto 0);
-            wb_src_out                                          : out unsigned (1 downto 0);
-            is_jz_out                                           : out unsigned (0 downto 0)
+    COMPONENT cu IS
+        PORT (
+            instruction : IN unsigned(6 DOWNTO 0);
+            reg_one_write : OUT unsigned(0 DOWNTO 0);
+            reg_two_write : OUT unsigned(0 DOWNTO 0);
+            rs1_rd, rs2_rd : OUT unsigned(0 DOWNTO 0);
+            alu_src : OUT unsigned(1 DOWNTO 0);
+            out_port_en : OUT unsigned(0 DOWNTO 0);
+            ior, iow : OUT unsigned(0 DOWNTO 0);
+            one_two_op : OUT unsigned(0 DOWNTO 0);
+            alu_op : OUT unsigned(3 DOWNTO 0);
+            wb_src : OUT unsigned(1 DOWNTO 0);
+            imm_en : OUT unsigned(0 DOWNTO 0);
+            stack_en : OUT unsigned(0 DOWNTO 0);
+            mem_read : OUT unsigned(0 DOWNTO 0);
+            mem_write : OUT unsigned(0 DOWNTO 0);
+            mem_free : OUT unsigned(0 DOWNTO 0);
+            mem_protect : OUT unsigned(0 DOWNTO 0);
+            push_pop : OUT unsigned(0 DOWNTO 0);
+            call_jmp : OUT unsigned(0 DOWNTO 0);
+            ret : OUT unsigned(0 DOWNTO 0);
+            read_reg_one : OUT unsigned(0 DOWNTO 0);
+            is_jz : OUT unsigned(0 DOWNTO 0);
+            read_reg_two : OUT unsigned(0 DOWNTO 0)
         );
-    end component id_ex_register;
+    END COMPONENT cu;
 
-    component regfile is
-        generic (
-            reg_width : integer := 32;
-            reg_count : integer := 8
+    COMPONENT hdu IS
+        PORT (
+            old_dst, cur_ra_one, cur_ra_two : IN unsigned(2 DOWNTO 0);
+            reg_write_one, mem_read, read_reg_one, read_reg_two : IN unsigned(0 DOWNTO 0);
+            stall : OUT unsigned(0 DOWNTO 0)
         );
-        port (
-            clk, rst, reg_one_write, reg_two_write           : in  unsigned                  (0 downto 0);
-            ra1, ra2, wa1, wa2                               : in  unsigned                  (2 downto 0);
-            wd1, wd2                                         : in  unsigned        (reg_width-1 downto 0);
-            rd1, rd2                           : out unsigned        (reg_width-1 downto 0)
+    END COMPONENT hdu;
+
+    COMPONENT id_ex_register IS
+        PORT (
+            clk, reset, en : IN unsigned (0 DOWNTO 0);
+            rd1_in, alu_src_2_in : IN unsigned(31 DOWNTO 0);
+            ra1_in, ra2_in, rdst1_in, rdst2_in : IN unsigned (2 DOWNTO 0);
+            reg_one_write_in, reg_two_write_in, stack_en_in : IN unsigned (0 DOWNTO 0);
+            mem_read_in, mem_write_in, call_jmp_in, ret_in : IN unsigned (0 DOWNTO 0);
+            is_jz_in : IN unsigned (0 DOWNTO 0);
+            push_pop_in, out_port_en_in : IN unsigned (0 DOWNTO 0);
+            ior_in, iow_in : IN unsigned (0 DOWNTO 0);
+            mem_free_in, mem_protect_in : IN unsigned (0 DOWNTO 0);
+            read_reg_one_in, read_reg_two_in, imm_en_in : IN unsigned (0 DOWNTO 0);
+            alu_op_in : IN unsigned (3 DOWNTO 0);
+            wb_src_in : IN unsigned (1 DOWNTO 0);
+            rd1_out, alu_src_2_out : OUT unsigned(31 DOWNTO 0);
+            ra1_out, ra2_out, rdst1_out, rdst2_out : OUT unsigned (2 DOWNTO 0);
+            reg_one_write_out, reg_two_write_out, stack_en_out : OUT unsigned (0 DOWNTO 0);
+            mem_read_out, mem_write_out, call_jmp_out, ret_out : OUT unsigned (0 DOWNTO 0);
+            push_pop_out, out_port_en_out : OUT unsigned (0 DOWNTO 0);
+            ior_out, iow_out : OUT unsigned (0 DOWNTO 0);
+            mem_free_out, mem_protect_out : OUT unsigned (0 DOWNTO 0);
+            read_reg_one_out, read_reg_two_out, imm_en_out : OUT unsigned (0 DOWNTO 0);
+            alu_op_out : OUT unsigned (3 DOWNTO 0);
+            wb_src_out : OUT unsigned (1 DOWNTO 0);
+            is_jz_out : OUT unsigned (0 DOWNTO 0)
         );
-    end component regfile;
-------------------------- decode stage end --------------------------
+    END COMPONENT id_ex_register;
 
-------------------------- execute stage start -----------------------
-    component FW_MUX_1 is
-        port (
-                -- inputs from D/EX
-                rd1_d_ex                                : IN unsigned     (31 Downto 0);
-                -- inputs from EX/MEM
-                alu_out_ex, alu_src_2_ex                : IN unsigned     (31 Downto 0);
-                -- inputs from MEM/WB
-                alu_out_mem, alu_src_2_mem, mem_out     : IN unsigned     (31 Downto 0);
-                -- inputs from FU
-                alu_src_1_sel                           : IN unsigned     (2 Downto 0);
-                -- ouputs 
-                alu_src_1                               : OUT unsigned    (31 Downto 0)
+    COMPONENT regfile IS
+        GENERIC (
+            reg_width : INTEGER := 32;
+            reg_count : INTEGER := 8
         );
-    end component;
-    component FW_MUX_2 is
-         port (
-                -- inputs from D/EX
-                alu_src_2_d                             : IN unsigned     (31 Downto 0);
-                -- inputs from EX/MEM
-                alu_out_ex, alu_src_2_ex                : IN unsigned     (31 Downto 0);
-                -- inputs from MEM/WB
-                alu_out_mem, alu_src_2_mem, mem_out     : IN unsigned     (31 Downto 0);
-                -- inputs from FU
-                alu_src_2_sel                           : IN unsigned     (2 Downto 0);
-                -- ouputs 
-                alu_src_2                               : OUT unsigned    (31 Downto 0)
-           );
-    end component;
-    
-    component alu is
-        generic (n : integer := 32);
-        port (
-            aluin1, aluin2  : in signed     (31 downto 0);
-            func            : in unsigned   (3 downto 0);
-            flagsin         : in unsigned  (2 downto 0);
-            flagsout        : out unsigned  (2 downto 0);
-            aluout          : out signed    (31 downto 0)
+        PORT (
+            clk, rst, reg_one_write, reg_two_write : IN unsigned (0 DOWNTO 0);
+            ra1, ra2, wa1, wa2 : IN unsigned (2 DOWNTO 0);
+            wd1, wd2 : IN unsigned (reg_width - 1 DOWNTO 0);
+            rd1, rd2 : OUT unsigned (reg_width - 1 DOWNTO 0)
         );
-    end component;
+    END COMPONENT regfile;
+    ------------------------- decode stage end --------------------------
 
-    component BRANCH_UNIT_EX is
-        port (
-            is_call_jmp        : in std_logic;
-            is_jz              : in std_logic;
-            zero_flag          : in std_logic;
-
-            is_jmp_tkn         : out std_logic
-       );
-    end component;
-
-    component ex_mem_register is
-        generic (
-            regwidth : integer := 32;
-            regaddrwidth : integer := 3
+    ------------------------- execute stage start -----------------------
+    COMPONENT FW_MUX_1 IS
+        PORT (
+            -- inputs from D/EX
+            rd1_d_ex : IN unsigned (31 DOWNTO 0);
+            -- inputs from EX/MEM
+            alu_out_ex, alu_src_2_ex : IN unsigned (31 DOWNTO 0);
+            -- inputs from MEM/WB
+            alu_out_mem, alu_src_2_mem, mem_out : IN unsigned (31 DOWNTO 0);
+            -- inputs from FU
+            alu_src_1_sel : IN unsigned (2 DOWNTO 0);
+            -- ouputs 
+            alu_src_1 : OUT unsigned (31 DOWNTO 0)
         );
-        port (
-            clk, reset                                      : in  unsigned (0 downto 0);
-
-        alu_out :   IN unsigned(regWidth-1 DOWNTO 0);
-        alu_src_2 : IN unsigned(regWidth-1 DOWNTO 0);
-
-        ra1, ra2, rdst1, rdst2 : IN unsigned(regAddrWidth-1 DOWNTO 0); 
-        -- control signals
-        reg_one_write, reg_two_write       : IN unsigned (0 downto 0);
-        stack_en, mem_read,  mem_write     : IN unsigned (0 downto 0);
-        ret, push_pop, out_port_en         : IN unsigned (0 downto 0);
-        ior, iow                           : IN unsigned (0 downto 0);
-        inport_data                        : IN unsigned (31 downto 0);
-        mem_free, mem_protect              : IN unsigned (0 downto 0);
-        wb_src                             : IN unsigned (1 downto 0);
-        read_reg_one, read_reg_two         : IN  unsigned (0 downto 0);
-
-
-
-        -- outputs
-        alu_out_out :   out unsigned(regWidth-1 DOWNTO 0);
-        alu_src_2_out : out unsigned(regWidth-1 DOWNTO 0);
-
-        ra1_out, ra2_out, rdst1_out, rdst2_out : out unsigned(regAddrWidth-1 DOWNTO 0); 
-        -- control signals
-        reg_one_write_out, reg_two_write_out       : out unsigned (0 downto 0);
-        stack_en_out, mem_read_out,  mem_write_out     : out unsigned (0 downto 0);
-        ret_out, push_pop_out, out_port_en_out         : out unsigned (0 downto 0);
-        ior_out, iow_out                           : out unsigned (0 downto 0);
-        inport_data_out                        : out unsigned (31 downto 0);
-        mem_free_out, mem_protect_out              : out unsigned (0 downto 0);
-        wb_src_out                             : out unsigned (1 downto 0);
-        read_reg_one_out, read_reg_two_out         : out  unsigned (0 downto 0)
-    );
-    end component ex_mem_register;
-
-    component flags_register is
-        port (
-            clk : in std_logic;
-            reset : in std_logic;
-            wen : in std_logic;
-    
-            zeroflag, negativeflag, carryflag : in std_logic;
-            zeroflag_reg, negativeflag_reg, carryflag_reg : out std_logic
+    END COMPONENT;
+    COMPONENT FW_MUX_2 IS
+        PORT (
+            -- inputs from D/EX
+            alu_src_2_d : IN unsigned (31 DOWNTO 0);
+            -- inputs from EX/MEM
+            alu_out_ex, alu_src_2_ex : IN unsigned (31 DOWNTO 0);
+            -- inputs from MEM/WB
+            alu_out_mem, alu_src_2_mem, mem_out : IN unsigned (31 DOWNTO 0);
+            -- inputs from FU
+            alu_src_2_sel : IN unsigned (2 DOWNTO 0);
+            -- ouputs 
+            alu_src_2 : OUT unsigned (31 DOWNTO 0)
         );
-    end component;
-------------------------- execute stage end -------------------------
+    END COMPONENT;
 
-------------------------- memory stage start ------------------------
-    
-    component SP_REG is
+    COMPONENT alu IS
+        GENERIC (n : INTEGER := 32);
+        PORT (
+            aluin1, aluin2 : IN signed (31 DOWNTO 0);
+            func : IN unsigned (3 DOWNTO 0);
+            flagsin : IN unsigned (2 DOWNTO 0);
+            flagsout : OUT unsigned (2 DOWNTO 0);
+            aluout : OUT signed (31 DOWNTO 0)
+        );
+    END COMPONENT;
+
+    COMPONENT BRANCH_UNIT_EX IS
+        PORT (
+            is_call_jmp : IN STD_LOGIC;
+            is_jz : IN STD_LOGIC;
+            zero_flag : IN STD_LOGIC;
+
+            is_jmp_tkn : OUT STD_LOGIC
+        );
+    END COMPONENT;
+
+    COMPONENT ex_mem_register IS
+        GENERIC (
+            regwidth : INTEGER := 32;
+            regaddrwidth : INTEGER := 3
+        );
+        PORT (
+            clk, reset : IN unsigned (0 DOWNTO 0);
+
+            alu_out : IN unsigned(regWidth - 1 DOWNTO 0);
+            alu_src_2 : IN unsigned(regWidth - 1 DOWNTO 0);
+
+            ra1, ra2, rdst1, rdst2 : IN unsigned(regAddrWidth - 1 DOWNTO 0);
+            -- control signals
+            reg_one_write, reg_two_write : IN unsigned (0 DOWNTO 0);
+            stack_en, mem_read, mem_write : IN unsigned (0 DOWNTO 0);
+            ret, push_pop, out_port_en : IN unsigned (0 DOWNTO 0);
+            ior, iow : IN unsigned (0 DOWNTO 0);
+            inport_data : IN unsigned (31 DOWNTO 0);
+            mem_free, mem_protect : IN unsigned (0 DOWNTO 0);
+            wb_src : IN unsigned (1 DOWNTO 0);
+            read_reg_one, read_reg_two : IN unsigned (0 DOWNTO 0);
+
+            -- outputs
+            alu_out_out : OUT unsigned(regWidth - 1 DOWNTO 0);
+            alu_src_2_out : OUT unsigned(regWidth - 1 DOWNTO 0);
+
+            ra1_out, ra2_out, rdst1_out, rdst2_out : OUT unsigned(regAddrWidth - 1 DOWNTO 0);
+            -- control signals
+            reg_one_write_out, reg_two_write_out : OUT unsigned (0 DOWNTO 0);
+            stack_en_out, mem_read_out, mem_write_out : OUT unsigned (0 DOWNTO 0);
+            ret_out, push_pop_out, out_port_en_out : OUT unsigned (0 DOWNTO 0);
+            ior_out, iow_out : OUT unsigned (0 DOWNTO 0);
+            inport_data_out : OUT unsigned (31 DOWNTO 0);
+            mem_free_out, mem_protect_out : OUT unsigned (0 DOWNTO 0);
+            wb_src_out : OUT unsigned (1 DOWNTO 0);
+            read_reg_one_out, read_reg_two_out : OUT unsigned (0 DOWNTO 0)
+        );
+    END COMPONENT ex_mem_register;
+
+    COMPONENT flags_register IS
+        PORT (
+            clk : IN STD_LOGIC;
+            reset : IN STD_LOGIC;
+            wen : IN STD_LOGIC;
+
+            zeroflag, negativeflag, carryflag : IN STD_LOGIC;
+            zeroflag_reg, negativeflag_reg, carryflag_reg : OUT STD_LOGIC
+        );
+    END COMPONENT;
+    ------------------------- execute stage end -------------------------
+
+    ------------------------- memory stage start ------------------------
+
+    COMPONENT SP_REG IS
         GENERIC (
             ADDRESS_BITS : INTEGER := 12
         );
@@ -451,158 +449,154 @@ architecture archProcessor of processor is
             clk, reset, int, stack_en, push_pop : IN STD_LOGIC;
             sp_out : OUT unsigned(ADDRESS_BITS - 1 DOWNTO 0)
         );
-    end component SP_REG;
+    END COMPONENT SP_REG;
 
-    component muxtomemory is
-        generic (
-            address_bits : integer := 12
+    COMPONENT muxtomemory IS
+        GENERIC (
+            address_bits : INTEGER := 12
         );
-        port (
-            push_pop : in unsigned;
-            stack_en : in unsigned;
-            sp : in unsigned(31 downto 0); -- stack pointer
-            ea : in unsigned(address_bits - 1 downto 0); -- effective address
-            address_mem_in : out unsigned(address_bits - 1 downto 0)
+        PORT (
+            push_pop : IN unsigned;
+            stack_en : IN unsigned;
+            sp : IN unsigned(31 DOWNTO 0); -- stack pointer
+            ea : IN unsigned(address_bits - 1 DOWNTO 0); -- effective address
+            address_mem_in : OUT unsigned(address_bits - 1 DOWNTO 0)
         );
-    end component muxtomemory;
+    END COMPONENT muxtomemory;
+    COMPONENT BRANCH_UNIT_MEM IS
+        PORT (
+            IS_RET_RTI : IN STD_LOGIC;
 
-    
-    component BRANCH_UNIT_MEM is
-        port (
-            IS_RET_RTI          : IN std_logic;
-
-            IS_JMP_TKN         : OUT std_logic
-    );
-    end component;
-    
-    component memory is
-        generic (
-            cache_word_width : integer := 16;
-            address_bits : integer := 12
+            IS_JMP_TKN : OUT STD_LOGIC
         );
-        port (
-            rst : in std_logic;
-            clk : in std_logic;
-            memr, memw : in std_logic;
-            protect, free : in std_logic;
-            address_bus : in std_logic_vector(address_bits - 1 downto 0);
-            datain : in std_logic_vector(31 downto 0);
-            memout : out std_logic_vector(31 downto 0);
+    END COMPONENT;
+
+    COMPONENT memory IS
+        GENERIC (
+            cache_word_width : INTEGER := 16;
+            address_bits : INTEGER := 12
+        );
+        PORT (
+            rst : IN STD_LOGIC;
+            clk : IN STD_LOGIC;
+            memr, memw : IN STD_LOGIC;
+            protect, free : IN STD_LOGIC;
+            address_bus : IN STD_LOGIC_VECTOR(address_bits - 1 DOWNTO 0);
+            datain : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            memout : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
             pc_rst_val, pc_int_val : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
         );
-    end component memory;
+    END COMPONENT memory;
 
-    component mem_wb_register is
-        generic (
-            regwidth : integer := 32;
-            regaddrwidth : integer := 3
+    COMPONENT mem_wb_register IS
+        GENERIC (
+            regwidth : INTEGER := 32;
+            regaddrwidth : INTEGER := 3
         );
-        port (
-            clk, reset   : in  unsigned (0 downto 0);
-            ALU_OUT, ALU_SRC_2, MEM_OUT :   IN unsigned(regWidth-1 DOWNTO 0);
-            ra1, ra2, rdst1, rdst2 : IN unsigned(regAddrWidth-1 DOWNTO 0); 
-            reg_one_write, reg_two_write       : IN unsigned (0 downto 0);
-            wb_src : IN unsigned (1 downto 0);
-            out_port_en : IN unsigned (0 downto 0);
-            ior, iow                           : IN unsigned (0 downto 0);
-            inport_data                        : IN unsigned (31 downto 0);
-            read_reg_one, read_reg_two         : IN  unsigned (0 downto 0);
-            
+        PORT (
+            clk, reset : IN unsigned (0 DOWNTO 0);
+            ALU_OUT, ALU_SRC_2, MEM_OUT : IN unsigned(regWidth - 1 DOWNTO 0);
+            ra1, ra2, rdst1, rdst2 : IN unsigned(regAddrWidth - 1 DOWNTO 0);
+            reg_one_write, reg_two_write : IN unsigned (0 DOWNTO 0);
+            wb_src : IN unsigned (1 DOWNTO 0);
+            out_port_en : IN unsigned (0 DOWNTO 0);
+            ior, iow : IN unsigned (0 DOWNTO 0);
+            inport_data : IN unsigned (31 DOWNTO 0);
+            read_reg_one, read_reg_two : IN unsigned (0 DOWNTO 0);
+
             -- outputs
-            ALU_OUT_out,ALU_SRC_2_out, MEM_OUT_out :   out unsigned(regWidth-1 DOWNTO 0);
-            ra1_out, ra2_out, rdst1_out, rdst2_out : out unsigned(regAddrWidth-1 DOWNTO 0); 
-            reg_one_write_out, reg_two_write_out       : out unsigned (0 downto 0);
-            wb_src_out                             : out unsigned (1 downto 0);
-            out_port_en_out : out unsigned (0 downto 0);
-            ior_out, iow_out                           : out unsigned (0 downto 0);
-            inport_data_out                        : out unsigned (31 downto 0);
-            read_reg_one_out, read_reg_two_out         : out  unsigned (0 downto 0)
+            ALU_OUT_out, ALU_SRC_2_out, MEM_OUT_out : OUT unsigned(regWidth - 1 DOWNTO 0);
+            ra1_out, ra2_out, rdst1_out, rdst2_out : OUT unsigned(regAddrWidth - 1 DOWNTO 0);
+            reg_one_write_out, reg_two_write_out : OUT unsigned (0 DOWNTO 0);
+            wb_src_out : OUT unsigned (1 DOWNTO 0);
+            out_port_en_out : OUT unsigned (0 DOWNTO 0);
+            ior_out, iow_out : OUT unsigned (0 DOWNTO 0);
+            inport_data_out : OUT unsigned (31 DOWNTO 0);
+            read_reg_one_out, read_reg_two_out : OUT unsigned (0 DOWNTO 0)
         );
-    end component mem_wb_register;
-    
+    END COMPONENT mem_wb_register;
 
+    -- ------------------------- memory stage end --------------------------
 
--- ------------------------- memory stage end --------------------------
-
--- ------------------------- write back stage start --------------------
-    component ports_reg is
-        generic (n : integer := 32);
-        port (
-            clk, reset, wr_en_in, wr_en_out             : in unsigned     (0 downto 0);
-            inport, outport               : in unsigned     (n-1 downto 0);
-            inPortReg, outPortReg         : out unsigned     (n-1 downto 0)
+    -- ------------------------- write back stage start --------------------
+    COMPONENT ports_reg IS
+        GENERIC (n : INTEGER := 32);
+        PORT (
+            clk, reset, wr_en_in, wr_en_out : IN unsigned (0 DOWNTO 0);
+            inport, outport : IN unsigned (n - 1 DOWNTO 0);
+            inPortReg, outPortReg : OUT unsigned (n - 1 DOWNTO 0)
         );
-    end component;
+    END COMPONENT;
 
-    component wb_src_mux is
-        generic (n : integer := 32);
-        port (
-            memout, aluout, imm, inport   : in unsigned     (n-1 downto 0);
-            wbsrc                         : in unsigned     (1 downto 0);
-            regwritedata                  : out unsigned    (n-1 downto 0)
+    COMPONENT wb_src_mux IS
+        GENERIC (n : INTEGER := 32);
+        PORT (
+            memout, aluout, imm, inport : IN unsigned (n - 1 DOWNTO 0);
+            wbsrc : IN unsigned (1 DOWNTO 0);
+            regwritedata : OUT unsigned (n - 1 DOWNTO 0)
         );
-    end component;
-------------------------- write back stage end ----------------------
+    END COMPONENT;
+    ------------------------- write back stage end ----------------------
 
-------------------------- other components start --------------------
-    component io is
-        generic (
-            reg_width : integer := 32
+    ------------------------- other components start --------------------
+    COMPONENT io IS
+        GENERIC (
+            reg_width : INTEGER := 32
         );
-        port (
-            inport, data_in : in unsigned(reg_width-1 downto 0);
-            outport, data_out : out unsigned(reg_width-1 downto 0);
-            ior, iow : in unsigned(0 downto 0);
-            clk, reset : in std_logic
+        PORT (
+            inport, data_in : IN unsigned(reg_width - 1 DOWNTO 0);
+            outport, data_out : OUT unsigned(reg_width - 1 DOWNTO 0);
+            ior, iow : IN unsigned(0 DOWNTO 0);
+            clk, reset : IN STD_LOGIC
         );
-    end component io;
----------------------------- other components end --------------------
-begin
-------------------------- fetch stage port maps start ----------------
-    fetchMux: PC_SRC_MUX port map (
+    END COMPONENT io;
+    ---------------------------- other components end --------------------
+BEGIN
+    ------------------------- fetch stage port maps start ----------------
+    fetchMux : PC_SRC_MUX PORT MAP(
         memOut => mem_out_DMEM,
         aluSrc2 => alu_src_1_FW_MUX,
-        next_pc => (pc+1),
+        next_pc => (pc + 1),
 
         FLUSH_MEM => flush_mem,
         FLUSH_EX => flush_ex,
         PC_OUT => next_pc_src
     );
-    fetchPcEG: PC_REG port map (
+    fetchPcEG : PC_REG PORT MAP(
         CLK => clk,
         RESET => reset,
         INT => interrupt,
         WEN => "not"(stall),
-        RST_val => pc_rst_val(11 downto 0),
-        INT_val => pc_int_val(11 downto 0),
-        PC_IN => next_pc_src(11 downto 0),
-        PC_OUT => pc(11 downto 0)
+        RST_val => pc_rst_val(11 DOWNTO 0),
+        INT_val => pc_int_val(11 DOWNTO 0),
+        PC_IN => next_pc_src(11 DOWNTO 0),
+        PC_OUT => pc(11 DOWNTO 0)
     );
 
-    fetchIMEM: instruction_memory port map (
+    fetchIMEM : instruction_memory PORT MAP(
         clk => clk,
         reset => reset,
-        address => std_logic_vector(pc(11 downto 0)),
+        address => STD_LOGIC_VECTOR(pc(11 DOWNTO 0)),
         dataout => instruction
     );
 
-    fetchPipeREG: IF_ID_REGISTER port map (
+    fetchPipeREG : IF_ID_REGISTER PORT MAP(
         clk => clk,
-        reset => (reset or (not interrupt and (FLUSH_EX or FLUSH_MEM ))),
+        reset => (reset OR (NOT interrupt AND (FLUSH_EX OR FLUSH_MEM))),
         int => interrupt,
-        imm_en =>  imm_en_internal(0),
+        imm_en => imm_en_internal(0),
         instruction => instruction,
-        pc => std_logic_vector(pc),
+        pc => STD_LOGIC_VECTOR(pc),
         enable => "not"(stall),
         instruction_if_ex => instruction_if_ex,
         pc_if_ex => pc_if_ex
     );
-------------------------- fetch stage port maps end ------------------
+    ------------------------- fetch stage port maps end ------------------
 
-------------------------- decode stage port maps start ---------------
-    instruction_internal <= unsigned(instruction_if_ex(15 downto 13) & instruction_if_ex(3 downto 0));
+    ------------------------- decode stage port maps start ---------------
+    instruction_internal <= unsigned(instruction_if_ex(15 DOWNTO 13) & instruction_if_ex(3 DOWNTO 0));
     imm_en <= imm_en_internal(0); -- cool trick to convert std_logic to unsigned
-    decode_CU: cu port map (
+    decode_CU : cu PORT MAP(
         instruction => instruction_internal,
         reg_one_write => reg_one_write,
         reg_two_write => reg_two_write,
@@ -629,26 +623,26 @@ begin
         read_reg_two => read_reg_two
     );
 
-    rs1_internal <= unsigned(instruction_if_ex(9 downto 7));
-    rd_internal <= unsigned(instruction_if_ex(12 downto 10));
-    decode_RS1MUX: rs1_rd_mux port map (
+    rs1_internal <= unsigned(instruction_if_ex(9 DOWNTO 7));
+    rd_internal <= unsigned(instruction_if_ex(12 DOWNTO 10));
+    decode_RS1MUX : rs1_rd_mux PORT MAP(
         rs1 => rs1_internal,
         rd => rd_internal,
         rs1_rd => rs1_rd,
         ra1 => ra1
     );
 
-    rs2_internal <= unsigned(instruction_if_ex(6 downto 4));
-    decode_RS2MUX: rs2_rd_mux port map (
+    rs2_internal <= unsigned(instruction_if_ex(6 DOWNTO 4));
+    decode_RS2MUX : rs2_rd_mux PORT MAP(
         rs2 => rs2_internal,
         rd => rd_internal,
         rs2_rd => rs2_rd,
         ra2 => ra2
     );
-    
+
     clk_internal <= "" & clk;
     reset_internal <= "" & reset;
-    decode_REGFILE: regFile port map (
+    decode_REGFILE : regFile PORT MAP(
         clk => clk_internal,
         rst => reset_internal,
         reg_one_write => reg_one_write_mem_wb,
@@ -665,7 +659,7 @@ begin
 
     imm_internal <= unsigned(instruction);
     pc_internal <= unsigned(pc);
-    decode_ALU_SRC_MUX: alu_src_2_mux port map (
+    decode_ALU_SRC_MUX : alu_src_2_mux PORT MAP(
         rd2 => rd2,
         pc => pc_internal,
         imm => imm_internal,
@@ -674,7 +668,7 @@ begin
     );
 
     stall_internal <= "" & stall;
-    decodePipeReg: id_ex_register port map (
+    decodePipeReg : id_ex_register PORT MAP(
         clk => clk_internal,
         reset => reset_internal,
         en => "not"(stall_internal),
@@ -730,72 +724,74 @@ begin
         alu_op_out => alu_op_id_ex,
         wb_src_out => wb_src_id_ex
     );
-------------------------- decode stage port maps end -----------------
+    ------------------------- decode stage port maps end -----------------
 
-------------------------- execute stage port maps start ------------------
-    executeMuxAluSrc1: FW_MUX_1  port map (
+    ------------------------- execute stage port maps start ------------------
+    executeMuxAluSrc1 : FW_MUX_1 PORT MAP(
         -- inputs from D/EX
-        rd1_d_ex  => rd1_id_ex,
+        rd1_d_ex => rd1_id_ex,
         -- inputs from EX/MEM
-        alu_out_ex => alu_out_ex_mem, 
-        alu_src_2_ex =>    alu_src_2_ex_mem,
+        alu_out_ex => alu_out_ex_mem,
+        alu_src_2_ex => alu_src_2_ex_mem,
         -- inputs from MEM/WB
         alu_out_mem => alu_out_mem_wb,
         alu_src_2_mem => alu_src_2_mem_wb,
-        mem_out     => mem_out_mem_wb,
+        mem_out => mem_out_mem_wb,
         -- inputs from FU
         alu_src_1_sel => alu_src_1_SEL,
         -- ouputs 
-        alu_src_1  => alu_src_1_FW_MUX
+        alu_src_1 => alu_src_1_FW_MUX
     );
 
-    executeMuxAluSrc2: FW_MUX_2  port map (
+    executeMuxAluSrc2 : FW_MUX_2 PORT MAP(
         -- inputs from D/EX
-        alu_src_2_d  => alu_src_2_id_ex,
+        alu_src_2_d => alu_src_2_id_ex,
         -- inputs from EX/MEM
-        alu_out_ex => alu_out_ex_mem, 
-        alu_src_2_ex =>    alu_src_2_ex_mem,
+        alu_out_ex => alu_out_ex_mem,
+        alu_src_2_ex => alu_src_2_ex_mem,
         -- inputs from MEM/WB
         alu_out_mem => alu_out_mem_wb,
         alu_src_2_mem => alu_src_2_mem_wb,
-        mem_out     => mem_out_mem_wb,
+        mem_out => mem_out_mem_wb,
         -- inputs from FU
         alu_src_2_sel => alu_src_2_SEL,
         -- ouputs 
-        alu_src_2  => alu_src_2_FW_MUX
+        alu_src_2 => alu_src_2_FW_MUX
     );
 
-    executeALU: alu generic map(32) port map (
+    executeALU : alu GENERIC MAP(
+        32) PORT MAP (
         aluin1 => signed(alu_src_1_FW_MUX),
         aluin2 => signed(alu_src_2_FW_MUX),
         func => alu_op_id_ex,
         flagsin => flags_in_alu,
         flagsout => flags_out_alu,
         aluout => alu_out_ex
-        );
-    executeBU: BRANCH_UNIT_EX port map (
-            is_call_jmp        =>  call_jmp_id_ex(0),
-            is_jz              => is_jz_id_ex(0),
-            zero_flag          =>  flags_in_alu(0),
+    );
+    executeBU : BRANCH_UNIT_EX PORT MAP(
+        is_call_jmp => call_jmp_id_ex(0),
+        is_jz => is_jz_id_ex(0),
+        zero_flag => flags_in_alu(0),
 
-            is_jmp_tkn         => flush_ex
-        );
-    
-    executeFlagsReg: flags_register   port map (
-            clk => clk,
-            reset => reset,
-            wen => not flush_mem,
-            zeroflag => flags_out_alu(0),
-            negativeflag => flags_out_alu(1),
-            carryflag => flags_out_alu(2),
-            
-            zeroflag_reg => flags_in_alu(0),
-            negativeflag_reg => flags_in_alu(1),
-            carryflag_reg => flags_in_alu(2)
-            );
-            
+        is_jmp_tkn => flush_ex
+    );
+
+    executeFlagsReg : flags_register PORT MAP(
+        clk => clk,
+        reset => reset,
+        wen => NOT flush_mem,
+        zeroflag => flags_out_alu(0),
+        negativeflag => flags_out_alu(1),
+        carryflag => flags_out_alu(2),
+
+        zeroflag_reg => flags_in_alu(0),
+        negativeflag_reg => flags_in_alu(1),
+        carryflag_reg => flags_in_alu(2)
+    );
+
     alu_out_unsigned <= unsigned(alu_out_ex);
-    executePipeReg: ex_mem_register  generic map(32, 3) port map (
+    executePipeReg : ex_mem_register GENERIC MAP(
+        32, 3) PORT MAP (
         -- inputs
         clk => clk_internal,
         reset => reset_internal,
@@ -822,7 +818,7 @@ begin
         wb_src => wb_src_id_ex,
         read_reg_one => read_reg_one_id_ex,
         read_reg_two => read_reg_two_id_ex,
-        
+
         -- outputs
         alu_out_out => alu_out_ex_mem,
         alu_src_2_out => alu_src_2_ex_mem,
@@ -847,11 +843,11 @@ begin
         read_reg_one_out => read_reg_one_ex_mem,
         read_reg_two_out => read_reg_two_ex_mem
     );
-------------------------- execute stage port maps end ------------------
+    ------------------------- execute stage port maps end ------------------
 
-------------------------- memory stage port maps start ------------------
-    
-    memorySP: SP_REG port map (
+    ------------------------- memory stage port maps start ------------------
+
+    memorySP : SP_REG PORT MAP(
         clk => clk,
         reset => reset,
         int => interrupt,
@@ -859,41 +855,42 @@ begin
         push_pop => push_pop_ex_mem(0),
         sp_out => sp
     );
-
-
-    memoryMuxAddr: muxtomemory generic map(12) port map (
+    memoryMuxAddr : muxtomemory GENERIC MAP(
+        12) PORT MAP (
         push_pop => push_pop_ex_mem,
         stack_en => stack_en_ex_mem,
         sp => sp,
-        ea => alu_src_2_ex_mem(11 downto 0),
+        ea => alu_src_2_ex_mem(11 DOWNTO 0),
         address_mem_in => address_mem_in
     );
 
-    memoryBranchMem: BRANCH_UNIT_MEM port map (
-        IS_RET_RTI          => ret_ex_mem(0),
+    memoryBranchMem : BRANCH_UNIT_MEM PORT MAP(
+        IS_RET_RTI => ret_ex_mem(0),
 
-        IS_JMP_TKN         => flush_mem
+        IS_JMP_TKN => flush_mem
     );
 
-    memoryDataMemory: memory generic map (16, 12 ) port map (
-            rst => reset,
-            clk => clk,
-            memr => mem_read_ex_mem(0), 
-            memw => mem_write_ex_mem(0),
-            protect => mem_protect_ex_mem(0),
-            free => mem_free_ex_mem(0),
-            address_bus => std_logic_vector(address_mem_in),
-            datain => std_logic_vector(alu_out_ex_mem) ,
-            -- outputs
-            memout => mem_out_DME_in,
-            pc_rst_val => pc_rst_val_in, 
-            pc_int_val => pc_int_val_in
-        );
-        mem_out_DMEM <= unsigned(mem_out_DME_in);
-        pc_rst_val   <= unsigned(pc_rst_val_in);
-        pc_int_val   <= unsigned(pc_int_val_in);
+    memoryDataMemory : memory GENERIC MAP(
+        16, 12) PORT MAP (
+        rst => reset,
+        clk => clk,
+        memr => mem_read_ex_mem(0),
+        memw => mem_write_ex_mem(0),
+        protect => mem_protect_ex_mem(0),
+        free => mem_free_ex_mem(0),
+        address_bus => STD_LOGIC_VECTOR(address_mem_in),
+        datain => STD_LOGIC_VECTOR(alu_out_ex_mem),
+        -- outputs
+        memout => mem_out_DME_in,
+        pc_rst_val => pc_rst_val_in,
+        pc_int_val => pc_int_val_in
+    );
+    mem_out_DMEM <= unsigned(mem_out_DME_in);
+    pc_rst_val <= unsigned(pc_rst_val_in);
+    pc_int_val <= unsigned(pc_int_val_in);
 
-    memoryPipeReg: mem_wb_register generic map(32, 3) port map (
+    memoryPipeReg : mem_wb_register GENERIC MAP(
+        32, 3) PORT MAP (
         clk => clk_internal,
         reset => reset_internal,
         ALU_OUT => alu_out_ex_mem,
@@ -912,7 +909,7 @@ begin
         wb_src => wb_src_ex_mem,
         read_reg_one => read_reg_one_ex_mem,
         read_reg_two => read_reg_two_ex_mem,
-        
+
         ALU_OUT_out => alu_out_mem_wb,
         ALU_SRC_2_out => alu_src_2_mem_wb,
         MEM_OUT_out => mem_out_mem_wb,
@@ -931,13 +928,11 @@ begin
         read_reg_two_out => read_reg_two_mem_wb
     );
 
-------------------------- memory stage port maps end ------------------
-
-
-------------------------- wb stage port maps start ------------------
-    wb_PORTS:  ports_reg
-    generic map (32)
-    port map (
+    ------------------------- memory stage port maps end ------------------
+    ------------------------- wb stage port maps start ------------------
+    wb_PORTS : ports_reg
+    GENERIC MAP(32)
+    PORT MAP(
         clk => clk_internal,
         reset => reset_internal,
         wr_en_in => inport_en_external_device,
@@ -948,9 +943,9 @@ begin
         outPortReg => outport
     );
 
-    wb_STAGE_SRC_MUX: wb_src_mux 
-    generic map (32)
-    port map (
+    wb_STAGE_SRC_MUX : wb_src_mux
+    GENERIC MAP(32)
+    PORT MAP(
         memout => mem_out_mem_wb,
         aluout => alu_out_mem_wb,
         imm => alu_src_2_mem_wb,
@@ -959,10 +954,11 @@ begin
         regwritedata => regWriteData
     );
 
-------------------------- wb stage port maps end ------------------
+    ------------------------- wb stage port maps end ------------------
 
-------------------------- other components port map start ---------
-    i_o: io generic map(32) port map (
+    ------------------------- other components port map start ---------
+    i_o : io GENERIC MAP(
+        32) PORT MAP (
         inport => port_in,
         data_in => rd1_id_ex,
         ior => ior_id_ex,
@@ -972,6 +968,6 @@ begin
         clk => clk,
         reset => reset
     );
-------------------------- other components port map end -----------
+    ------------------------- other components port map end -----------
 
-end architecture archProcessor;
+END ARCHITECTURE archProcessor;
