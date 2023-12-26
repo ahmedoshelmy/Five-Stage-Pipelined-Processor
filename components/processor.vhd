@@ -340,6 +340,8 @@ ARCHITECTURE archProcessor OF processor IS
     ------------------------- execute stage start -----------------------
     COMPONENT FW_MUX_1 IS
         PORT (
+            in_port_ex_mem : IN unsigned (31 DOWNTO 0);
+            in_port_mem_wb : IN unsigned (31 DOWNTO 0);
             -- inputs from D/EX
             rd1_d_ex : IN unsigned (31 DOWNTO 0);
             -- inputs from EX/MEM
@@ -354,6 +356,8 @@ ARCHITECTURE archProcessor OF processor IS
     END COMPONENT;
     COMPONENT FW_MUX_2 IS
         PORT (
+            in_port_ex_mem : IN unsigned (31 DOWNTO 0);
+            in_port_mem_wb : IN unsigned (31 DOWNTO 0);
             -- inputs from D/EX
             alu_src_2_d : IN unsigned (31 DOWNTO 0);
             -- inputs from EX/MEM
@@ -551,6 +555,35 @@ ARCHITECTURE archProcessor OF processor IS
         );
     END COMPONENT io;
     ---------------------------- other components end --------------------
+
+    COMPONENT FU IS
+        PORT (
+            -- Inputs from D/EX Register
+            rsrc1_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            rsrc2_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            read_reg_1 : IN STD_LOGIC;
+            read_reg_2 : IN STD_LOGIC;
+            -- Inputs from EX/MEM Register
+            reg_w1_ex_mem : IN STD_LOGIC;
+            reg_w2_ex_mem : IN STD_LOGIC;
+            rdst1_ex_mem : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
+            rdst2_ex_mem : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
+            wb_src_ex_mem : IN STD_LOGIC_VECTOR (1 DOWNTO 0); -- (ALU - MEM - IMM)
+            ior_ex_mem : IN STD_LOGIC; -- IO READ SIGNAL
+            -- Inputs from MEM/WB Register
+            reg_w1_mem_wb : IN STD_LOGIC;
+            reg_w2_mem_wb : IN STD_LOGIC;
+            ior_mem_wb : IN STD_LOGIC; -- IO READ SIGNAL
+            rdst1_mem_wb : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
+            rdst2_mem_wb : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
+            wb_src_mem_wb : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
+
+            -- Selectors 
+            rsrc1_d_ex_sel : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+            rsrc2_d_ex_sel : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
+        );
+
+    END COMPONENT FU;
 BEGIN
     ------------------------- fetch stage port maps start ----------------
     fetchMux : PC_SRC_MUX PORT MAP(
@@ -728,6 +761,8 @@ BEGIN
 
     ------------------------- execute stage port maps start ------------------
     executeMuxAluSrc1 : FW_MUX_1 PORT MAP(
+        in_port_ex_mem => inport_data_ex_mem,
+        in_port_mem_wb => inport_data_mem_wb,
         -- inputs from D/EX
         rd1_d_ex => rd1_id_ex,
         -- inputs from EX/MEM
@@ -744,6 +779,8 @@ BEGIN
     );
 
     executeMuxAluSrc2 : FW_MUX_2 PORT MAP(
+        in_port_ex_mem => inport_data_ex_mem,
+        in_port_mem_wb => inport_data_mem_wb,
         -- inputs from D/EX
         alu_src_2_d => alu_src_2_id_ex,
         -- inputs from EX/MEM
@@ -969,5 +1006,25 @@ BEGIN
         reset => reset
     );
     ------------------------- other components port map end -----------
+    F_U : FU PORT MAP(
+        rsrc1_d_ex => ra1_id_ex,
+        rsrc2_d_ex => ra2_id_ex,
+        read_reg_1 => read_reg_one_id_ex,
+        read_reg_2 => read_reg_two_id_ex,
+        reg_w1_ex_mem => reg_one_write_ex_mem,
+        reg_w2_ex_mem => reg_two_write_ex_mem,
+        rdst1_ex_mem => rd1_ex_mem,
+        rdst2_ex_mem => rd2_ex_mem,
+        wb_src_ex_mem => wb_src_ex_mem,
+        ior_ex_mem => ior_ex_mem,
+        reg_w1_mem_wb => reg_one_write_mem_wb,
+        reg_w2_mem_wb => reg_two_write_mem_wb,
+        ior_mem_wb => ior_mem_wb,
+        rdst1_mem_wb => rd1_mem_wb,
+        rdst2_mem_wb => rd2_mem_wb,
+        wb_src_mem_wb => wb_src_mem_wb,
+        rsrc1_d_ex_sel => alu_src_1_SEL,
+        rsrc2_d_ex_sel => alu_src_2_SEL
+    );
 
 END ARCHITECTURE archProcessor;
