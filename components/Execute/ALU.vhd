@@ -118,7 +118,7 @@ architecture archALU of ALU is
             else  
                 flagsOut(0) <= '1' when signed(aluOutVar) = "0" else '0'; -- Z
                 flagsOut(1) <= '1' when signed(aluOutVar) < 0 else '0'; -- N
-                REPORT "flags changed: " & to_string(flagsOut) & " alu out: " & to_string(aluOut);
+                -- REPORT "flags changed: " & to_string(flagsOut) & " alu out: " & to_string(aluOut);
             end if;
         end process;
 end archALU ; -- archALU
