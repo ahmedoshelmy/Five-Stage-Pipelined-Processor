@@ -79,6 +79,7 @@ architecture archProcessor of processor is
     signal out_port_en_ex_mem    : unsigned (0 downto 0) :=             "0";
     signal ior_ex_mem           : unsigned (0 downto 0) :=             "0";
     signal iow_ex_mem           : unsigned (0 downto 0) :=             "0";
+    signal inport_data_ex_mem   : unsigned (31 downto 0) := (others => '0');
     signal mem_free_ex_mem       : unsigned (0 downto 0) :=             "0";
     signal mem_protect_ex_mem    : unsigned (0 downto 0) :=             "0";
     signal read_reg_one_ex_mem  : unsigned (0 downto 0) :=             "0";
@@ -116,6 +117,7 @@ architecture archProcessor of processor is
     signal out_port_en_mem_wb    : unsigned (0 downto 0) :=             "0";
     signal ior_mem_wb           : unsigned (0 downto 0) :=             "0";
     signal iow_mem_wb           : unsigned (0 downto 0) :=             "0";
+    signal inport_data_mem_wb   : unsigned (31 downto 0) := (others => '0');
     signal read_reg_one_mem_wb  : unsigned (0 downto 0) :=             "0";
     signal read_reg_two_mem_wb  : unsigned (0 downto 0) :=             "0";
     ------------------------- write back stage signals start --------------
@@ -398,6 +400,7 @@ architecture archProcessor of processor is
         stack_en, mem_read,  mem_write     : IN unsigned (0 downto 0);
         ret, push_pop, out_port_en         : IN unsigned (0 downto 0);
         ior, iow                           : IN unsigned (0 downto 0);
+        inport_data                        : IN unsigned (31 downto 0);
         mem_free, mem_protect              : IN unsigned (0 downto 0);
         wb_src                             : IN unsigned (1 downto 0);
         read_reg_one, read_reg_two         : IN  unsigned (0 downto 0);
@@ -414,6 +417,7 @@ architecture archProcessor of processor is
         stack_en_out, mem_read_out,  mem_write_out     : out unsigned (0 downto 0);
         ret_out, push_pop_out, out_port_en_out         : out unsigned (0 downto 0);
         ior_out, iow_out                           : out unsigned (0 downto 0);
+        inport_data_out                        : out unsigned (31 downto 0);
         mem_free_out, mem_protect_out              : out unsigned (0 downto 0);
         wb_src_out                             : out unsigned (1 downto 0);
         read_reg_one_out, read_reg_two_out         : out  unsigned (0 downto 0)
@@ -488,6 +492,7 @@ architecture archProcessor of processor is
             wb_src : IN unsigned (1 downto 0);
             out_port_en : IN unsigned (0 downto 0);
             ior, iow                           : IN unsigned (0 downto 0);
+            inport_data                        : IN unsigned (31 downto 0);
             read_reg_one, read_reg_two         : IN  unsigned (0 downto 0);
             
             -- outputs
@@ -497,6 +502,7 @@ architecture archProcessor of processor is
             wb_src_out                             : out unsigned (1 downto 0);
             out_port_en_out : out unsigned (0 downto 0);
             ior_out, iow_out                           : out unsigned (0 downto 0);
+            inport_data_out                        : out unsigned (31 downto 0);
             read_reg_one_out, read_reg_two_out         : out  unsigned (0 downto 0)
         );
     end component mem_wb_register;
@@ -787,6 +793,7 @@ begin
         out_port_en => out_port_en_id_ex,
         ior => ior_id_ex,
         iow => iow_id_ex,
+        inport_data => inport_data,
         mem_free => mem_free_id_ex,
         mem_protect => mem_protect_id_ex,
         wb_src => wb_src_id_ex,
@@ -810,6 +817,7 @@ begin
         out_port_en_out => out_port_en_ex_mem,
         ior_out => ior_ex_mem,
         iow_out => iow_ex_mem,
+        inport_data_out => inport_data_ex_mem,
         mem_free_out => mem_free_ex_mem,
         mem_protect_out => mem_protect_ex_mem,
         wb_src_out => wb_src_ex_mem,
@@ -872,6 +880,7 @@ begin
         out_port_en => out_port_en_ex_mem,
         ior => ior_ex_mem,
         iow => iow_ex_mem,
+        inport_data => inport_data_ex_mem,
         wb_src => wb_src_ex_mem,
         read_reg_one => read_reg_one_ex_mem,
         read_reg_two => read_reg_two_ex_mem,
@@ -888,6 +897,7 @@ begin
         out_port_en_out => out_port_en_mem_wb,
         ior_out => ior_mem_wb,
         iow_out => iow_mem_wb,
+        inport_data_out => inport_data_mem_wb,
         wb_src_out => wb_src_mem_wb,
         read_reg_one_out => read_reg_one_mem_wb,
         read_reg_two_out => read_reg_two_mem_wb
@@ -916,7 +926,7 @@ begin
         memout => mem_out_mem_wb,
         aluout => alu_out_mem_wb,
         imm => alu_src_2_mem_wb,
-        inport => inport_data,
+        inport => inport_data_mem_wb,
         wbsrc => wb_src_mem_wb,
         regwritedata => regWriteData
     );
@@ -926,9 +936,9 @@ begin
 ------------------------- other components port map start ---------
     i_o: io generic map(32) port map (
         inport => port_in,
-        data_in => alu_out_ex_mem,
-        ior => ior,
-        iow => iow,
+        data_in => rd1_id_ex,
+        ior => ior_id_ex,
+        iow => iow_id_ex,
         outport => port_out,
         data_out => inport_data,
         clk => clk,
