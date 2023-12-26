@@ -5,6 +5,7 @@ restart -f
 add wave -position end  sim:/processor/reset
 add wave -position end  sim:/processor/reset_internal
 add wave -position end  sim:/processor/clk
+add wave -position end  sim:/processor/port_in
 
 add wave -position end  sim:/processor/pc
 add wave -position end  sim:/processor/instruction_if_ex
@@ -34,13 +35,14 @@ add wave -position end  sim:/processor/decode_REGFILE/*
 add wave -position end  sim:/processor/outport
 add wave -position end  sim:/processor/out_port_en_mem_wb
 add wave -position end  sim:/processor/memoryDataMemory/cache
+add wave -position end  sim:/processor/fetchIMEM/ram
 
 
 
 force -freeze sim:/processor/clk 0 0, 1 {50 ps} -r 100
 force -freeze sim:/processor/interrupt 0 0
 force -freeze sim:/processor/reset 1 0
-
+force -freeze sim:/processor/port_in 00000000000000000000000010001000 0
 
 run
 force -freeze sim:/processor/reset 0 0
