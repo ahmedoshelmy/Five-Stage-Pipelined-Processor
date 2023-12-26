@@ -43,8 +43,11 @@ architecture archALU of ALU is
             variable CarryOnLeft : signed(n downto 0) := (others => '0');
             variable CarryO : signed(n downto 0) := (others => '0');
             variable aluOutVar : signed(n-1 downto 0) := (others => '0');
+            variable aluIn1_S : signed(n downto 0) := (others => '0');
+            variable aluIn2_S : signed(n downto 0) := (others => '0');
         begin
-
+            aluIn1_S := resize(aluIn1, 33);
+            aluIn2_S := resize(aluIn2, 33);
 
             case func is
                 when ALU_NOT =>
@@ -83,11 +86,11 @@ architecture archALU of ALU is
                 -- two operands
                 -- TODO: check on flags
                 when ALU_ADD =>
-                    CarryOnLeft := signed(aluIn1) + signed(aluIn2);
+                    CarryOnLeft := aluIn1_S + aluIn2_S;
                     aluOut   <= CarryOnLeft(n-1 downto 0);
                     flagsOut(2) <= CarryOnLeft(n); -- C
                 when ALU_SUB =>
-                    CarryOnLeft := aluIn1 - aluIn2;
+                    CarryOnLeft := aluIn1_S - aluIn2_S;
                     aluOutVar := CarryOnLeft(n-1 downto 0);
                     flagsOut(2) <= CarryOnLeft(n); -- C
                 when ALU_AND =>
