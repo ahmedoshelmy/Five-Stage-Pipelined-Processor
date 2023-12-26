@@ -1,7 +1,6 @@
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE ieee.numeric_std.ALL;
-
 ENTITY FU IS
     PORT (
         -- Inputs from D/EX Register
@@ -41,23 +40,22 @@ BEGIN
     -- 010: input instruction Rsrc == Rdst1 of (instruction before prev instruction) 
     -- 011: input instruction Rsrc == Rdst2 of (instruction before prev instruction) 
     -- 111: No forwarding
-    PROCESS (read_reg_1, rsrc1_d_ex, rdst1_ex_mem, reg_w1_ex_mem, wb_src_ex_mem,
-        rdst2_ex_mem, reg_w2_ex_mem, rdst1_mem_wb, reg_w1_mem_wb, wb_src_mem_wb,
-        rdst2_mem_wb, reg_w2_mem_wb, ior_ex_mem, ior_mem_wb)
+    PROCESS (ALL)
     BEGIN
+        
         IF (read_reg_1 = '0') THEN
             rsrc1_d_ex_sel <= "000";
         ELSIF ((rsrc1_d_ex = rdst1_ex_mem) AND (ior_ex_mem = '1') AND (wb_src_ex_mem = "11")) THEN
             rsrc1_d_ex_sel <= "100"; -- IN PORT IN PREV 
-        ELSIF ((rsrc1_d_ex = rdst1_ex_mem) AND (reg_w1_ex_mem = '1') AND (wb_src_ex_mem = "00")) THEN
+        ELSIF ((rsrc1_d_ex = rdst1_ex_mem) AND (reg_w1_ex_mem = '1') AND (wb_src_ex_mem = "01")) THEN
             rsrc1_d_ex_sel <= "001"; -- ALU_OUT
         ELSIF ((rsrc1_d_ex = rdst2_ex_mem) AND (reg_w2_ex_mem = '1')) THEN
             rsrc1_d_ex_sel <= "010"; -- ALU_SRC2_EX_MEM
         ELSIF ((rsrc1_d_ex = rdst1_mem_wb) AND (ior_mem_wb = '1') AND (wb_src_mem_wb = "11")) THEN
             rsrc1_d_ex_sel <= "110"; -- IN PORT IN BEFORE PREV
-        ELSIF ((rsrc1_d_ex = rdst1_mem_wb) AND (reg_w1_mem_wb = '1') AND (wb_src_mem_wb = "00")) THEN
-            rsrc1_d_ex_sel <= "011"; -- ALU OUT
         ELSIF ((rsrc1_d_ex = rdst1_mem_wb) AND (reg_w1_mem_wb = '1') AND (wb_src_mem_wb = "01")) THEN
+            rsrc1_d_ex_sel <= "011"; -- ALU OUT
+        ELSIF ((rsrc1_d_ex = rdst1_mem_wb) AND (reg_w1_mem_wb = '1') AND (wb_src_mem_wb = "00")) THEN
             rsrc1_d_ex_sel <= "101"; -- MEM OUT
         ELSIF ((rsrc1_d_ex = rdst2_mem_wb) AND (reg_w2_mem_wb = '1')) THEN
             rsrc1_d_ex_sel <= "111"; -- ALU_SRC2_MEM_WB
@@ -66,23 +64,27 @@ BEGIN
         END IF;
     END PROCESS;
 
-    PROCESS (read_reg_2, rsrc1_d_ex, rdst1_ex_mem, reg_w1_ex_mem, wb_src_ex_mem,
-        rdst2_ex_mem, reg_w2_ex_mem, rdst1_mem_wb, reg_w1_mem_wb, wb_src_mem_wb,
-        rdst2_mem_wb, reg_w2_mem_wb, ior_ex_mem, ior_mem_wb)
+    PROCESS (ALL)
     BEGIN
+    report "FU" severity note;
+        report "read_reg_2: " & to_string(read_reg_2) severity note;
+        report "rsrc2_d_ex: " & to_string(rsrc1_d_ex) severity note;
+        report "rdst1_ex_mem: " & to_string(rdst1_ex_mem) severity note;
+        report "reg_w1_ex_mem: " & to_string(reg_w1_ex_mem) severity note;
+        report "wb_src_ex_mem: " & to_string(wb_src_ex_mem) severity note;
         IF (read_reg_2 = '0') THEN
             rsrc2_d_ex_sel <= "000"; -- NO FORWARDING
         ELSIF ((rsrc2_d_ex = rdst1_ex_mem) AND (ior_ex_mem = '1') AND (wb_src_ex_mem = "11")) THEN
             rsrc2_d_ex_sel <= "100"; -- IN PORT IN PREV 
-        ELSIF ((rsrc2_d_ex = rdst1_ex_mem) AND (reg_w1_ex_mem = '1') AND (wb_src_ex_mem = "00")) THEN
+        ELSIF ((rsrc2_d_ex = rdst1_ex_mem) AND (reg_w1_ex_mem = '1') AND (wb_src_ex_mem = "01")) THEN
             rsrc2_d_ex_sel <= "001"; -- ALU_OUT
         ELSIF ((rsrc2_d_ex = rdst2_ex_mem) AND (reg_w2_ex_mem = '1')) THEN
             rsrc2_d_ex_sel <= "010"; -- ALU_SRC2_EX_MEM
         ELSIF ((rsrc2_d_ex = rdst1_mem_wb) AND (ior_mem_wb = '1') AND (wb_src_mem_wb = "11")) THEN
             rsrc2_d_ex_sel <= "110"; -- IN PORT IN BEFORE PREV
-        ELSIF ((rsrc2_d_ex = rdst1_mem_wb) AND (reg_w1_mem_wb = '1') AND (wb_src_mem_wb = "00")) THEN
-            rsrc2_d_ex_sel <= "011"; -- ALU OUT
         ELSIF ((rsrc2_d_ex = rdst1_mem_wb) AND (reg_w1_mem_wb = '1') AND (wb_src_mem_wb = "01")) THEN
+            rsrc2_d_ex_sel <= "011"; -- ALU OUT
+        ELSIF ((rsrc2_d_ex = rdst1_mem_wb) AND (reg_w1_mem_wb = '1') AND (wb_src_mem_wb = "00")) THEN
             rsrc2_d_ex_sel <= "101"; -- MEM OUT
         ELSIF ((rsrc2_d_ex = rdst2_mem_wb) AND (reg_w2_mem_wb = '1')) THEN
             rsrc2_d_ex_sel <= "111"; -- ALU_SRC2_MEM_WB
