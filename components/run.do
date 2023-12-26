@@ -7,11 +7,12 @@ add wave -position end  sim:/processor/reset_internal
 add wave -position end  sim:/processor/clk
 
 add wave -position end  sim:/processor/pc
+add wave -position end  sim:/processor/next_pc_src
+add wave -position end  sim:/processor/alu_src_2_FW_MUX
+add wave -position end  sim:/processor/alu_src_1_FW_MUX
 add wave -position end  sim:/processor/instruction_if_ex
 add wave -position end  sim:/processor/pc_if_ex
-
 add wave -position end  sim:/processor/flush_ex
-add wave -position end  sim:/processor/executeBU/*
 add wave -position end  sim:/processor/call_jmp
 add wave -position end  sim:/processor/is_jz
 
