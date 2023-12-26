@@ -59,7 +59,7 @@ BEGIN
         ELSIF ((rsrc1_d_ex = rdst1_mem_wb) AND (reg_w1_mem_wb = '1') AND (wb_src_mem_wb = "01")) THEN
             rsrc1_d_ex_sel <= "101"; -- MEM OUT
         ELSIF ((rsrc1_d_ex = rdst2_mem_wb) AND (reg_w2_mem_wb = '1')) THEN
-            rsrc1_d_ex_sel <= "110"; -- ALU_SRC2_MEM_WB
+            rsrc1_d_ex_sel <= "111"; -- ALU_SRC2_MEM_WB
         ELSE
             rsrc1_d_ex_sel <= "000";
         END IF;
@@ -84,7 +84,7 @@ BEGIN
         ELSIF ((rsrc2_d_ex = rdst1_mem_wb) AND (reg_w1_mem_wb = '1') AND (wb_src_mem_wb = "01")) THEN
             rsrc2_d_ex_sel <= "101"; -- MEM OUT
         ELSIF ((rsrc2_d_ex = rdst2_mem_wb) AND (reg_w2_mem_wb = '1')) THEN
-            rsrc2_d_ex_sel <= "110"; -- ALU_SRC2_MEM_WB
+            rsrc2_d_ex_sel <= "111"; -- ALU_SRC2_MEM_WB
         ELSE
             rsrc2_d_ex_sel <= "000";
         END IF;

@@ -69,7 +69,7 @@ class Assembler:
         elif operation in input_signals_instructions:
             return "111"
         else:
-            return None
+            return "000"
 
 
     def operand_count(self, parts):
@@ -197,7 +197,9 @@ class Assembler:
         # 3. The rest of the instruction depends on the instruction type
         result = ""
 
-        if op_code == "001":  # ALU instruction
+        if op_code == "000": 
+            result = "0" * 16
+        elif op_code == "001":  # ALU instruction
             result = self.getALUInstruction(parts)
 
         elif op_code == "010":  # Immediate instruction
