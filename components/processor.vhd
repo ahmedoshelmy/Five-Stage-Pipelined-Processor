@@ -40,6 +40,7 @@ architecture archProcessor of processor is
     signal mem_read_id_ex      : unsigned (0 downto 0) :=             "0";
     signal mem_write_id_ex     : unsigned (0 downto 0) :=             "0";
     signal call_jmp_id_ex      : unsigned (0 downto 0) :=             "0";
+    signal is_jz_id_ex      : unsigned (0 downto 0) :=             "0";
     signal ret_id_ex           : unsigned (0 downto 0) :=             "0";
     signal push_pop_id_ex      : unsigned (0 downto 0) :=             "0";
     signal out_port_en_id_ex   : unsigned (0 downto 0) :=             "0";
@@ -151,6 +152,7 @@ architecture archProcessor of processor is
     signal call_jmp      : unsigned(0 downto 0) :=             "0";
     signal ret           : unsigned(0 downto 0) :=             "0";
     signal read_reg_one  : unsigned(0 downto 0) :=             "0";
+    signal is_jz         : unsigned(0 downto 0) :=             "0";
     signal read_reg_two  : unsigned(0 downto 0) :=             "0";
 ------------------------- control signals end -------------------------
 
@@ -280,6 +282,7 @@ architecture archProcessor of processor is
             call_jmp       : out unsigned(0 downto 0);
             ret            : out unsigned(0 downto 0);
             read_reg_one   : out unsigned(0 downto 0);
+            is_jz          : out unsigned(0 downto 0);
             read_reg_two   : out unsigned(0 downto 0)
         );
     end component cu;
@@ -299,10 +302,11 @@ architecture archProcessor of processor is
             ra1_in, ra2_in, rdst1_in, rdst2_in                  : in  unsigned (2 downto 0);
             reg_one_write_in, reg_two_write_in, stack_en_in     : in  unsigned (0 downto 0);
             mem_read_in, mem_write_in, call_jmp_in, ret_in      : in  unsigned (0 downto 0);
+            is_jz_in                                            : in unsigned  (0 downto 0);
             push_pop_in, out_port_en_in                         : in  unsigned (0 downto 0);
             ior_in, iow_in                                      : in  unsigned (0 downto 0);
             mem_free_in, mem_protect_in                         : in  unsigned (0 downto 0);
-            read_reg_one_in, read_reg_two_in, imm_en_in                    : in  unsigned (0 downto 0);
+            read_reg_one_in, read_reg_two_in, imm_en_in         : in  unsigned (0 downto 0);
             alu_op_in                                           : in  unsigned (3 downto 0);
             wb_src_in                                           : in  unsigned (1 downto 0);        
             rd1_out, alu_src_2_out                              : out unsigned(31 downto 0);
@@ -312,9 +316,10 @@ architecture archProcessor of processor is
             push_pop_out, out_port_en_out                       : out unsigned (0 downto 0);
             ior_out, iow_out                                    : out unsigned (0 downto 0);
             mem_free_out, mem_protect_out                       : out unsigned (0 downto 0);
-            read_reg_one_out, read_reg_two_out, imm_en_out                  : out unsigned (0 downto 0);
+            read_reg_one_out, read_reg_two_out, imm_en_out      : out unsigned (0 downto 0);
             alu_op_out                                          : out unsigned (3 downto 0);
-            wb_src_out                                          : out unsigned (1 downto 0)
+            wb_src_out                                          : out unsigned (1 downto 0);
+            is_jz_out                                           : out unsigned (0 downto 0)
         );
     end component id_ex_register;
 
@@ -373,15 +378,15 @@ architecture archProcessor of processor is
         );
     end component;
 
---     component branch_unit is
---         port (
---             is_call_jmp        : in std_logic;
---             is_jz              : in std_logic;
---             zero_flag          : in std_logic;
+    component BRANCH_UNIT_EX is
+        port (
+            is_call_jmp        : in std_logic;
+            is_jz              : in std_logic;
+            zero_flag          : in std_logic;
 
---             is_jmp_tkn         : out std_logic
---        );
---     end component;
+            is_jmp_tkn         : out std_logic
+       );
+    end component;
 
     component ex_mem_register is
         generic (
@@ -612,6 +617,7 @@ begin
         call_jmp => call_jmp,
         ret => ret,
         read_reg_one => read_reg_one,
+        is_jz => is_jz,
         read_reg_two => read_reg_two
     );
 
@@ -676,6 +682,7 @@ begin
         mem_read_in => mem_read,
         mem_write_in => mem_write,
         call_jmp_in => call_jmp,
+        is_jz_in => is_jz,
         ret_in => ret,
         push_pop_in => push_pop,
         out_port_en_in => out_port_en,
@@ -701,6 +708,7 @@ begin
         mem_read_out => mem_read_id_ex,
         mem_write_out => mem_write_id_ex,
         call_jmp_out => call_jmp_id_ex,
+        is_jz_out => is_jz_id_ex,
         ret_out => ret_id_ex,
         push_pop_out => push_pop_id_ex,
         out_port_en_out => out_port_en_id_ex,
@@ -757,8 +765,15 @@ begin
         flagsout => flags_out_alu,
         aluout => alu_out_ex
         );
-        
-        executeFlagsReg: flags_register   port map (
+    executeBU: BRANCH_UNIT_EX port map (
+            is_call_jmp        =>  call_jmp_id_ex(0),
+            is_jz              => is_jz_id_ex(0),
+            zero_flag          =>  flags_in_alu(0),
+
+            is_jmp_tkn         => flush_ex
+        );
+    
+    executeFlagsReg: flags_register   port map (
             clk => clk,
             reset => reset,
             wen => not flush_mem,
