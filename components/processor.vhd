@@ -467,6 +467,14 @@ architecture archProcessor of processor is
     end component muxtomemory;
 
     
+    component BRANCH_UNIT_MEM is
+        port (
+            IS_RET_RTI          : IN std_logic;
+
+            IS_JMP_TKN         : OUT std_logic
+    );
+    end component;
+    
     component memory is
         generic (
             cache_word_width : integer := 16;
@@ -861,6 +869,11 @@ begin
         address_mem_in => address_mem_in
     );
 
+    memoryBranchMem: BRANCH_UNIT_MEM port map (
+        IS_RET_RTI          => ret_ex_mem(0),
+
+        IS_JMP_TKN         => flush_mem
+    );
 
     memoryDataMemory: memory generic map (16, 12 ) port map (
             rst => reset,
