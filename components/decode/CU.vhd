@@ -254,7 +254,6 @@ begin
                 alu_op        <= alu_buff2;
                 call_jmp      <= jmp;
                 read_reg_one  <= "1";
-                report "JMP";
                 
             when call_bits =>
                 rs1_rd         <= rd;
