@@ -916,7 +916,7 @@ begin
         memout => mem_out_mem_wb,
         aluout => alu_out_mem_wb,
         imm => alu_src_2_mem_wb,
-        inport => inport,
+        inport => inport_data,
         wbsrc => wb_src_mem_wb,
         regwritedata => regWriteData
     );
