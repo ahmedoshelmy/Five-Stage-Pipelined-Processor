@@ -7,8 +7,10 @@ add wave -position end  sim:/processor/reset_internal
 add wave -position end  sim:/processor/clk
 
 add wave -position end  sim:/processor/pc
+add wave -position end  sim:/processor/instruction
 add wave -position end  sim:/processor/instruction_if_ex
 add wave -position end  sim:/processor/flush_ex
+add wave -position end  sim:/processor/flush_mem
 
 add wave -position end  sim:/processor/clk
 add wave -position end  sim:/processor/flags_out_alu
@@ -16,6 +18,11 @@ add wave -position end  sim:/processor/flags_in_alu
 add wave -position end  sim:/processor/alu_out_ex_mem
 add wave -position end  sim:/processor/alu_src_1_FW_MUX
 add wave -position end  sim:/processor/alu_src_2_FW_MUX
+
+add wave -position end  sim:/processor/decode_REGFILE/registers
+
+add wave -position end  sim:/processor/sp
+add wave -position end  sim:/processor/memoryDataMemory/cache
 
 if {0} {
 add wave -position end  sim:/processor/alu_src_2_ex_mem
@@ -34,17 +41,16 @@ add wave -position end  sim:/processor/memoryDataMemory/ISPROTECTEDMEMORY
 add wave -position end  sim:/processor/reg_one_write_mem_wb
 add wave -position end  sim:/processor/rd1_mem_wb
 add wave -position end  sim:/processor/regWriteData
-add wave -position end  sim:/processor/decode_REGFILE/*
 add wave -position end  sim:/processor/outport
 add wave -position end  sim:/processor/out_port_en_mem_wb
-add wave -position end  sim:/processor/memoryDataMemory/cache
 }
 
 
 force -freeze sim:/processor/clk 0 0, 1 {50 ps} -r 100
+add wave -position end   sim:/processor/port_in 
 force -freeze sim:/processor/interrupt 0 0
 force -freeze sim:/processor/reset 1 0
-
+force -freeze sim:/processor/port_in 2 0
 
 run
 force -freeze sim:/processor/reset 0 0

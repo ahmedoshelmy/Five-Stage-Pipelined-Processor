@@ -22,7 +22,7 @@ ARCHITECTURE arch_instruction_memory OF instruction_memory IS
     SIGNAL initial_flag : STD_LOGIC := '1';
 BEGIN
 
-    instruction_memory : PROCESS (clk, RESET) IS
+    instruction_memory : PROCESS (ALL) IS
         FILE memory_file : text;
         VARIABLE file_line : line;
         VARIABLE temp_data : STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -45,7 +45,7 @@ BEGIN
             END LOOP;
             initial_flag <= '0';
 
-        ELSIF clk'event AND clk = '1' THEN
+        ELSE  
             dataout <= ram(to_integer(unsigned(address)));
         END IF;
 

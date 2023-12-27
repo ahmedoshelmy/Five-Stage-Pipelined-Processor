@@ -262,6 +262,7 @@ begin
                 mem_write     <= "1";
                 push_pop      <= push;
                 read_reg_one  <= "1";
+                call_jmp      <= "1";
             when ret_bits =>
                 wb_src        <= mem_out;
                 stack_en      <= "1";

@@ -588,7 +588,7 @@ BEGIN
     ------------------------- fetch stage port maps start ----------------
     fetchMux : PC_SRC_MUX PORT MAP(
         memOut => mem_out_DMEM,
-        aluSrc2 => alu_src_1_FW_MUX,
+        aluSrc2 => (alu_src_1_FW_MUX),
         next_pc => (pc + 1),
 
         FLUSH_MEM => flush_mem,
