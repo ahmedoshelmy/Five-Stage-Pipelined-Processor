@@ -45,7 +45,7 @@ architecture archALU of ALU is
             variable aluOutVar : signed(n-1 downto 0) := (others => '0');
         begin
 
-
+            report "ALU Function" & to_string(func) severity note;
             case func is
                 when ALU_NOT =>
                     aluOutVar := not aluIn1;
@@ -57,10 +57,11 @@ architecture archALU of ALU is
                     flagsOut(1) <= '1' when signed(aluOutVar) < 0 else '0'; -- N
                 when ALU_INC =>
                     CarryOnLeft := resize(aluIn1, 33) + 1;
-                    aluOutVar := CarryOnLeft(n-1 downto 0);
+                    aluOutVar := aluIn1 + 1;
                     flagsOut(0) <= '1' when signed(aluOutVar) = "0" else '0'; -- Z
                     flagsOut(1) <= '1' when signed(aluOutVar) < 0 else '0'; -- N
-                    flagsOut(2) <= CarryOnLeft(n); -- C
+                    flagsOut(2) <= '1' when aluIn1 >= x"FFFFFFFF" else '0';  -- C
+                    report "Carry on left: " & to_string(to_integer(CarryOnLeft));
                 when ALU_DEC =>
                     aluOutVar := aluIn1 - 1; 
                     flagsOut(0) <= '1' when signed(aluOutVar) = "0" else '0'; -- Z
