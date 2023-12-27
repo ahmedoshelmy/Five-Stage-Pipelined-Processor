@@ -302,12 +302,14 @@ BEGIN
                     stack_en      <= "1";
                     mem_read      <= "1";
                     push_pop      <= pop;
+                    alu_op        <= alu_buff1;
                 when push_bits =>
                     rs1_rd         <= rd;
                     stack_en      <= "1";
                     mem_write     <= "1";
                     push_pop      <= push;
                     read_reg_one  <= "1";
+                    alu_op        <= alu_buff1;
                 when in_bits =>
                     reg_one_write <= "1";
                     alu_op        <= alu_buff2;

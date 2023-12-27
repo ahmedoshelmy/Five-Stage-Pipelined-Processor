@@ -6,6 +6,7 @@ add wave -position end  sim:/processor/reset
 add wave -position end  sim:/processor/reset_internal
 add wave -position end  sim:/processor/clk
 add wave -position end  sim:/processor/port_in
+add wave -position end  sim:/processor/port_out
 
 add wave -position end  sim:/processor/pc
 add wave -position end  sim:/processor/instruction_if_ex
@@ -32,7 +33,6 @@ add wave -position end  sim:/processor/reg_one_write_mem_wb
 add wave -position end  sim:/processor/rd1_mem_wb
 add wave -position end  sim:/processor/regWriteData
 add wave -position end  sim:/processor/decode_REGFILE/*
-add wave -position end  sim:/processor/outport
 add wave -position end  sim:/processor/out_port_en_mem_wb
 add wave -position end  sim:/processor/memoryDataMemory/cache
 add wave -position end  sim:/processor/fetchIMEM/ram
