@@ -9,9 +9,10 @@ generic (
 );
     PORT (
         clk, reset       : in  unsigned (0 downto 0);
-
+        push_pc         : in  unsigned (0 downto 0);
         ALU_OUT :   IN unsigned(regWidth-1 DOWNTO 0);
         ALU_SRC_2 : IN unsigned(regWidth-1 DOWNTO 0);
+        flags : IN unsigned(2 DOWNTO 0);
 
         ra1, ra2, rdst1, rdst2 : IN unsigned(regAddrWidth-1 DOWNTO 0); 
         -- control signals
@@ -27,8 +28,10 @@ generic (
 
 
         -- outputs
+        push_pc_out : out unsigned (0 downto 0);
         ALU_OUT_out :   out unsigned(regWidth-1 DOWNTO 0);
         ALU_SRC_2_out : out unsigned(regWidth-1 DOWNTO 0);
+        flags_out : out unsigned(2 DOWNTO 0);
 
         ra1_out, ra2_out, rdst1_out, rdst2_out : out unsigned(regAddrWidth-1 DOWNTO 0); 
         -- control signals
@@ -51,8 +54,10 @@ BEGIN
     BEGIN
         IF reset = "1" THEN
             -- Synchronous reset
+            push_pc_out <= (OTHERS => '0');
             ALU_OUT_out <= (OTHERS => '0');
             ALU_SRC_2_out <= (OTHERS => '0');
+            flags_out <= (OTHERS => '0');
             ra1_out <= (OTHERS => '0');
             ra2_out <= (OTHERS => '0');
             rdst1_out <= (OTHERS => '0');
@@ -81,8 +86,10 @@ BEGIN
                
         elsif (clk'event and clk = "1") then
             -- Synchronous behavior
+            push_pc_out <= push_pc;
             ALU_OUT_out <= ALU_OUT;
             ALU_SRC_2_out <= ALU_SRC_2;
+            flags_out <= flags;
             ra1_out <= ra1;
             ra2_out <= ra2;
             rdst1_out <= rdst1;

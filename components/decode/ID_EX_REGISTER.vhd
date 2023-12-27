@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 
 entity ID_EX_REGISTER is
     port (
+        int_in : in std_logic;
         clk, reset, en                                      : in  unsigned (0 downto 0);
         rd1_in, alu_src_2_in                                : in  unsigned(31 downto 0);
         ra1_in, ra2_in, rdst1_in, rdst2_in                  : in  unsigned (2 downto 0);
@@ -15,7 +16,8 @@ entity ID_EX_REGISTER is
         mem_free_in, mem_protect_in                         : in  unsigned (0 downto 0);
         read_reg_one_in, read_reg_two_in, imm_en_in         : in  unsigned (0 downto 0);
         alu_op_in                                           : in  unsigned (3 downto 0);
-        wb_src_in                                           : in  unsigned (1 downto 0);        
+        wb_src_in                                           : in  unsigned (1 downto 0); 
+        int_out                                             : out std_logic;       
         rd1_out, alu_src_2_out                              : out unsigned(31 downto 0);
         ra1_out, ra2_out, rdst1_out, rdst2_out              : out unsigned (2 downto 0);
         reg_one_write_out, reg_two_write_out, stack_en_out  : out unsigned (0 downto 0);
@@ -31,6 +33,7 @@ entity ID_EX_REGISTER is
 end entity ID_EX_REGISTER;
 
 architecture ID_EX_REGISTER_ARCHITECTURE of ID_EX_REGISTER is
+    signal int                                  : std_logic;
     signal rd1, alu_src_2                         : unsigned(31 downto 0);
     signal ra1, ra2, rdst1, rdst2                 : unsigned (2 downto 0);
     signal reg_one_write, reg_two_write, stack_en : unsigned (0 downto 0);
@@ -42,6 +45,8 @@ architecture ID_EX_REGISTER_ARCHITECTURE of ID_EX_REGISTER is
     signal alu_op                                 : unsigned (3 downto 0);
     signal wb_src                                 : unsigned (1 downto 0);
 begin 
+    int_out <= int when en = "1"
+    else '0';
     rd1_out <= rd1 when en = "1"
     else (others => '0');
     alu_src_2_out <= alu_src_2 when en = "1"
@@ -96,6 +101,7 @@ begin
     process (clk, reset) is        
     begin
         if (reset = "1") then
+            int            <= '0';
             rd1            <= (others => '0');
             alu_src_2      <= (others => '0');
             ra1            <= (others => '0');
@@ -122,6 +128,7 @@ begin
             wb_src         <= (others => '0');
         elsif (clk'event and clk = "1") then
             if (en = "1") then
+                int            <= int_in;
                 rd1            <= rd1_in;
                 alu_src_2      <= alu_src_2_in;
                 ra1            <= ra1_in;

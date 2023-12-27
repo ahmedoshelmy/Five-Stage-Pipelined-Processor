@@ -14,12 +14,14 @@ ENTITY MEMORY IS
     PORT (
         RST : IN STD_LOGIC;
         CLK : IN STD_LOGIC;
+        push_pc : in unsigned(0 downto 0);
         MEMR : IN STD_LOGIC;
         MEMW : IN STD_LOGIC;
         PROTECT : IN STD_LOGIC;
         FREE : IN STD_LOGIC;
         ADDRESS_BUS : IN STD_LOGIC_VECTOR(ADDRESS_BITS - 1 DOWNTO 0);
         DATAIN : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        alu_src_2 : in unsigned(31 downto 0);
         MEMOUT : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         PC_RST_VAL, PC_INT_VAL : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
     );
@@ -67,9 +69,14 @@ BEGIN
                 -- MEMOUT(15 DOWNTO 0) <= CACHE(TO_INTEGER (unsigned(ADDRESS_BUS + 1)));
             END IF;
             IF MEMW = '1' AND ISPROTECTEDMEMORY(TO_INTEGER(unsigned(ADDRESS_BUS))) = '0' THEN
-                -- Assuming Big Endian
-                CACHE(TO_INTEGER(unsigned(ADDRESS_BUS))) <= DATAIN(31 DOWNTO 16);
-                CACHE(TO_INTEGER(unsigned(ADDRESS_BUS)) + 1) <= DATAIN(15 DOWNTO 0);
+                if push_pc = "1" then
+                    cache(to_integer(unsigned(address_bus))) <= std_logic_vector(alu_src_2(31 downto 16));
+                    cache(to_integer(unsigned(address_bus)) + 1) <= std_logic_vector(alu_src_2(15 downto 0));
+                else
+                    -- Assuming Big Endian
+                    CACHE(TO_INTEGER(unsigned(ADDRESS_BUS))) <= DATAIN(31 DOWNTO 16);
+                    CACHE(TO_INTEGER(unsigned(ADDRESS_BUS)) + 1) <= DATAIN(15 DOWNTO 0);
+                end if;
 
             END IF;
                 
