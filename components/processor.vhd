@@ -1007,22 +1007,22 @@ BEGIN
     );
     ------------------------- other components port map end -----------
     F_U : FU PORT MAP(
-        rsrc1_d_ex => std_logic_vector(ra1_id_ex),
-        rsrc2_d_ex => std_logic_vector(ra2_id_ex),
+        rsrc1_d_ex => STD_LOGIC_VECTOR(ra1_id_ex),
+        rsrc2_d_ex => STD_LOGIC_VECTOR(ra2_id_ex),
         read_reg_1 => read_reg_one_id_ex(0),
         read_reg_2 => read_reg_two_id_ex(0),
         reg_w1_ex_mem => reg_one_write_ex_mem(0),
         reg_w2_ex_mem => reg_two_write_ex_mem(0),
-        rdst1_ex_mem => std_logic_vector(rd1_ex_mem),
-        rdst2_ex_mem => std_logic_vector(rd2_ex_mem),
-        wb_src_ex_mem => std_logic_vector(wb_src_ex_mem),
+        rdst1_ex_mem => STD_LOGIC_VECTOR(rd1_ex_mem),
+        rdst2_ex_mem => STD_LOGIC_VECTOR(rd2_ex_mem),
+        wb_src_ex_mem => STD_LOGIC_VECTOR(wb_src_ex_mem),
         ior_ex_mem => ior_ex_mem(0),
         reg_w1_mem_wb => reg_one_write_mem_wb(0),
         reg_w2_mem_wb => reg_two_write_mem_wb(0),
         ior_mem_wb => ior_mem_wb(0),
-        rdst1_mem_wb => std_logic_vector(rd1_mem_wb),
-        rdst2_mem_wb => std_logic_vector(rd2_mem_wb),
-        wb_src_mem_wb => std_logic_vector(wb_src_mem_wb),
+        rdst1_mem_wb => STD_LOGIC_VECTOR(rd1_mem_wb),
+        rdst2_mem_wb => STD_LOGIC_VECTOR(rd2_mem_wb),
+        wb_src_mem_wb => STD_LOGIC_VECTOR(wb_src_mem_wb),
         rsrc1_d_ex_sel => alu_src_1_SEL,
         rsrc2_d_ex_sel => alu_src_2_SEL
     );

@@ -19,8 +19,8 @@ BEGIN
     BEGIN
         sp_out <= sp_in;
         IF RESET = '1' THEN -- Asynchronous reset
-            sp_in <= to_unsigned((2 ** ADDRESS_BITS) - 1, 32);
-        ELSIF (RISING_EDGE(CLK) AND STACK_EN = '1') THEN
+            sp_in <= to_unsigned((2 ** (ADDRESS_BITS - 1)) - 1, 32);
+        ELSIF (falling_edge(CLK) AND STACK_EN = '1') THEN
             -- Synchronous behavior
             sp_in <= (sp_in - 2) WHEN PUSH_POP = '0' ELSE
                 (sp_in + 2);
