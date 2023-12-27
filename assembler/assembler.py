@@ -114,7 +114,7 @@ class Assembler:
         idx = 2
         if parts[0] == "ADDI":
             idx = 3
-        immediate_value = self.signed_int_to_binary_16_bits(parts[idx])
+        immediate_value = self.hex_to_signed_int_binary_16_bits(parts[idx])
         return rsrc1 + rsrc2 + is_load + is_rotate + function + "\n" + immediate_value
 
 
@@ -158,8 +158,12 @@ class Assembler:
             port_operation = "1"
         elif parts[0] in ["POP", "PUSH"]:
             stack_operation = "1"
+        
+        output = rsrc1 + rsrc2 + will_input_in_reg + mem_operation + stack_operation + port_operation
+        if mem_operation == "1":
+            output += "\n" + self.hex_to_signed_int_binary_16_bits(parts[2])
 
-        return rsrc1 + rsrc2 + will_input_in_reg + mem_operation + stack_operation + port_operation
+        return output 
 
 
     def getMemorySecurityInstruction(self, parts):
@@ -248,6 +252,12 @@ class Assembler:
     def signed_int_to_binary_16_bits(self, number):
     # Ensure the number is within the 16-bit range
         number = int(number)
+        number &= 0xFFFF
+        binary_representation = format(number, '016b')
+        return binary_representation
+    def hex_to_signed_int_binary_16_bits(self, hex_number):
+        # Convert hexadecimal to integer
+        number = int(hex_number, 16)
         number &= 0xFFFF
         binary_representation = format(number, '016b')
         return binary_representation

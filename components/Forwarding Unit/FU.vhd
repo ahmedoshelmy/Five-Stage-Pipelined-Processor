@@ -66,12 +66,6 @@ BEGIN
 
     PROCESS (ALL)
     BEGIN
-    report "FU" severity note;
-        report "read_reg_2: " & to_string(read_reg_2) severity note;
-        report "rsrc2_d_ex: " & to_string(rsrc1_d_ex) severity note;
-        report "rdst1_ex_mem: " & to_string(rdst1_ex_mem) severity note;
-        report "reg_w1_ex_mem: " & to_string(reg_w1_ex_mem) severity note;
-        report "wb_src_ex_mem: " & to_string(wb_src_ex_mem) severity note;
         IF (read_reg_2 = '0') THEN
             rsrc2_d_ex_sel <= "000"; -- NO FORWARDING
         ELSIF ((rsrc2_d_ex = rdst1_ex_mem) AND (ior_ex_mem = '1') AND (wb_src_ex_mem = "11")) THEN

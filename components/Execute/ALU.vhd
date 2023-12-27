@@ -38,7 +38,7 @@ architecture archALU of ALU is
 
     begin
         -- concurrent statements
-        process (aluIn1, aluIn2, func, flagsIn) is
+        process (ALL) is
             variable CarryOnRight : signed(n downto 0) := (others => '0');
             variable CarryOnLeft : signed(n downto 0) := (others => '0');
             variable CarryO : signed(n downto 0) := (others => '0');

@@ -119,7 +119,6 @@ architecture ArchCU of CU is
 begin
     process (instruction) is
     begin
-            report "instruction: " & to_string(instruction);
         reg_one_write <= "0";
         reg_two_write <= "0";
         rs1_rd        <= rs;
