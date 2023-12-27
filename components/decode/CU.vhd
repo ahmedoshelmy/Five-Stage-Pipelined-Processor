@@ -26,6 +26,7 @@ entity CU is
         ret            : out unsigned(0 downto 0);
         read_reg_one   : out unsigned(0 downto 0);
         is_jz          : out unsigned(0 downto 0);
+        is_std          : out unsigned(0 downto 0);
         read_reg_two   : out unsigned(0 downto 0)
     );
 END ENTITY CU;
@@ -144,6 +145,7 @@ BEGIN
         read_reg_one  <= "0";
         read_reg_two  <= "0";
         is_jz         <= "0";
+        is_std         <= "0";
         -- if (int = '1') then            
         --     wb_src        <= mem_out;
         --     stack_en      <= "1";
@@ -265,12 +267,15 @@ BEGIN
                     
                 when call_bits =>
                     rs1_rd         <= rd;
-                    alu_op        <= alu_nop;
+                    read_reg_one  <= "1";
+                    alu_op        <= alu_buff1;
                     alu_src       <= pc_plus_one;
                     stack_en      <= "1";
                     mem_write     <= "1";
                     push_pop      <= push;
-                    read_reg_one  <= "1";
+                    call_jmp      <= "1";
+                    is_std <= "1";
+
                 when ret_bits =>
                     wb_src        <= mem_out;
                     stack_en      <= "1";
@@ -296,6 +301,7 @@ BEGIN
                     imm_en        <= "1";
                     mem_write     <= "1";
                     read_reg_one  <= "1";
+                    is_std <= "1";
                 when pop_bits =>
                     reg_one_write <= "1";
                     wb_src        <= mem_out;

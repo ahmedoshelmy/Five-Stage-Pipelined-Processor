@@ -4,21 +4,16 @@ restart -f
 
 add wave -position end  sim:/processor/reset
 add wave -position end  sim:/processor/clk
-add wave -position end  sim:/processor/pc
-add wave -position end  sim:/processor/sp
-add wave -position end  sim:/processor/port_out
-add wave -position end  sim:/processor/port_in
-add wave -position end  sim:/processor/fetchIMEM/*
-add wave -position end  sim:/processor/fetchIMEM/ram
+
 add wave -position end  sim:/processor/clk
 add wave -position end  sim:/processor/instruction_if_ex
+add wave -position end  sim:/processor/port_out
 add wave -position end  sim:/processor/clk
 add wave -position end  sim:/processor/flags_in_alu
 add wave -position end  sim:/processor/alu_out_ex_mem
 add wave -position end  sim:/processor/alu_src_2_ex_mem
 add wave -position end  sim:/processor/decode_REGFILE/registers
-
-add wave -position end  sim:/processor/memoryDataMemory/CACHE
+add wave -position end  sim:/processor/executeALU/*
 
 
 if {0} {
@@ -54,15 +49,11 @@ force -freeze sim:/processor/reset 0 0
 
 
 
-force -freeze sim:/processor/port_in 30 0
-run 750ps
-force -freeze sim:/processor/port_in 50 0
+force -freeze sim:/processor/port_in 5 0
+run 250ps
+force -freeze sim:/processor/port_in 19 0
 run 100ps
-force -freeze sim:/processor/port_in 100 0
+force -freeze sim:/processor/port_in FFFD 0
 run 100ps
-force -freeze sim:/processor/port_in 300 0
-run 100ps
-force -freeze sim:/processor/port_in FFFFFFFF 0
-run 300ps
-force -freeze sim:/processor/port_in 200 0
-run 3050ps
+force -freeze sim:/processor/port_in F320 0
+run 2550ps

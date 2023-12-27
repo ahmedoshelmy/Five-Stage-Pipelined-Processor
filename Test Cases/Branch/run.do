@@ -8,8 +8,7 @@ add wave -position end  sim:/processor/pc
 add wave -position end  sim:/processor/sp
 add wave -position end  sim:/processor/port_out
 add wave -position end  sim:/processor/port_in
-add wave -position end  sim:/processor/fetchIMEM/*
-add wave -position end  sim:/processor/fetchIMEM/ram
+
 add wave -position end  sim:/processor/clk
 add wave -position end  sim:/processor/instruction_if_ex
 add wave -position end  sim:/processor/clk

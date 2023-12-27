@@ -32,7 +32,8 @@ class Assembler:
         i = 0
         for instruction in self.instructions:
             if ".ORG" in instruction:
-                i = int(instruction.split()[1]) - 1
+                i = int(instruction.split()[1], 16) 
+                i = i - 1
                 continue
         
             binary_instruction = self.assemble(instruction)
