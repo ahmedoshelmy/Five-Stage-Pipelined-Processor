@@ -878,7 +878,7 @@ BEGIN
         out_port_en => out_port_en_id_ex,
         ior => ior_id_ex,
         iow => iow_id_ex,
-        inport_data => inport_data,
+        inport_data => port_in,
         mem_free => mem_free_id_ex,
         mem_protect => mem_protect_id_ex,
         wb_src => wb_src_id_ex,
