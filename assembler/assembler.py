@@ -28,13 +28,22 @@ class Assembler:
 
                 self.instructions.append(line)
         # writing
-        binary_instructions = []
+        binary_instructions = ["0000000000000000\n"] * 4095 
+        i = 0
         for instruction in self.instructions:
-            binary_instruction = self.assemble(instruction) + "\n"
-            binary_instructions.append(binary_instruction)
-            if len(binary_instruction) != 17 and len(
-                    binary_instruction) != 16 * 2 + 2:  # The second option is for immediate
-                print("Test failed: " + instruction + " ::::: " + binary_instruction)
+            if ".ORG" in instruction:
+                i = int(instruction.split()[1]) - 1
+                continue
+        
+            binary_instruction = self.assemble(instruction)
+            lines_written = binary_instruction.split("\n")
+            for lin in lines_written:
+                binary_instructions[i] = lin + "\n"
+                i = i+1
+            print(i, binary_instructions[i])
+            if len(binary_instructions[i]) != 17 and len(
+                    binary_instructions[i]) != 16 * 2 + 2:  # The second option is for immediate
+                print("Test failed: " + instruction + " ::::: " + binary_instructions[i])
 
         outputFile = open(self.target_file, "w")
         outputFile.writelines(binary_instructions)
@@ -106,7 +115,8 @@ class Assembler:
 
         if parts[0][0] == 'R':
             is_rotate = "1"
-
+        if parts[0] == "LDM":
+            is_load = "1"
         function = self.immediate_func_to_binary(parts[0])
         if self.operand_count(parts) == 2:  # This means that it is 2 operand
             rsrc1 = self.register_to_binary(parts[2])
@@ -114,7 +124,7 @@ class Assembler:
         idx = 2
         if parts[0] == "ADDI":
             idx = 3
-        immediate_value = self.signed_int_to_binary_16_bits(parts[idx])
+        immediate_value = self.hex_to_signed_int_binary_16_bits(parts[idx])
         return rsrc1 + rsrc2 + is_load + is_rotate + function + "\n" + immediate_value
 
 
@@ -158,8 +168,12 @@ class Assembler:
             port_operation = "1"
         elif parts[0] in ["POP", "PUSH"]:
             stack_operation = "1"
+        
+        output = rsrc1 + rsrc2 + will_input_in_reg + mem_operation + stack_operation + port_operation
+        if mem_operation == "1":
+            output += "\n" + self.hex_to_signed_int_binary_16_bits(parts[2])
 
-        return rsrc1 + rsrc2 + will_input_in_reg + mem_operation + stack_operation + port_operation
+        return output 
 
 
     def getMemorySecurityInstruction(self, parts):
@@ -190,7 +204,8 @@ class Assembler:
 
         # 2. Rdst
         rdst = "XXX"
-        if op_code not in ["111", "000"]:
+        if (op_code not in ["111", "000"]) and parts[0] not in ["RTI", "RET"]:
+            print(parts)
             rdst = self.register_to_binary(parts[1])
         output_instruction += rdst
 
@@ -248,6 +263,12 @@ class Assembler:
     def signed_int_to_binary_16_bits(self, number):
     # Ensure the number is within the 16-bit range
         number = int(number)
+        number &= 0xFFFF
+        binary_representation = format(number, '016b')
+        return binary_representation
+    def hex_to_signed_int_binary_16_bits(self, hex_number):
+        # Convert hexadecimal to integer
+        number = int(hex_number, 16)
         number &= 0xFFFF
         binary_representation = format(number, '016b')
         return binary_representation

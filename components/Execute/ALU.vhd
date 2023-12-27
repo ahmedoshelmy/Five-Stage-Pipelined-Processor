@@ -38,7 +38,7 @@ architecture archALU of ALU is
 
     begin
         -- concurrent statements
-        process (aluIn1, aluIn2, func, flagsIn) is
+        process (ALL) is
             variable CarryOnRight : signed(n downto 0) := (others => '0');
             variable CarryOnLeft : signed(n downto 0) := (others => '0');
             variable CarryO : signed(n downto 0) := (others => '0');
@@ -75,14 +75,12 @@ architecture archALU of ALU is
                     aluOutVar := (aluIn1 or (2 * aluIn2 )); 
 
                 when ALU_RCL =>
-                    CarryOnLeft(n-1 downto 0) := aluIn1(n-1 downto 0);
-                    CarryOnLeft(n) := flagsIn(2);
-                    CarryO := CarryOnLeft rol to_integer(unsigned(aluIn2));
+                    -- << rotate leftunsigned(aluIn2));
                     
-                    aluOutVar := CarryO(n-1 downto 0);
+                    aluOutVar := aluIn1(n-2 downto 0) & flagsIn(2);
                     flagsOut(0) <= '1' when signed(aluOutVar) = "0" else '0'; -- Z
                     flagsOut(1) <= '1' when signed(aluOutVar) < 0 else '0'; -- N
-                    flagsOut(2)    <= CarryO(n);
+                    flagsOut(2)    <= aluIn1(n-1);
                     
                 when ALU_RCR =>
                     CarryOnRight(n downto 1) := aluIn1(n-1 downto 0);

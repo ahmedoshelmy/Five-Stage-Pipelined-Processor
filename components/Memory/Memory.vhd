@@ -34,7 +34,7 @@ ARCHITECTURE ARCHMEMORY OF MEMORY IS
     SIGNAL ISPROTECTEDMEMORY : PROTECTMEMORYTYPE; -- 1 Means protected
     SIGNAL initial_flag : STD_LOGIC := '1';
 BEGIN
-    PROCESS (CLK, RST) 
+    PROCESS (CLK, RST)
         FILE memory_file : text OPEN read_mode IS "cache.txt";
         VARIABLE file_line : line;
         VARIABLE temp_data : STD_LOGIC_VECTOR(CACHE_WORD_WIDTH - 1 DOWNTO 0);
@@ -48,7 +48,7 @@ BEGIN
             PC_RST_VAL <= (OTHERS => '0');
             PC_INT_VAL <= (OTHERS => '0');
             MEMOUT <= (OTHERS => '0');
-        -- reading file once
+            -- reading file once
         ELSIF (initial_flag = '1') THEN
             FOR i IN CACHE'RANGE LOOP
                 IF NOT endfile(memory_file) THEN
@@ -61,13 +61,8 @@ BEGIN
                 END IF;
             END LOOP;
             initial_flag <= '0';
-        -- syncronys behaviour
+            -- syncronys behaviour
         ELSIF falling_edge(CLK) THEN
-            IF MEMR = '1' THEN
-                MEMOUT(31 DOWNTO 16) <= CACHE(TO_INTEGER (unsigned(ADDRESS_BUS)));
-                MEMOUT(15 DOWNTO 0) <= CACHE(TO_INTEGER(unsigned(ADDRESS_BUS)) + 1);
-                -- MEMOUT(15 DOWNTO 0) <= CACHE(TO_INTEGER (unsigned(ADDRESS_BUS + 1)));
-            END IF;
             IF MEMW = '1' AND ISPROTECTEDMEMORY(TO_INTEGER(unsigned(ADDRESS_BUS))) = '0' THEN
                 if push_pc = "1" then
                     cache(to_integer(unsigned(address_bus))) <= std_logic_vector(alu_src_2(31 downto 16));
@@ -79,8 +74,6 @@ BEGIN
                 end if;
 
             END IF;
-                
-                
             -- Protect and free 
             IF PROTECT = '1' THEN
                 ISPROTECTEDMEMORY(TO_INTEGER (unsigned(ADDRESS_BUS))) <= '1';
@@ -88,7 +81,11 @@ BEGIN
             IF FREE = '1' THEN
                 ISPROTECTEDMEMORY(TO_INTEGER (unsigned(ADDRESS_BUS))) <= '0';
             END IF;
-
+        END IF;
+        IF MEMR = '1' THEN
+            MEMOUT(31 DOWNTO 16) <= CACHE(TO_INTEGER (unsigned(ADDRESS_BUS)));
+            MEMOUT(15 DOWNTO 0) <= CACHE(TO_INTEGER(unsigned(ADDRESS_BUS)) + 1);
+            -- MEMOUT(15 DOWNTO 0) <= CACHE(TO_INTEGER (unsigned(ADDRESS_BUS + 1)));
         END IF;
     END PROCESS;
 END ARCHMEMORY;

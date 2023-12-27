@@ -1,6 +1,6 @@
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
 
 entity CU is
     port (
@@ -28,99 +28,99 @@ entity CU is
         is_jz          : out unsigned(0 downto 0);
         read_reg_two   : out unsigned(0 downto 0)
     );
-end entity CU;
+END ENTITY CU;
 
-architecture ArchCU of CU is
+ARCHITECTURE ArchCU OF CU IS
     ---------------- instruction bits start ---------------------
     -- nop
-    constant nop_bits       : unsigned(6 downto 0) := "0000000";
+    CONSTANT nop_bits : unsigned(6 DOWNTO 0) := "0000000";
     -- alu one operand
-    constant not_bits       : unsigned(6 downto 0) := "0010001";
-    constant neg_bits       : unsigned(6 downto 0) := "0010010";
-    constant inc_bits       : unsigned(6 downto 0) := "0010011";
-    constant dec_bits       : unsigned(6 downto 0) := "0010100";
+    CONSTANT not_bits : unsigned(6 DOWNTO 0) := "0010001";
+    CONSTANT neg_bits : unsigned(6 DOWNTO 0) := "0010010";
+    CONSTANT inc_bits : unsigned(6 DOWNTO 0) := "0010011";
+    CONSTANT dec_bits : unsigned(6 DOWNTO 0) := "0010100";
     -- alu two operand
-    constant add_bits       : unsigned(6 downto 0) := "0011001";
-    constant sub_bits       : unsigned(6 downto 0) := "0011010";
-    constant and_bits       : unsigned(6 downto 0) := "0011011";
-    constant or_bits        : unsigned(6 downto 0) := "0011100";
-    constant xor_bits       : unsigned(6 downto 0) := "0011101";
-    constant swap_bits      : unsigned(6 downto 0) := "0011110";
-    constant cmp_bits       : unsigned(6 downto 0) := "0011111";
+    CONSTANT add_bits : unsigned(6 DOWNTO 0) := "0011001";
+    CONSTANT sub_bits : unsigned(6 DOWNTO 0) := "0011010";
+    CONSTANT and_bits : unsigned(6 DOWNTO 0) := "0011011";
+    CONSTANT or_bits : unsigned(6 DOWNTO 0) := "0011100";
+    CONSTANT xor_bits : unsigned(6 DOWNTO 0) := "0011101";
+    CONSTANT swap_bits : unsigned(6 DOWNTO 0) := "0011110";
+    CONSTANT cmp_bits : unsigned(6 DOWNTO 0) := "0011111";
     -- immediate
-    constant addi_bits      : unsigned(6 downto 0) := "0100001";
-    constant bitset_bits    : unsigned(6 downto 0) := "0100010";
-    constant rcl_bits       : unsigned(6 downto 0) := "0100100";
-    constant rcr_bits       : unsigned(6 downto 0) := "0100101";
-    constant ldm_bits       : unsigned(6 downto 0) := "0101000";
+    CONSTANT addi_bits : unsigned(6 DOWNTO 0) := "0100001";
+    CONSTANT bitset_bits : unsigned(6 DOWNTO 0) := "0100010";
+    CONSTANT rcl_bits : unsigned(6 DOWNTO 0) := "0100100";
+    CONSTANT rcr_bits : unsigned(6 DOWNTO 0) := "0100101";
+    CONSTANT ldm_bits : unsigned(6 DOWNTO 0) := "0101000";
     -- conditional jump
-    constant jz_bits        : unsigned(6 downto 0) := "0110000";
+    CONSTANT jz_bits : unsigned(6 DOWNTO 0) := "0110000";
     -- unconditional jump
-    constant jmp_bits       : unsigned(6 downto 0) := "1001000";
-    constant call_bits      : unsigned(6 downto 0) := "1000100";
-    constant ret_bits       : unsigned(6 downto 0) := "1000010";
-    constant rti_bits       : unsigned(6 downto 0) := "1000001";
+    CONSTANT jmp_bits : unsigned(6 DOWNTO 0) := "1001000";
+    CONSTANT call_bits : unsigned(6 DOWNTO 0) := "1000100";
+    CONSTANT ret_bits : unsigned(6 DOWNTO 0) := "1000010";
+    CONSTANT rti_bits : unsigned(6 DOWNTO 0) := "1000001";
     -- data operations
-    constant ldd_bits       : unsigned(6 downto 0) := "1011100";
-    constant std_bits       : unsigned(6 downto 0) := "1010100";
-    constant pop_bits       : unsigned(6 downto 0) := "1011010";
-    constant push_bits      : unsigned(6 downto 0) := "1010010";
-    constant in_bits        : unsigned(6 downto 0) := "1011001";
-    constant out_bits       : unsigned(6 downto 0) := "1010001";
+    CONSTANT ldd_bits : unsigned(6 DOWNTO 0) := "1011100";
+    CONSTANT std_bits : unsigned(6 DOWNTO 0) := "1010100";
+    CONSTANT pop_bits : unsigned(6 DOWNTO 0) := "1011010";
+    CONSTANT push_bits : unsigned(6 DOWNTO 0) := "1010010";
+    CONSTANT in_bits : unsigned(6 DOWNTO 0) := "1011001";
+    CONSTANT out_bits : unsigned(6 DOWNTO 0) := "1010001";
     -- memory security
-    constant free_bits      : unsigned(6 downto 0) := "1101000";
-    constant protect_bits   : unsigned(6 downto 0) := "1100000";
+    CONSTANT free_bits : unsigned(6 DOWNTO 0) := "1101000";
+    CONSTANT protect_bits : unsigned(6 DOWNTO 0) := "1100000";
     -- input signals
-    constant reset_bits     : unsigned(6 downto 0) := "1111000";
-    constant interrupt_bits : unsigned(6 downto 0) := "1110000";
+    CONSTANT reset_bits : unsigned(6 DOWNTO 0) := "1111000";
+    CONSTANT interrupt_bits : unsigned(6 DOWNTO 0) := "1110000";
     ---------------- instruction bits end ---------------------
 
     ---------------- alu functions start ---------------------
     -- no operands operations
-    constant alu_nop        : unsigned(3 Downto 0) := x"0";
+    CONSTANT alu_nop : unsigned(3 DOWNTO 0) := x"0";
     -- one operands operations
-    constant alu_not        : unsigned(3 Downto 0) := x"1";
-    constant alu_neg        : unsigned(3 Downto 0) := x"2";
-    constant alu_inc        : unsigned(3 Downto 0) := x"3";
-    constant alu_dec        : unsigned(3 Downto 0) := x"4";
+    CONSTANT alu_not : unsigned(3 DOWNTO 0) := x"1";
+    CONSTANT alu_neg : unsigned(3 DOWNTO 0) := x"2";
+    CONSTANT alu_inc : unsigned(3 DOWNTO 0) := x"3";
+    CONSTANT alu_dec : unsigned(3 DOWNTO 0) := x"4";
     -- play with one operand
-    constant alu_bitset     : unsigned(3 Downto 0) := x"5";
-    constant alu_rcl        : unsigned(3 Downto 0) := x"6";
-    constant alu_rcr        : unsigned(3 Downto 0) := x"7";
+    CONSTANT alu_bitset : unsigned(3 DOWNTO 0) := x"5";
+    CONSTANT alu_rcl : unsigned(3 DOWNTO 0) := x"6";
+    CONSTANT alu_rcr : unsigned(3 DOWNTO 0) := x"7";
     -- two operands operations
-    constant alu_add        : unsigned(3 Downto 0) := x"9";
-    constant alu_sub        : unsigned(3 Downto 0) := x"A"; -- aluIn1 - aluIn2
-    constant alu_and        : unsigned(3 Downto 0) := x"B";
-    constant alu_or         : unsigned(3 Downto 0) := x"C";
-    constant alu_xor        : unsigned(3 Downto 0) := x"D";
+    CONSTANT alu_add : unsigned(3 DOWNTO 0) := x"9";
+    CONSTANT alu_sub : unsigned(3 DOWNTO 0) := x"A"; -- aluIn1 - aluIn2
+    CONSTANT alu_and : unsigned(3 DOWNTO 0) := x"B";
+    CONSTANT alu_or : unsigned(3 DOWNTO 0) := x"C";
+    CONSTANT alu_xor : unsigned(3 DOWNTO 0) := x"D";
     -- buffers
-    constant alu_buff1      : unsigned(3 Downto 0) := x"E"; -- same as SWAP => output = aluIn1
-    constant alu_buff2      : unsigned(3 Downto 0) := x"F";
+    CONSTANT alu_buff1 : unsigned(3 DOWNTO 0) := x"E"; -- same as SWAP => output = aluIn1
+    CONSTANT alu_buff2 : unsigned(3 DOWNTO 0) := x"F";
     ---------------- alu functions end ---------------------
 
     ---------------- constants start ---------------------
-    constant rd             : unsigned(0 downto 0) := "1";
-    constant rs             : unsigned(0 downto 0) := "0";
-    constant one_op         : unsigned(0 downto 0) := "0";
-    constant two_op         : unsigned(0 downto 0) := "1";
+    CONSTANT rd : unsigned(0 DOWNTO 0) := "1";
+    CONSTANT rs : unsigned(0 DOWNTO 0) := "0";
+    CONSTANT one_op : unsigned(0 DOWNTO 0) := "0";
+    CONSTANT two_op : unsigned(0 DOWNTO 0) := "1";
     -- wb src
-    constant mem_out        : unsigned(1 downto 0) := "00";
-    constant alu_out        : unsigned(1 downto 0) := "01";
-    constant immediate      : unsigned(1 downto 0) := "10";
-    constant inport_out     : unsigned(1 downto 0) := "11";
+    CONSTANT mem_out : unsigned(1 DOWNTO 0) := "00";
+    CONSTANT alu_out : unsigned(1 DOWNTO 0) := "01";
+    CONSTANT immediate : unsigned(1 DOWNTO 0) := "10";
+    CONSTANT inport_out : unsigned(1 DOWNTO 0) := "11";
     -- wb src
-    constant reg            : unsigned(1 downto 0) := "00";
-    constant imm            : unsigned(1 downto 0) := "01";
-    constant pc_plus_one    : unsigned(1 downto 0) := "10";
-    constant push           : unsigned(0 downto 0) := "0";
-    constant pop            : unsigned(0 downto 0) := "1";
-    constant call           : unsigned(0 downto 0) := "0";
-    constant jmp            : unsigned(0 downto 0) := "1";
+    CONSTANT reg : unsigned(1 DOWNTO 0) := "00";
+    CONSTANT imm : unsigned(1 DOWNTO 0) := "01";
+    CONSTANT pc_plus_one : unsigned(1 DOWNTO 0) := "10";
+    CONSTANT push : unsigned(0 DOWNTO 0) := "0";
+    CONSTANT pop : unsigned(0 DOWNTO 0) := "1";
+    CONSTANT call : unsigned(0 DOWNTO 0) := "0";
+    CONSTANT jmp : unsigned(0 DOWNTO 0) := "1";
     ---------------- constants end ---------------------
-begin
-    process (instruction) is
-    begin
-            report "instruction: " & to_string(instruction);
+BEGIN
+    PROCESS (instruction) IS
+    BEGIN
+        REPORT "instruction: " & to_string(instruction);
         reg_one_write <= "0";
         reg_two_write <= "0";
         rs1_rd        <= rs;

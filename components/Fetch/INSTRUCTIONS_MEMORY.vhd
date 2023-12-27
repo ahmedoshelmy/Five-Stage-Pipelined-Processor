@@ -20,7 +20,7 @@ begin
     begin
         if(rising_edge(clk)) then 
             if we = '1' then
-                instArray(to_integer(unsigned(i)))<= instruction;
+                instArray(to_integer(unsigned(i)))<= std_logic_vector( signed( instruction ) );
                 i <= std_logic_vector(to_unsigned(to_integer(unsigned( i )) + 1, 12));
             else inst_imm <= instArray(to_integer(unsigned(PC)));
             end if;
