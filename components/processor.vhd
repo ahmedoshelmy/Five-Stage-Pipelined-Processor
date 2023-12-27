@@ -15,6 +15,7 @@ ARCHITECTURE archProcessor OF processor IS
     SIGNAL pc : unsigned(31 DOWNTO 0) := (OTHERS => '0');
     SIGNAL instruction : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
     SIGNAL instruction_if_ex : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
+    signal int_if_id : STD_LOGIC := '0';
     SIGNAL pc_if_ex : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
     SIGNAL next_pc_src : unsigned(31 DOWNTO 0) := (OTHERS => '0');
     ------------------------- fetch stage signals end ---------------------
@@ -27,6 +28,7 @@ ARCHITECTURE archProcessor OF processor IS
     SIGNAL rd1 : unsigned(31 DOWNTO 0) := (OTHERS => '0');
     SIGNAL rd2 : unsigned(31 DOWNTO 0) := (OTHERS => '0');
     SIGNAL alu_src_2 : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    signal int_id_ex : STD_LOGIC := '0';
     SIGNAL rd1_id_ex : unsigned(31 DOWNTO 0) := (OTHERS => '0');
     SIGNAL rd2_id_ex : unsigned(31 DOWNTO 0) := (OTHERS => '0');
     SIGNAL alu_src_2_id_ex : unsigned(31 DOWNTO 0) := (OTHERS => '0');
@@ -63,8 +65,10 @@ ARCHITECTURE archProcessor OF processor IS
 
     SIGNAL alu_out_ex : signed (31 DOWNTO 0) := (OTHERS => '0');
     -- output from pipeline reg
+    signal push_pc_ex_mem : unsigned(0 downto 0) := "0";
     SIGNAL alu_out_ex_mem : unsigned (31 DOWNTO 0) := (OTHERS => '0');
     SIGNAL alu_src_2_ex_mem : unsigned (31 DOWNTO 0) := (OTHERS => '0');
+    signal flags_ex_mem : unsigned(2 downto 0) := (others => '0');
     SIGNAL ra1_ex_mem : unsigned (2 DOWNTO 0) := (OTHERS => '0');
     SIGNAL ra2_ex_mem : unsigned (2 DOWNTO 0) := (OTHERS => '0');
     SIGNAL rd1_ex_mem : unsigned (2 DOWNTO 0) := (OTHERS => '0');
@@ -121,6 +125,8 @@ ARCHITECTURE archProcessor OF processor IS
     SIGNAL inport_data_mem_wb : unsigned (31 DOWNTO 0) := (OTHERS => '0');
     SIGNAL read_reg_one_mem_wb : unsigned (0 DOWNTO 0) := "0";
     SIGNAL read_reg_two_mem_wb : unsigned (0 DOWNTO 0) := "0";
+
+    signal push_pc : unsigned(0 downto 0) := "0";
     ------------------------- write back stage signals start --------------
     SIGNAL regWriteData : unsigned (31 DOWNTO 0) := (OTHERS => '0'); --output from wb mux
     SIGNAL inport, outport : unsigned (31 DOWNTO 0) := (OTHERS => '0');
@@ -157,6 +163,7 @@ ARCHITECTURE archProcessor OF processor IS
     ------------------------- control signals end -------------------------
 
     ------------------------- internal signals start ----------------------
+    signal push_pc_std_logic : std_logic := '0';
     SIGNAL instruction_internal : unsigned (6 DOWNTO 0) := (OTHERS => '0');
     SIGNAL imm_en_internal : unsigned (0 DOWNTO 0) := "0";
     SIGNAL rs1_internal : unsigned (2 DOWNTO 0) := (OTHERS => '0');
@@ -212,6 +219,7 @@ ARCHITECTURE archProcessor OF processor IS
             pc : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
             enable : IN STD_LOGIC;
 
+            int_if_id : OUT STD_LOGIC;
             instruction_if_ex : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
             pc_if_ex : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
         );
@@ -262,6 +270,7 @@ ARCHITECTURE archProcessor OF processor IS
 
     COMPONENT cu IS
         PORT (
+            int : IN STD_LOGIC;
             instruction : IN unsigned(6 DOWNTO 0);
             reg_one_write : OUT unsigned(0 DOWNTO 0);
             reg_two_write : OUT unsigned(0 DOWNTO 0);
@@ -298,6 +307,7 @@ ARCHITECTURE archProcessor OF processor IS
     COMPONENT id_ex_register IS
         PORT (
             clk, reset, en : IN unsigned (0 DOWNTO 0);
+            int_in : IN STD_LOGIC;
             rd1_in, alu_src_2_in : IN unsigned(31 DOWNTO 0);
             ra1_in, ra2_in, rdst1_in, rdst2_in : IN unsigned (2 DOWNTO 0);
             reg_one_write_in, reg_two_write_in, stack_en_in : IN unsigned (0 DOWNTO 0);
@@ -309,6 +319,7 @@ ARCHITECTURE archProcessor OF processor IS
             read_reg_one_in, read_reg_two_in, imm_en_in : IN unsigned (0 DOWNTO 0);
             alu_op_in : IN unsigned (3 DOWNTO 0);
             wb_src_in : IN unsigned (1 DOWNTO 0);
+            int_out : OUT STD_LOGIC;
             rd1_out, alu_src_2_out : OUT unsigned(31 DOWNTO 0);
             ra1_out, ra2_out, rdst1_out, rdst2_out : OUT unsigned (2 DOWNTO 0);
             reg_one_write_out, reg_two_write_out, stack_en_out : OUT unsigned (0 DOWNTO 0);
@@ -399,9 +410,10 @@ ARCHITECTURE archProcessor OF processor IS
         );
         PORT (
             clk, reset : IN unsigned (0 DOWNTO 0);
-
+            push_pc: IN unsigned(0 DOWNTO 0);
             alu_out : IN unsigned(regWidth - 1 DOWNTO 0);
             alu_src_2 : IN unsigned(regWidth - 1 DOWNTO 0);
+            flags : IN unsigned(2 downto 0);
 
             ra1, ra2, rdst1, rdst2 : IN unsigned(regAddrWidth - 1 DOWNTO 0);
             -- control signals
@@ -415,8 +427,10 @@ ARCHITECTURE archProcessor OF processor IS
             read_reg_one, read_reg_two : IN unsigned (0 DOWNTO 0);
 
             -- outputs
+            push_pc_out : OUT unsigned(0 DOWNTO 0);
             alu_out_out : OUT unsigned(regWidth - 1 DOWNTO 0);
             alu_src_2_out : OUT unsigned(regWidth - 1 DOWNTO 0);
+            flags_out : OUT unsigned(2 downto 0);
 
             ra1_out, ra2_out, rdst1_out, rdst2_out : OUT unsigned(regAddrWidth - 1 DOWNTO 0);
             -- control signals
@@ -483,10 +497,12 @@ ARCHITECTURE archProcessor OF processor IS
         PORT (
             rst : IN STD_LOGIC;
             clk : IN STD_LOGIC;
+            push_pc : IN unsigned(0 DOWNTO 0);
             memr, memw : IN STD_LOGIC;
             protect, free : IN STD_LOGIC;
             address_bus : IN STD_LOGIC_VECTOR(address_bits - 1 DOWNTO 0);
             datain : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+            alu_src_2 : in unsigned(31 downto 0);
             memout : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
             pc_rst_val, pc_int_val : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
         );
@@ -554,13 +570,12 @@ ARCHITECTURE archProcessor OF processor IS
             clk, reset : IN STD_LOGIC
         );
     END COMPONENT io;
-    ---------------------------- other components end --------------------
-
+    
     COMPONENT FU IS
-        PORT (
-            -- Inputs from D/EX Register
-            rsrc1_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-            rsrc2_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+    PORT (
+        -- Inputs from D/EX Register
+        rsrc1_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        rsrc2_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
             read_reg_1 : IN STD_LOGIC;
             read_reg_2 : IN STD_LOGIC;
             -- Inputs from EX/MEM Register
@@ -577,13 +592,21 @@ ARCHITECTURE archProcessor OF processor IS
             rdst1_mem_wb : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
             rdst2_mem_wb : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
             wb_src_mem_wb : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-
+            
             -- Selectors 
             rsrc1_d_ex_sel : OUT UNSIGNED(2 DOWNTO 0);
             rsrc2_d_ex_sel : OUT UNSIGNED(2 DOWNTO 0)
-        );
+            );
+            
+            END COMPONENT FU;
 
-    END COMPONENT FU;
+    component icu is
+        port (
+            int, clk, reset : in std_logic;
+            push_pc : out unsigned(0 downto 0)
+        );
+    end component icu;
+            ---------------------------- other components end --------------------
 BEGIN
     ------------------------- fetch stage port maps start ----------------
     fetchMux : PC_SRC_MUX PORT MAP(
@@ -595,6 +618,7 @@ BEGIN
         FLUSH_EX => flush_ex,
         PC_OUT => next_pc_src
     );
+    -- push_pc_std_logic <= std_logic(push_pc);
     fetchPcEG : PC_REG PORT MAP(
         CLK => clk,
         RESET => reset,
@@ -621,6 +645,7 @@ BEGIN
         instruction => instruction,
         pc => STD_LOGIC_VECTOR(pc),
         enable => "not"(stall),
+        int_if_id => int_if_id,
         instruction_if_ex => instruction_if_ex,
         pc_if_ex => pc_if_ex
     );
@@ -630,6 +655,7 @@ BEGIN
     instruction_internal <= unsigned(instruction_if_ex(15 DOWNTO 13) & instruction_if_ex(3 DOWNTO 0));
     imm_en <= imm_en_internal(0); -- cool trick to convert std_logic to unsigned
     decode_CU : cu PORT MAP(
+        int => int_if_id,
         instruction => instruction_internal,
         reg_one_write => reg_one_write,
         reg_two_write => reg_two_write,
@@ -705,6 +731,7 @@ BEGIN
         clk => clk_internal,
         reset => reset_internal,
         en => "not"(stall_internal),
+        int_in => int_if_id,
         rd1_in => rd1,
         alu_src_2_in => alu_src_2,
         ra1_in => ra1,
@@ -731,6 +758,7 @@ BEGIN
         alu_op_in => alu_op,
         wb_src_in => wb_src,
 
+        int_out => int_id_ex,
         rd1_out => rd1_id_ex,
         alu_src_2_out => alu_src_2_id_ex,
         ra1_out => ra1_id_ex,
@@ -832,9 +860,10 @@ BEGIN
         -- inputs
         clk => clk_internal,
         reset => reset_internal,
+        push_pc => push_pc,
         alu_out => alu_out_unsigned,
         alu_src_2 => alu_src_2_FW_MUX,
-
+        flags => flags_in_alu,
         ra1 => ra1_id_ex,
         ra2 => ra2_id_ex,
         rdst1 => wa1_id_ex,
@@ -857,8 +886,10 @@ BEGIN
         read_reg_two => read_reg_two_id_ex,
 
         -- outputs
+        push_pc_out => push_pc_ex_mem,
         alu_out_out => alu_out_ex_mem,
         alu_src_2_out => alu_src_2_ex_mem,
+        flags_out => flags_ex_mem,
         ra1_out => ra1_ex_mem,
         ra2_out => ra2_ex_mem,
         rdst1_out => rd1_ex_mem,
@@ -911,6 +942,7 @@ BEGIN
         16, 12) PORT MAP (
         rst => reset,
         clk => clk,
+        push_pc => push_pc_ex_mem,
         memr => mem_read_ex_mem(0),
         memw => mem_write_ex_mem(0),
         protect => mem_protect_ex_mem(0),
@@ -919,6 +951,7 @@ BEGIN
         datain => STD_LOGIC_VECTOR(alu_out_ex_mem),
         -- outputs
         memout => mem_out_DME_in,
+        alu_src_2 => flags_ex_mem & alu_src_2_ex_mem(28 downto 0),
         pc_rst_val => pc_rst_val_in,
         pc_int_val => pc_int_val_in
     );
@@ -1005,7 +1038,14 @@ BEGIN
         clk => clk,
         reset => reset
     );
-    ------------------------- other components port map end -----------
+
+    int_cu: icu port map (
+        clk => clk,
+        reset => reset,
+        int => int_id_ex,
+        push_pc => push_pc
+    );
+
     F_U : FU PORT MAP(
         rsrc1_d_ex => STD_LOGIC_VECTOR(ra1_id_ex),
         rsrc2_d_ex => STD_LOGIC_VECTOR(ra2_id_ex),
@@ -1025,6 +1065,7 @@ BEGIN
         wb_src_mem_wb => STD_LOGIC_VECTOR(wb_src_mem_wb),
         rsrc1_d_ex_sel => alu_src_1_SEL,
         rsrc2_d_ex_sel => alu_src_2_SEL
-    );
-
+        );
+        ------------------------- other components port map end -----------
+        
 END ARCHITECTURE archProcessor;
