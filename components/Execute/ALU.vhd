@@ -56,7 +56,7 @@ architecture archALU of ALU is
                     flagsOut(0) <= '1' when signed(aluOutVar) = "0" else '0'; -- Z
                     flagsOut(1) <= '1' when signed(aluOutVar) < 0 else '0'; -- N
                 when ALU_INC =>
-                    CarryOnLeft := aluIn1 + 1;
+                    CarryOnLeft := resize(aluIn1, 33) + 1;
                     aluOutVar := CarryOnLeft(n-1 downto 0);
                     flagsOut(0) <= '1' when signed(aluOutVar) = "0" else '0'; -- Z
                     flagsOut(1) <= '1' when signed(aluOutVar) < 0 else '0'; -- N
