@@ -314,7 +314,7 @@ def easy_reading(instruction_path, output_path):
 
 
 if __name__ == "__main__":
-    component_path = "E:/3rd/04 Arc/07 Project/Five-Stage-Pipelined-Processor/components/"
+    component_path = "C:/Users/ASUS/Documents/GitHub/Five-Stage-Pipelined-Processor/components/"
     assembler = Assembler(f"{component_path}code.txt", f"{component_path}/instruction.txt")
     assembler.main()
     fix_xxx(f"{component_path}/instruction.txt")
