@@ -18,10 +18,16 @@ add wave -position end  sim:/processor/flags_in_alu
 add wave -position end  sim:/processor/alu_out_ex_mem
 add wave -position end  sim:/processor/alu_src_1_FW_MUX
 add wave -position end  sim:/processor/alu_src_2_FW_MUX
+add wave -position end  sim:/processor/inport_data_mem_wb
+add wave -position end  sim:/processor/wb_src_mem_wb
 
 add wave -position end  sim:/processor/decode_REGFILE/registers
 
 add wave -position end  sim:/processor/sp
+add wave -position end  sim:/processor/memoryDataMemory/memw
+add wave -position end  sim:/processor/memoryDataMemory/address_bus
+add wave -position end  sim:/processor/memoryDataMemory/datain
+
 add wave -position end  sim:/processor/memoryDataMemory/cache
 
 if {0} {

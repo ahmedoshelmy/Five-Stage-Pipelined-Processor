@@ -257,7 +257,7 @@ BEGIN
 
             WHEN call_bits =>
                 rs1_rd <= rd;
-                alu_op <= alu_nop;
+                alu_op <= alu_buff2;
                 alu_src <= pc_plus_one;
                 stack_en <= "1";
                 mem_write <= "1";
