@@ -6,6 +6,7 @@ ENTITY FU IS
         -- Inputs from D/EX Register
         rsrc1_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         rsrc2_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        rdst1_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         read_reg_1 : IN STD_LOGIC;
         read_reg_2 : IN STD_LOGIC;
         -- Inputs from EX/MEM Register
@@ -42,14 +43,20 @@ BEGIN
     -- 111: No forwarding
     PROCESS (ALL)
     BEGIN
-        
+
         IF (read_reg_1 = '0') THEN
             rsrc1_d_ex_sel <= "000";
         ELSIF ((rsrc1_d_ex = rdst1_ex_mem) AND (ior_ex_mem = '1') AND (wb_src_ex_mem = "11")) THEN
+            report "IN/PORT";
             rsrc1_d_ex_sel <= "100"; -- IN PORT IN PREV 
         ELSIF ((rsrc1_d_ex = rdst1_ex_mem) AND (reg_w1_ex_mem = '1') AND (wb_src_ex_mem = "01")) THEN
+            report "ALU_OUT 1";
+            rsrc1_d_ex_sel <= "001"; -- ALU_OUT
+        ELSIF ((rsrc1_d_ex = rdst1_ex_mem) AND (reg_w1_ex_mem = '1') AND (wb_src_ex_mem = "01")) THEN
+            report "ALU_OUT 2 -- Rdst1: " & to_string(rdst1_d_ex) & " Rds1: " & to_string(rdst1_ex_mem) & " Reg_w1: " & to_string(reg_w1_ex_mem) & " WB_SRC: " & to_string(wb_src_ex_mem);
             rsrc1_d_ex_sel <= "001"; -- ALU_OUT
         ELSIF ((rsrc1_d_ex = rdst2_ex_mem) AND (reg_w2_ex_mem = '1')) THEN
+            report "ALU_SRC2_EX_MEM";
             rsrc1_d_ex_sel <= "010"; -- ALU_SRC2_EX_MEM
         ELSIF ((rsrc1_d_ex = rdst1_mem_wb) AND (ior_mem_wb = '1') AND (wb_src_mem_wb = "11")) THEN
             rsrc1_d_ex_sel <= "110"; -- IN PORT IN BEFORE PREV

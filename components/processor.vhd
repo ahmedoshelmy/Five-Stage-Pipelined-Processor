@@ -572,10 +572,12 @@ ARCHITECTURE archProcessor OF processor IS
     END COMPONENT io;
     
     COMPONENT FU IS
-    PORT (
-        -- Inputs from D/EX Register
-        rsrc1_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        rsrc2_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        PORT (
+            -- Inputs from D/EX Register
+            rsrc1_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            rsrc2_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+            rdst1_d_ex : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+
             read_reg_1 : IN STD_LOGIC;
             read_reg_2 : IN STD_LOGIC;
             -- Inputs from EX/MEM Register
@@ -592,13 +594,13 @@ ARCHITECTURE archProcessor OF processor IS
             rdst1_mem_wb : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
             rdst2_mem_wb : IN STD_LOGIC_VECTOR (2 DOWNTO 0);
             wb_src_mem_wb : IN STD_LOGIC_VECTOR (1 DOWNTO 0);
-            
+
             -- Selectors 
             rsrc1_d_ex_sel : OUT UNSIGNED(2 DOWNTO 0);
             rsrc2_d_ex_sel : OUT UNSIGNED(2 DOWNTO 0)
-            );
-            
-            END COMPONENT FU;
+        );
+
+    END COMPONENT FU;
 
     component icu is
         port (
@@ -1049,6 +1051,7 @@ BEGIN
     F_U : FU PORT MAP(
         rsrc1_d_ex => STD_LOGIC_VECTOR(ra1_id_ex),
         rsrc2_d_ex => STD_LOGIC_VECTOR(ra2_id_ex),
+        rdst1_d_ex => STD_LOGIC_VECTOR(wa1_id_ex),
         read_reg_1 => read_reg_one_id_ex(0),
         read_reg_2 => read_reg_two_id_ex(0),
         reg_w1_ex_mem => reg_one_write_ex_mem(0),
@@ -1065,7 +1068,7 @@ BEGIN
         wb_src_mem_wb => STD_LOGIC_VECTOR(wb_src_mem_wb),
         rsrc1_d_ex_sel => alu_src_1_SEL,
         rsrc2_d_ex_sel => alu_src_2_SEL
-        );
+    );
         ------------------------- other components port map end -----------
         
 END ARCHITECTURE archProcessor;
