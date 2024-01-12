@@ -1,5 +1,9 @@
 # Pipeline Processor
 here's the vhdl implementation of pipelined Processor that will compete ⚔️  intel and ARM (also MIPS)
+
+## Architecture
+![image](./docs/Schematic%20Diagram.png)
+
 ## ISA
 
 ### 🤔 Instruction Categories

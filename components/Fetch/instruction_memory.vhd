@@ -17,7 +17,6 @@ END ENTITY;
 
 ARCHITECTURE arch_instruction_memory OF instruction_memory IS
     TYPE memory_array IS ARRAY (0 TO 4095) OF STD_LOGIC_VECTOR(15 DOWNTO 0);
-    SIGNAL one : STD_LOGIC_VECTOR(31 DOWNTO 0) := (0 => '1', OTHERS => '0');
     SIGNAL ram : memory_array;
     SIGNAL initial_flag : STD_LOGIC := '1';
 BEGIN

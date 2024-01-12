@@ -18,6 +18,7 @@ ARCHITECTURE archProcessor OF processor IS
     signal int_if_id : STD_LOGIC := '0';
     SIGNAL pc_if_ex : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
     SIGNAL next_pc_src : unsigned(31 DOWNTO 0) := (OTHERS => '0');
+    signal zero_flag_out : std_logic := '0';
     ------------------------- fetch stage signals end ---------------------
 
     ------------------------- decode stage signals start ------------------
@@ -43,6 +44,7 @@ ARCHITECTURE archProcessor OF processor IS
     SIGNAL mem_write_id_ex : unsigned (0 DOWNTO 0) := "0";
     SIGNAL call_jmp_id_ex : unsigned (0 DOWNTO 0) := "0";
     SIGNAL is_jz_id_ex : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL is_std_id_ex : unsigned (0 DOWNTO 0) := "0";
     SIGNAL ret_id_ex : unsigned (0 DOWNTO 0) := "0";
     SIGNAL push_pop_id_ex : unsigned (0 DOWNTO 0) := "0";
     SIGNAL out_port_en_id_ex : unsigned (0 DOWNTO 0) := "0";
@@ -82,6 +84,7 @@ ARCHITECTURE archProcessor OF processor IS
     SIGNAL mem_write_ex_mem : unsigned (0 DOWNTO 0) := "0";
     SIGNAL push_pop_ex_mem : unsigned (0 DOWNTO 0) := "0";
     SIGNAL out_port_en_ex_mem : unsigned (0 DOWNTO 0) := "0";
+    SIGNAL is_std_out_ex_mem : unsigned (0 DOWNTO 0) := "0";
     SIGNAL ior_ex_mem : unsigned (0 DOWNTO 0) := "0";
     SIGNAL iow_ex_mem : unsigned (0 DOWNTO 0) := "0";
     SIGNAL inport_data_ex_mem : unsigned (31 DOWNTO 0) := (OTHERS => '0');
@@ -159,6 +162,7 @@ ARCHITECTURE archProcessor OF processor IS
     SIGNAL ret : unsigned(0 DOWNTO 0) := "0";
     SIGNAL read_reg_one : unsigned(0 DOWNTO 0) := "0";
     SIGNAL is_jz : unsigned(0 DOWNTO 0) := "0";
+    SIGNAL is_std : unsigned(0 DOWNTO 0) := "0";
     SIGNAL read_reg_two : unsigned(0 DOWNTO 0) := "0";
     ------------------------- control signals end -------------------------
 
@@ -193,6 +197,7 @@ ARCHITECTURE archProcessor OF processor IS
     SIGNAL inport_external_device : unsigned(31 DOWNTO 0) := (OTHERS => '0');
     SIGNAL inport_en_external_device : unsigned(0 DOWNTO 0) := (OTHERS => '0');
 
+    signal memory_data_in : unsigned(31 downto 0) := (others => '0');
     -- ============================ ============================ ============================
     -- ============================ ============================ ============================
     -- ============================ ============================ ============================
@@ -292,6 +297,7 @@ ARCHITECTURE archProcessor OF processor IS
             ret : OUT unsigned(0 DOWNTO 0);
             read_reg_one : OUT unsigned(0 DOWNTO 0);
             is_jz : OUT unsigned(0 DOWNTO 0);
+            is_std : OUT unsigned(0 DOWNTO 0);
             read_reg_two : OUT unsigned(0 DOWNTO 0)
         );
     END COMPONENT cu;
@@ -313,6 +319,7 @@ ARCHITECTURE archProcessor OF processor IS
             reg_one_write_in, reg_two_write_in, stack_en_in : IN unsigned (0 DOWNTO 0);
             mem_read_in, mem_write_in, call_jmp_in, ret_in : IN unsigned (0 DOWNTO 0);
             is_jz_in : IN unsigned (0 DOWNTO 0);
+            is_std_in : IN unsigned (0 DOWNTO 0);
             push_pop_in, out_port_en_in : IN unsigned (0 DOWNTO 0);
             ior_in, iow_in : IN unsigned (0 DOWNTO 0);
             mem_free_in, mem_protect_in : IN unsigned (0 DOWNTO 0);
@@ -330,7 +337,8 @@ ARCHITECTURE archProcessor OF processor IS
             read_reg_one_out, read_reg_two_out, imm_en_out : OUT unsigned (0 DOWNTO 0);
             alu_op_out : OUT unsigned (3 DOWNTO 0);
             wb_src_out : OUT unsigned (1 DOWNTO 0);
-            is_jz_out : OUT unsigned (0 DOWNTO 0)
+            is_jz_out : OUT unsigned (0 DOWNTO 0);
+            is_std_out : OUT unsigned (0 DOWNTO 0)
         );
     END COMPONENT id_ex_register;
 
@@ -421,23 +429,25 @@ ARCHITECTURE archProcessor OF processor IS
             stack_en, mem_read, mem_write : IN unsigned (0 DOWNTO 0);
             ret, push_pop, out_port_en : IN unsigned (0 DOWNTO 0);
             ior, iow : IN unsigned (0 DOWNTO 0);
+            is_std : IN unsigned (0 DOWNTO 0);
             inport_data : IN unsigned (31 DOWNTO 0);
             mem_free, mem_protect : IN unsigned (0 DOWNTO 0);
             wb_src : IN unsigned (1 DOWNTO 0);
             read_reg_one, read_reg_two : IN unsigned (0 DOWNTO 0);
-
+            
             -- outputs
             push_pc_out : OUT unsigned(0 DOWNTO 0);
             alu_out_out : OUT unsigned(regWidth - 1 DOWNTO 0);
             alu_src_2_out : OUT unsigned(regWidth - 1 DOWNTO 0);
             flags_out : OUT unsigned(2 downto 0);
-
+            
             ra1_out, ra2_out, rdst1_out, rdst2_out : OUT unsigned(regAddrWidth - 1 DOWNTO 0);
             -- control signals
             reg_one_write_out, reg_two_write_out : OUT unsigned (0 DOWNTO 0);
             stack_en_out, mem_read_out, mem_write_out : OUT unsigned (0 DOWNTO 0);
             ret_out, push_pop_out, out_port_en_out : OUT unsigned (0 DOWNTO 0);
             ior_out, iow_out : OUT unsigned (0 DOWNTO 0);
+            is_std_out : OUT unsigned (0 DOWNTO 0);
             inport_data_out : OUT unsigned (31 DOWNTO 0);
             mem_free_out, mem_protect_out : OUT unsigned (0 DOWNTO 0);
             wb_src_out : OUT unsigned (1 DOWNTO 0);
@@ -612,8 +622,8 @@ ARCHITECTURE archProcessor OF processor IS
 BEGIN
     ------------------------- fetch stage port maps start ----------------
     fetchMux : PC_SRC_MUX PORT MAP(
-        memOut => mem_out_DMEM,
-        aluSrc2 => (alu_src_1_FW_MUX),
+        memOut => (mem_out_DMEM - 1),
+        aluSrc2 => (alu_src_1_FW_MUX - 1),
         next_pc => (pc + 1),
 
         FLUSH_MEM => flush_mem,
@@ -681,6 +691,7 @@ BEGIN
         ret => ret,
         read_reg_one => read_reg_one,
         is_jz => is_jz,
+        is_std => is_std,
         read_reg_two => read_reg_two
     );
 
@@ -747,6 +758,7 @@ BEGIN
         mem_write_in => mem_write,
         call_jmp_in => call_jmp,
         is_jz_in => is_jz,
+        is_std_in => is_std,
         ret_in => ret,
         push_pop_in => push_pop,
         out_port_en_in => out_port_en,
@@ -774,6 +786,7 @@ BEGIN
         mem_write_out => mem_write_id_ex,
         call_jmp_out => call_jmp_id_ex,
         is_jz_out => is_jz_id_ex,
+        is_std_out => is_std_id_ex,
         ret_out => ret_id_ex,
         push_pop_out => push_pop_id_ex,
         out_port_en_out => out_port_en_id_ex,
@@ -842,12 +855,12 @@ BEGIN
 
         is_jmp_tkn => flush_ex
     );
-
+    zero_flag_out <=  '0' when (is_jz_id_ex = "1" and is_jz_id_ex = "1") else flags_out_alu(0);
     executeFlagsReg : flags_register PORT MAP(
         clk => clk,
         reset => reset,
         wen => NOT flush_mem,
-        zeroflag => flags_out_alu(0),
+        zeroflag => zero_flag_out,
         negativeflag => flags_out_alu(1),
         carryflag => flags_out_alu(2),
 
@@ -879,6 +892,7 @@ BEGIN
         push_pop => push_pop_id_ex,
         out_port_en => out_port_en_id_ex,
         ior => ior_id_ex,
+        is_std => is_std_id_ex,
         iow => iow_id_ex,
         inport_data => port_in,
         mem_free => mem_free_id_ex,
@@ -904,6 +918,7 @@ BEGIN
         ret_out => ret_ex_mem,
         push_pop_out => push_pop_ex_mem,
         out_port_en_out => out_port_en_ex_mem,
+        is_std_out => is_std_out_ex_mem,
         ior_out => ior_ex_mem,
         iow_out => iow_ex_mem,
         inport_data_out => inport_data_ex_mem,
@@ -940,6 +955,10 @@ BEGIN
         IS_JMP_TKN => flush_mem
     );
 
+    memory_data_in <= (alu_out_ex_mem) 
+                        when (is_std_out_ex_mem = "0") 
+                        else (alu_src_2_ex_mem);
+    
     memoryDataMemory : memory GENERIC MAP(
         16, 12) PORT MAP (
         rst => reset,
@@ -950,7 +969,7 @@ BEGIN
         protect => mem_protect_ex_mem(0),
         free => mem_free_ex_mem(0),
         address_bus => STD_LOGIC_VECTOR(address_mem_in),
-        datain => STD_LOGIC_VECTOR(alu_out_ex_mem),
+        datain => std_logic_vector(memory_data_in),
         -- outputs
         memout => mem_out_DME_in,
         alu_src_2 => flags_ex_mem & alu_src_2_ex_mem(28 downto 0),

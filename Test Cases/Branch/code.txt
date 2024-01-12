@@ -7,6 +7,7 @@
 
 # Put the interrupt address in the memory
 LDM R1, 100
+NOP
 STD R1, 2
 
 in R1     #R1=30
@@ -55,8 +56,8 @@ NOP
 
 
 .ORG 300
-Add R3,R6,R6 #R6=400
-Add R1,R2,R2 #R1=80, C->0,N=0, Z=0
+Add R3,R6,R6 #R3=600 #C=N=Z=0
+Add R1,R2,R2 #R1=A0, C->0,N=0, Z=0
 ret
 INC R7           #this shouldnot be executed
 

@@ -20,6 +20,7 @@ generic (
         stack_en, mem_read,  mem_write     : IN unsigned (0 downto 0);
         ret, push_pop, out_port_en         : IN unsigned (0 downto 0);
         ior, iow                           : IN unsigned (0 downto 0);
+        is_std                           : IN unsigned (0 downto 0);
         inport_data                        : IN unsigned (regWidth-1 DOWNTO 0);
         mem_free, mem_protect              : IN unsigned (0 downto 0);
         wb_src                             : IN unsigned (1 downto 0);
@@ -39,6 +40,7 @@ generic (
         stack_en_out, mem_read_out,  mem_write_out     : out unsigned (0 downto 0);
         ret_out, push_pop_out, out_port_en_out         : out unsigned (0 downto 0);
         ior_out, iow_out                           : out unsigned (0 downto 0);
+        is_std_out                           : out unsigned (0 downto 0);
         inport_data_out                        : out unsigned (regWidth-1 DOWNTO 0);
         mem_free_out, mem_protect_out              : out unsigned (0 downto 0);
         wb_src_out                             : out unsigned (1 downto 0);
@@ -76,6 +78,7 @@ BEGIN
             out_port_en_out <= "0";
             ior_out <= "0";
             iow_out <= "0";
+            is_std_out <= "0";
             inport_data_out <= (OTHERS => '0');
 
             mem_free_out <= "0";
@@ -104,6 +107,7 @@ BEGIN
             ret_out <= ret ;
             push_pop_out <= push_pop ;
             out_port_en_out <= out_port_en ;
+            is_std_out <= is_std ;
             ior_out <= ior ;
             iow_out <= iow ;
             inport_data_out <= inport_data ;

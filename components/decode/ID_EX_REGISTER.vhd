@@ -11,6 +11,7 @@ entity ID_EX_REGISTER is
         reg_one_write_in, reg_two_write_in, stack_en_in     : in  unsigned (0 downto 0);
         mem_read_in, mem_write_in, call_jmp_in, ret_in      : in  unsigned (0 downto 0);
         is_jz_in                                            : in unsigned  (0 downto 0);
+        is_std_in                                            : in unsigned  (0 downto 0);
         push_pop_in, out_port_en_in                         : in  unsigned (0 downto 0);
         ior_in, iow_in                                      : in  unsigned (0 downto 0);
         mem_free_in, mem_protect_in                         : in  unsigned (0 downto 0);
@@ -28,7 +29,7 @@ entity ID_EX_REGISTER is
         read_reg_one_out, read_reg_two_out, imm_en_out      : out unsigned (0 downto 0);
         alu_op_out                                          : out unsigned (3 downto 0);
         wb_src_out                                          : out unsigned (1 downto 0);
-        is_jz_out                                           : out unsigned (0 downto 0)
+        is_jz_out,is_std_out                                : out unsigned (0 downto 0)
     );
 end entity ID_EX_REGISTER;
 
@@ -37,7 +38,7 @@ architecture ID_EX_REGISTER_ARCHITECTURE of ID_EX_REGISTER is
     signal rd1, alu_src_2                         : unsigned(31 downto 0);
     signal ra1, ra2, rdst1, rdst2                 : unsigned (2 downto 0);
     signal reg_one_write, reg_two_write, stack_en : unsigned (0 downto 0);
-    signal mem_read, mem_write, call_jmp, ret, is_jz     : unsigned (0 downto 0);
+    signal mem_read, mem_write, call_jmp, ret, is_jz, is_std     : unsigned (0 downto 0);
     signal push_pop, out_port_en                  : unsigned (0 downto 0);
     signal ior, iow                               : unsigned (0 downto 0);
     signal mem_free, mem_protect                  : unsigned (0 downto 0);
@@ -72,6 +73,8 @@ begin
     call_jmp_out <= call_jmp when en = "1"
     else (others => '0');
     is_jz_out <= is_jz when en = "1"
+    else (others => '0');
+    is_std_out <= is_std when en = "1"
     else (others => '0');
     ret_out <= ret when en = "1"
     else (others => '0');
@@ -142,6 +145,7 @@ begin
                 mem_write      <= mem_write_in;
                 call_jmp       <= call_jmp_in;
                 is_jz          <= is_jz_in;
+                is_std          <= is_std_in;
                 ret            <= ret_in;
                 push_pop       <= push_pop_in;
                 out_port_en    <= out_port_en_in;
